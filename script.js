@@ -36,7 +36,7 @@ async function forgotPassword() {
     if (!emailInput) return;
 
     try {
-        const response = await fetch('https://almustqbal-school-site.onrender.com/api/forgot-password', {
+        const response = await fetch('https://quizzical-bell1.onrender.com/api/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: emailInput })
