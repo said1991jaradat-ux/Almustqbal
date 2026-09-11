@@ -542,13 +542,12 @@ function renderAdminTable(records) {
 
     tbody.innerHTML = html;
 }
+// دالة واحدة موحدة لاستعادة كلمة المرور عبر الخادم الخلفي
 async function forgotPassword() {
-    // يمكنك جعل الكود يطلب إدخال الإيميل أو تعبئته تلقائياً
     const emailInput = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:", "sameer.m.musleh@gmail.com");
     if (!emailInput) return;
 
     try {
-        // لاحظ هنا تم استخدام رابط سيرفرك على Render مباشرة
         const response = await fetch('https://almustqbal-school-site.onrender.com/api/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -557,13 +556,13 @@ async function forgotPassword() {
 
         const data = await response.json();
         
-        if (data.success) {
+        if (response.ok && data.success) {
             alert('تم توليد كلمة مرور جديدة وتحديثها في قاعدة البيانات، وإرسالها إلى بريدك الإلكتروني بنجاح!');
         } else {
             alert(data.message || 'فشل إرسال الطلب، تأكد من صحة البريد الإلكتروني.');
         }
     } catch (err) {
         console.error('خطأ في الاتصال:', err);
-        alert('حدث خطأ أثناء الاتصال بالخادم.');
+        alert('حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة لاحقاً.');
     }
 }
