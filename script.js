@@ -793,16 +793,25 @@ emailjs.init("uwkpzIF4_LuhwuelG");
 
 // دالة إرسال بريد استعادة كلمة المرور
 function forgotPassword() {
+    // يمكنك تعديل هذا الرابط ليطابق صفحة إعادة تعيين كلمة المرور الخاصة بنظامك
+    const resetLink = "https://yourdomain.com/reset-password.html"; 
+
     const templateParams = {
         to_email: "sameer.m.musleh@gmail.com",
-        message: "تم طلب استعادة كلمة المرور الخاصة بنظام متابعة الطلاب - مدرسة ذكور المستقبل الصالح."
+        message: "تم طلب استعادة كلمة المرور الخاصة بنظام متابعة الطلاب - مدرسة ذكور المستقبل الصالح.",
+        reset_link: resetLink // أضفنا هذا المتغير الجديد
     };
 
-    emailjs.send('service_uh9k24u', 'template_wgygsdn', templateParams)
+    if (typeof emailjs === 'undefined') {
+        alert('مكتبة EmailJS غير محملة في الصفحة.');
+        return;
+    }
+
+    emailjs.send('service_uh9k24u', 'template_j4p459u', templateParams)
         .then(function(response) {
             alert('تم إرسال بريد استعادة كلمة المرور بنجاح إلى بريدك.');
         }, function(error) {
             console.error('خطأ في الإرسال:', error);
-            alert('فشل إرسال البريد، يجدر التحقق من إعدادات الاتصال.');
+            alert('فشل إرسال البريد، يرجى التحقق من إعدادات الاتصال.');
         });
 }
