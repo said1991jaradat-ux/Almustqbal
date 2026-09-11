@@ -9,9 +9,15 @@ let dbData = {
 };
 
 let currentFormattedDate = '';
+let currentAllRecords = [];
 
 // عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', async () => {
+    // تهيئة EmailJS
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init("uwkpzIF4_LuhwuelG");
+    }
+
     const today = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     currentFormattedDate = today.toLocaleDateString('ar-EG', options);
@@ -28,6 +34,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await fetchRecordsFromCloud();
 });
+
+// دالة إرسال بريد استعادة كلمة المرور عبر EmailJS مع دعم الرابط
+function forgotPassword() {
+    const resetLink = "https://almustqbal-school-site.onrender.com/reset-password.html"; 
+
+    const templateParams = {
+        to_email: "sameer.m.musleh@gmail.com",
+        message: "تم طلب استعادة كلمة المرور الخاصة بنظام متابعة الطلاب - مدرسة ذكور المستقبل الصالح.",
+        reset_link: resetLink
+    };
+
+    if (typeof emailjs === 'undefined') {
+        alert('مكتبة EmailJS غير محملة في الصفحة.');
+        return;
+    }
+
+    emailjs.send('service_uh9k24u', 'template_j4p459u', templateParams)
+        .then(function(response) {
+            alert('تم إرسال بريد استعادة كلمة المرور بنجاح إلى بريدك.');
+        }, function(error) {
+            console.error('خطأ في الإرسال:', error);
+            alert('فشل إرسال البريد، يرجى التحقق من صحة Template ID في لوحة تحكم EmailJS.');
+        });
+}
 
 // دالة لجلب السجلات من الخادم السحابي وتوزيعها على التصنيفات
 async function fetchRecordsFromCloud() {
@@ -61,28 +91,34 @@ async function fetchRecordsFromCloud() {
 // عرض السجلات المباشرة أسفل كل بند
 function renderLogs() {
     const lateContainer = document.getElementById('latenessLogs');
-    lateContainer.innerHTML = dbData.lateness.slice(-5).reverse().map((item) => `
-        <div class="log-item">
-            <span><strong>${item.student}</strong> (${item.grade}/${item.section}) - ${item.time}</span>
-            <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
-        </div>
-    `).join('') || '<small>لا توجد سجلات حديثة</small>';
+    if (lateContainer) {
+        lateContainer.innerHTML = dbData.lateness.slice(-5).reverse().map((item) => `
+            <div class="log-item">
+                <span><strong>${item.student}</strong> (${item.grade}/${item.section}) - ${item.time}</span>
+                <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
+            </div>
+        `).join('') || '<small>لا توجد سجلات حديثة</small>';
+    }
 
     const uniformContainer = document.getElementById('uniformLogs');
-    uniformContainer.innerHTML = dbData.uniform.slice(-5).reverse().map((item) => `
-        <div class="log-item">
-            <span><strong>${item.student}</strong> - ${item.status}</span>
-            <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
-        </div>
-    `).join('') || '<small>لا توجد سجلات حديثة</small>';
+    if (uniformContainer) {
+        uniformContainer.innerHTML = dbData.uniform.slice(-5).reverse().map((item) => `
+            <div class="log-item">
+                <span><strong>${item.student}</strong> - ${item.status}</span>
+                <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
+            </div>
+        `).join('') || '<small>لا توجد سجلات حديثة</small>';
+    }
 
     const escapeContainer = document.getElementById('escapeLogs');
-    escapeContainer.innerHTML = dbData.escape.slice(-5).reverse().map((item) => `
-        <div class="log-item">
-            <span><strong>${item.student}</strong> (${item.grade}/${item.section}) - ${item.time}</span>
-            <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
-        </div>
-    `).join('') || '<small>لا توجد سجلات حديثة</small>';
+    if (escapeContainer) {
+        escapeContainer.innerHTML = dbData.escape.slice(-5).reverse().map((item) => `
+            <div class="log-item">
+                <span><strong>${item.student}</strong> (${item.grade}/${item.section}) - ${item.time}</span>
+                <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
+            </div>
+        `).join('') || '<small>لا توجد سجلات حديثة</small>';
+    }
 }
 
 // حذف سجل محدد من الخادم
@@ -104,10 +140,18 @@ async function deleteRecord(id) {
     }
 }
 
+// حذف سجل من لوحة الإدارة
+async function adminDeleteRecord(id) {
+    await deleteRecord(id);
+    await loadAllRecordsForAdmin();
+}
+
 // إظهار/إخفاء السبب الآخر
 function toggleOtherReason(val) {
     const otherGroup = document.getElementById('otherReasonGroup');
-    otherGroup.classList.toggle('hidden', val !== 'أخرى');
+    if (otherGroup) {
+        otherGroup.classList.toggle('hidden', val !== 'أخرى');
+    }
 }
 
 // 1. تسجيل تأخير
@@ -215,7 +259,7 @@ async function addEscape(e) {
     }
 }
 
-// البحث وطباعة تقرير شامل لطالب معين// 1. طباعة تقرير الطالب المخصص في نافذة طباعة منفصلة ونظيفة 100%
+// البحث وطباعة تقرير شامل لطالب معين
 function searchStudentReport() {
     const searchName = document.getElementById('searchInput').value.trim();
     if (!searchName) {
@@ -299,7 +343,7 @@ function searchStudentReport() {
     openPrintWindow(reportHTML);
 }
 
-// 2. طباعة تقرير فئة معينة في نافذة منفصلة ونظيفة 100%
+// طباعة تقرير فئة معينة في نافذة منفصلة ونظيفة
 function printCategoryReport(type, titleText) {
     const items = dbData[type];
     if (!items || items.length === 0) {
@@ -372,174 +416,11 @@ function openPrintWindow(htmlContent) {
     printWindow.document.close();
     printWindow.focus();
     
-    // الانتظار قليلاً ثم إطلاق نافذة الطباعة تلقائياً
     setTimeout(() => {
         printWindow.print();
     }, 500);
 }
 
-// طباعة تقرير شامل لفئة معينة (تأخير، زي، هروب)// 1. طباعة تقرير الطالب المخصص في نافذة طباعة منفصلة ونظيفة 100%
-function searchStudentReport() {
-    const searchName = document.getElementById('searchInput').value.trim();
-    if (!searchName) {
-        alert('يرجى إدخال اسم الطالب للبحث');
-        return;
-    }
-
-    const studentLate = dbData.lateness.filter(r => r.student.includes(searchName));
-    const studentUniform = dbData.uniform.filter(r => r.student.includes(searchName));
-    const studentEscape = dbData.escape.filter(r => r.student.includes(searchName));
-
-    if (studentLate.length === 0 && studentUniform.length === 0 && studentEscape.length === 0) {
-        alert('لم يتم العثور على أي سجلات بهذا الاسم');
-        return;
-    }
-
-    const firstRecord = studentLate[0] || studentUniform[0] || studentEscape[0];
-
-    let reportHTML = `
-        <html lang="ar" dir="rtl">
-        <head>
-            <meta charset="UTF-8">
-            <title>تقرير الطالب: ${searchName}</title>
-            <style>
-                body { font-family: Tahoma, Arial, sans-serif; direction: rtl; padding: 20px; color: #000; }
-                .header { text-align: center; margin-bottom: 30px; }
-                h2, h3 { margin: 5px 0; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 25px; }
-                th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; }
-                th { background-color: #f2f2f2; }
-                .footer { display: flex; justify-content: space-between; margin-top: 60px; font-weight: bold; font-size: 16px; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>مدرسة ذكور المستقبل الصالح الأساسية العليا</h2>
-                <h3>تقرير السلوك والانضباط المدرسي</h3>
-                <p><strong>مدير المدرسة:</strong> أ. سمير مصلح</p>
-                <p>تاريخ الإصدار: ${currentFormattedDate}</p>
-                <hr>
-                <p>اسم الطالب: <strong>${searchName}</strong> | الصف: ${firstRecord.grade} | الشعبة: ${firstRecord.section}</p>
-            </div>
-    `;
-
-    if (studentLate.length > 0) {
-        reportHTML += `<h4>أولاً: سجل التأخير الصباحي (${studentLate.length}):</h4>`;
-        reportHTML += `<table><tr><th>التاريخ</th><th>وقت التأخير</th><th>السبب</th></tr>`;
-        studentLate.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.reason}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    if (studentUniform.length > 0) {
-        reportHTML += `<h4>ثانياً: سجل عدم الالتزام بالزي (${studentUniform.length}):</h4>`;
-        reportHTML += `<table><tr><th>التاريخ</th><th>الحالة</th></tr>`;
-        studentUniform.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.status}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    if (studentEscape.length > 0) {
-        reportHTML += `<h4>ثالثاً: سجل حالات الهروب (${studentEscape.length}):</h4>`;
-        reportHTML += `<table><tr><th>التاريخ</th><th>وقت الهروب</th></tr>`;
-        studentEscape.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    reportHTML += `
-            <div class="footer">
-                <span>توقيع مدير المدرسة: __________________</span>
-                <span>خاتم المدرسة</span>
-            </div>
-        </body>
-        </html>
-    `;
-
-    openPrintWindow(reportHTML);
-}
-
-// 2. طباعة تقرير فئة معينة في نافذة منفصلة ونظيفة 100%
-function printCategoryReport(type, titleText) {
-    const items = dbData[type];
-    if (!items || items.length === 0) {
-        alert('لا توجد سجلات متاحة لهذه الفئة حالياً.');
-        return;
-    }
-
-    let reportHTML = `
-        <html lang="ar" dir="rtl">
-        <head>
-            <meta charset="UTF-8">
-            <title>${titleText}</title>
-            <style>
-                body { font-family: Tahoma, Arial, sans-serif; direction: rtl; padding: 20px; color: #000; }
-                .header { text-align: center; margin-bottom: 30px; }
-                h2, h3 { margin: 5px 0; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 25px; }
-                th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; }
-                th { background-color: #f2f2f2; }
-                .footer { display: flex; justify-content: space-between; margin-top: 60px; font-weight: bold; font-size: 16px; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>مدرسة ذكور المستقبل الصالح الأساسية العليا</h2>
-                <h3>${titleText}</h3>
-                <p><strong>مدير المدرسة:</strong> أ. سمير مصلح</p>
-                <p>تاريخ الإصدار: ${currentFormattedDate}</p>
-                <hr>
-                <p>الإجمالي الكلي: <strong>${items.length} حالة</strong></p>
-            </div>
-    `;
-
-    if (type === 'lateness') {
-        reportHTML += `<table><tr><th>التاريخ</th><th>الوقت</th><th>اسم الطالب</th><th>الصف والشعبة</th><th>السبب</th></tr>`;
-        items.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.student}</td><td>${r.grade} / ${r.section}</td><td>${r.reason}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    } else if (type === 'uniform') {
-        reportHTML += `<table><tr><th>التاريخ</th><th>اسم الطالب</th><th>الصف والشعبة</th><th>حالة الزي</th></tr>`;
-        items.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.student}</td><td>${r.grade} / ${r.section}</td><td>${r.status}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    } else if (type === 'escape') {
-        reportHTML += `<table><tr><th>التاريخ</th><th>وقت الهروب</th><th>اسم الطالب</th><th>الصف والشعبة</th></tr>`;
-        items.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.student}</td><td>${r.grade} / ${r.section}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    reportHTML += `
-            <div class="footer">
-                <span>توقيع مدير المدرسة: __________________</span>
-                <span>خاتم المدرسة</span>
-            </div>
-        </body>
-        </html>
-    `;
-
-    openPrintWindow(reportHTML);
-}
-
-// دالة مساعدة لفتح نافذة الطباعة المستقلة
-function openPrintWindow(htmlContent) {
-    const printWindow = window.open('', '_blank', 'width=900,height=700');
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.focus();
-    
-    // الانتظار قليلاً ثم إطلاق نافذة الطباعة تلقائياً
-    setTimeout(() => {
-        printWindow.print();
-    }, 500);
-}
 // تصدير نسخة احتياطية
 async function exportData() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dbData));
@@ -564,169 +445,24 @@ function importData(event) {
     };
     reader.readAsText(event.target.files[0]);
 }
-// جلب كافة السجلات من الخادم لوحة الإدارة
-// جلب كافة السجلات من الخادم لوحة الإدارة
-// فتح لوحة الإدارة وجلب البيانات فوراً قبل أي شيء
+
+// فتح لوحة الإدارة وجلب البيانات فوراً
 async function openAdminDashboard() {
     const modal = document.getElementById('adminModal');
     if (modal) {
         modal.style.display = 'block';
         
-        // إظهار رسالة جاري التحميل مؤقتاً في الجدول
         const tbody = document.getElementById('adminTableBody');
         if (tbody) {
             tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px;">جاري تحميل السجلات من السحابة...</td></tr>`;
         }
 
-        // جلب السجلات وتخزينها ثم رسمها مباشرة
         await loadAllRecordsForAdmin();
     } else {
         alert('عنصر شاشة الإدارة غير موجود في الصفحة!');
     }
 }
 
-// جلب كافة السجلات ورسمها فوراً
-async function loadAllRecordsForAdmin() {
-    try {
-        const response = await fetch(API_URL);
-        currentAllRecords = await response.json();
-        
-        console.log("تم جلب السجلات بنجاح:", currentAllRecords);
-        
-        // رسم السجلات مباشرة في الجدول فور وصولها
-        renderAdminTable(currentAllRecords);
-    } catch (err) {
-        console.error('خطأ في جلب بيانات الإدارة:', err);
-        const tbody = document.getElementById('adminTableBody');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding:15px;">حدث خطأ أثناء جلب البيانات من الخادم.</td></tr>`;
-        }
-    }
-}
-// دالة ترجمة أنواع السجلات لعرضها بشكل صحيح
-function translateType(type) {
-    if (type === 'lateness' || type === 'تأخير') return 'تأخير صباحي';
-    if (type === 'uniform' || type === 'زي') return 'الزي المدرسي';
-    if (type === 'escape' || type === 'هروب') return 'حالة هروب';
-    return type || 'سجل عام';
-}
-// تبديل تبويبات التقارير وتصنيف البيانات بدقة
-function switchReportTab(type) {
-    const title = document.getElementById('adminReportTitle');
-    let filteredRecords = [];
-
-    if (type === 'daily') {
-        title.innerText = `التقرير اليومي (${currentFormattedDate})`;
-        // فلترة مرنة تقبل السجلات حتى لو كان هناك اختلاف بسيط في الفراغات أو الهمزات
-        filteredRecords = currentAllRecords.filter(r => {
-            if (!r.date) return false;
-            // مقارنة الأجزاء الأساسية (مثل اليوم أو الرقم) لضمان التطابق
-            return r.date.includes(new Date().getDate()) || r.date.trim() === currentFormattedDate.trim();
-        });
-        
-        // إذا لم تطابق فلترة التاريخ اليومي شيئاً، نعرض الثلاثة كاحتياطي لترى كيف تعمل
-        if (filteredRecords.length === 0) {
-            filteredRecords = currentAllRecords;
-        }
-    } 
-    else if (type === 'weekly') {
-        title.innerText = 'التقرير الأسبوعي';
-        filteredRecords = currentAllRecords; // عرض السجلات المتاحة
-    } 
-    else if (type === 'monthly') {
-        title.innerText = 'التقرير الشهري الشامل';
-        filteredRecords = currentAllRecords; // عرض كافة الـ 3 سجلات
-    }
-
-    renderAdminTable(filteredRecords);
-}// فتح لوحة الإدارة مع تأخير بسيط لضمان ظهور العناصر ورسم الجدول
-async function openAdminDashboard() {
-    const modal = document.getElementById('adminModal');
-    if (modal) {
-        modal.style.display = 'block';
-        // جلب البيانات ثم رسمها
-        await loadAllRecordsForAdmin();
-    } else {
-        alert('عنصر شاشة الإدارة غير موجود في الصفحة!');
-    }
-}
-
-// رسم جدول الإدارة المباشر والمضمون
-function renderAdminTable(records) {
-    console.log("جارٍ رسم السجلات في الجدول:", records);
-    
-    const tbody = document.getElementById('adminTableBody');
-    if (!tbody) {
-        console.error("خطأ: عنصر adminTableBody غير موجود!");
-        return;
-    }
-
-    if (!records || records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; border:1px solid #ddd;">لا توجد سجلات مطابقة حالياً.</td></tr>`;
-        return;
-    }
-
-    let html = '';
-    for (let i = 0; i < records.length; i++) {
-        let r = records[i];
-        let recordId = r._id || r.id || '';
-        let recDate = r.date || '--';
-        let recType = translateType(r.type);
-        let studentName = r.studentName || r.student || 'غير محدد';
-        let gradeSec = (r.grade || '--') + ' / ' + (r.section || '--');
-        let detailsVal = r.details || r.reason || r.status || '--';
-        let timeVal = r.time ? '(' + r.time + ')' : '';
-
-        html += '<tr>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + recDate + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + recType + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + studentName + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + gradeSec + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + detailsVal + ' ' + timeVal + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;"><button onclick="adminDeleteRecord(\'' + recordId + '\')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px;">حذف</button></td>';
-        html += '</tr>';
-    }
-
-    tbody.innerHTML = html;
-
-}// فتح لوحة الإدارة مع تأخير بسيط لضمان ظهور العناصر ورسم الجدول
-// فتح لوحة الإدارة وجلب البيانات فوراً قبل أي شيء
-async function openAdminDashboard() {
-    const modal = document.getElementById('adminModal');
-    if (modal) {
-        modal.style.display = 'block';
-        
-        // إظهار رسالة جاري التحميل مؤقتاً في الجدول
-        const tbody = document.getElementById('adminTableBody');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px;">جاري تحميل السجلات من السحابة...</td></tr>`;
-        }
-
-        // جلب السجلات وتخزينها ثم رسمها مباشرة
-        await loadAllRecordsForAdmin();
-    } else {
-        alert('عنصر شاشة الإدارة غير موجود في الصفحة!');
-    }
-}
-
-// جلب كافة السجلات ورسمها فوراً
-async function loadAllRecordsForAdmin() {
-    try {
-        const response = await fetch(API_URL);
-        currentAllRecords = await response.json();
-        
-        console.log("تم جلب السجلات بنجاح:", currentAllRecords);
-        
-        // رسم السجلات مباشرة في الجدول فور وصولها
-        renderAdminTable(currentAllRecords);
-    } catch (err) {
-        console.error('خطأ في جلب بيانات الإدارة:', err);
-        const tbody = document.getElementById('adminTableBody');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding:15px;">حدث خطأ أثناء جلب البيانات من الخادم.</td></tr>`;
-        }
-    }
-}
 // إغلاق لوحة الإدارة تماماً
 function closeAdminDashboard() {
     const modal = document.getElementById('adminModal');
@@ -735,30 +471,48 @@ function closeAdminDashboard() {
     }
 }
 
-// تبديل تبويبات التقارير وعرض البيانات مباشرة دون شروط معقدة
+// جلب كافة السجلات ورسمها فوراً
+async function loadAllRecordsForAdmin() {
+    try {
+        const response = await fetch(API_URL);
+        currentAllRecords = await response.json();
+        renderAdminTable(currentAllRecords);
+    } catch (err) {
+        console.error('خطأ في جلب بيانات الإدارة:', err);
+        const tbody = document.getElementById('adminTableBody');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding:15px;">حدث خطأ أثناء جلب البيانات من الخادم.</td></tr>`;
+        }
+    }
+}
+
+// دالة ترجمة أنواع السجلات لعرضها بشكل صحيح
+function translateType(type) {
+    if (type === 'lateness' || type === 'تأخير') return 'تأخير صباحي';
+    if (type === 'uniform' || type === 'زي') return 'الزي المدرسي';
+    if (type === 'escape' || type === 'هروب') return 'حالة هروب';
+    return type || 'سجل عام';
+}
+
+// تبديل تبويبات التقارير
 function switchReportTab(type) {
     const title = document.getElementById('adminReportTitle');
     
     if (type === 'daily') {
-        title.innerText = `التقرير اليومي`;
+        if (title) title.innerText = `التقرير اليومي`;
     } else if (type === 'weekly') {
-        title.innerText = 'التقرير الأسبوعي';
+        if (title) title.innerText = 'التقرير الأسبوعي';
     } else if (type === 'monthly') {
-        title.innerText = 'التقرير الشهري الشامل';
+        if (title) title.innerText = 'التقرير الشهري الشامل';
     }
 
-    // عرض كافة السجلات المخزنة مباشرة لضمان عدم بقاء الجدول فارغاً
     renderAdminTable(currentAllRecords);
 }
+
 // رسم جدول الإدارة المباشر والمضمون
 function renderAdminTable(records) {
-    console.log("جارٍ رسم السجلات في الجدول:", records);
-    
     const tbody = document.getElementById('adminTableBody');
-    if (!tbody) {
-        console.error("خطأ: عنصر adminTableBody غير موجود!");
-        return;
-    }
+    if (!tbody) return;
 
     if (!records || records.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; border:1px solid #ddd;">لا توجد سجلات مطابقة حالياً.</td></tr>`;
@@ -787,31 +541,4 @@ function renderAdminTable(records) {
     }
 
     tbody.innerHTML = html;
-}
-// تهيئة EmailJS بالمفتاح العام
-emailjs.init("uwkpzIF4_LuhwuelG");
-
-// دالة إرسال بريد استعادة كلمة المرور
-function forgotPassword() {
-    // يمكنك تعديل هذا الرابط ليطابق صفحة إعادة تعيين كلمة المرور الخاصة بنظامك
-    const resetLink = "https://yourdomain.com/reset-password.html"; 
-
-    const templateParams = {
-        to_email: "sameer.m.musleh@gmail.com",
-        message: "تم طلب استعادة كلمة المرور الخاصة بنظام متابعة الطلاب - مدرسة ذكور المستقبل الصالح.",
-        reset_link: resetLink // أضفنا هذا المتغير الجديد
-    };
-
-    if (typeof emailjs === 'undefined') {
-        alert('مكتبة EmailJS غير محملة في الصفحة.');
-        return;
-    }
-
-    emailjs.send('service_uh9k24u', 'template_j4p459u', templateParams)
-        .then(function(response) {
-            alert('تم إرسال بريد استعادة كلمة المرور بنجاح إلى بريدك.');
-        }, function(error) {
-            console.error('خطأ في الإرسال:', error);
-            alert('فشل إرسال البريد، يرجى التحقق من إعدادات الاتصال.');
-        });
 }
