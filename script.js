@@ -788,3 +788,21 @@ function renderAdminTable(records) {
 
     tbody.innerHTML = html;
 }
+// تهيئة EmailJS بالمفتاح العام
+emailjs.init("uwkpzIF4_LuhwuelG");
+
+// دالة إرسال بريد استعادة كلمة المرور
+function forgotPassword() {
+    const templateParams = {
+        to_email: "sameer.m.musleh@gmail.com",
+        message: "تم طلب استعادة كلمة المرور الخاصة بنظام متابعة الطلاب - مدرسة ذكور المستقبل الصالح."
+    };
+
+    emailjs.send('service_uh9k24u', 'template_j4p459u', templateParams)
+        .then(function(response) {
+            alert('تم إرسال بريد استعادة كلمة المرور بنجاح إلى بريدك.');
+        }, function(error) {
+            console.error('خطأ في الإرسال:', error);
+            alert('فشل إرسال البريد، يجدر التحقق من إعدادات الاتصال.');
+        });
+}
