@@ -542,7 +542,7 @@ function renderAdminTable(records) {
 
     tbody.innerHTML = html;
 }
-// دالة واحدة موحدة لاستعادة كلمة المرور عبر الخادم الخلفي
+
 async function forgotPassword() {
     const emailInput = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:", "sameer.m.musleh@gmail.com");
     if (!emailInput) return;
@@ -554,15 +554,23 @@ async function forgotPassword() {
             body: JSON.stringify({ email: emailInput })
         });
 
-        const data = await response.json();
+        // قراءة الاستجابة كنص أولاً لتجنب انهيار التطبيق إذا كانت فارغة أو HTML
+        const responseText = await response.text();
+        let data = {};
+        
+        try {
+            data = responseText ? JSON.parse(responseText) : {};
+        } catch (e) {
+            console.error('استجابة غير صالحة من السيرفر:', responseText);
+        }
         
         if (response.ok && data.success) {
             alert('تم توليد كلمة مرور جديدة وتحديثها في قاعدة البيانات، وإرسالها إلى بريدك الإلكتروني بنجاح!');
         } else {
-            alert(data.message || 'فشل إرسال الطلب، تأكد من صحة البريد الإلكتروني.');
+            alert(data.message || 'فشل إرسال الطلب، تأكد من صحة البريد الإلكتروني أو استيقاظ الخادم.');
         }
     } catch (err) {
         console.error('خطأ في الاتصال:', err);
-        alert('حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة لاحقاً.');
+        alert('حدث خطأ أثناء الاتصال بالخادم.');
     }
 }
