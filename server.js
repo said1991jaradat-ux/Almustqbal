@@ -180,3 +180,11 @@ app.post('/api/forgot-password', async (req, res) => {
     res.status(500).json({ success: false, message: 'حدث خطأ أثناء إرسال الإيميل' });
   }
 });
+async function sendRecoveryEmail(recipientEmail, password) {
+  return transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: recipientEmail,
+    subject: 'كلمة المرور الجديدة - نظام إدارة الانضباط المدرسي',
+    text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${password}\n\nالرجاء عدم مشاركتها مع أي شخص آخر.`
+  });
+}
