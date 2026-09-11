@@ -1,5 +1,5 @@
-// عنوان الخادم الخلفي (Backend API)
-const API_URL = 'https://quizzical-bell1.onrender.com/api/records';
+// عنوان الخادم الخلفي (Backend API) الموحد والصحيح
+const API_URL = 'https://almustqbal-school-site.onrender.com/api/records';
 
 // الهيكل الأساسي للبيانات المؤقتة للواجهة
 let dbData = {
@@ -13,11 +13,6 @@ let currentAllRecords = [];
 
 // عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', async () => {
-    // تهيئة EmailJS
-    if (typeof emailjs !== 'undefined') {
-        emailjs.init("uwkpzIF4_LuhwuelG");
-    }
-
     const today = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     currentFormattedDate = today.toLocaleDateString('ar-EG', options);
@@ -35,28 +30,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchRecordsFromCloud();
 });
 
-// دالة إرسال بريد استعادة كلمة المرور عبر EmailJS مع دعم الرابط
-function forgotPassword() {
-    const resetLink = "https://almustqbal-school-site.onrender.com/reset-password.html"; 
+// دالة استعادة كلمة المرور عبر الخادم الخلفي (Backend API) والـ MongoDB
+async function forgotPassword() {
+    const emailInput = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:", "sameer.m.musleh@gmail.com");
+    if (!emailInput) return;
 
-    const templateParams = {
-        to_email: "sameer.m.musleh@gmail.com",
-        message: "تم طلب استعادة كلمة المرور الخاصة بنظام متابعة الطلاب - مدرسة ذكور المستقبل الصالح.",
-        reset_link: resetLink
-    };
-
-    if (typeof emailjs === 'undefined') {
-        alert('مكتبة EmailJS غير محملة في الصفحة.');
-        return;
-    }
-
-    emailjs.send('service_uh9k24u', 'template_wgygsdn', templateParams)
-        .then(function(response) {
-            alert('تم إرسال بريد استعادة كلمة المرور بنجاح إلى بريدك.');
-        }, function(error) {
-            console.error('خطأ في الإرسال:', error);
-            alert('فشل إرسال البريد، يرجى التحقق من صحة Template ID في لوحة تحكم EmailJS.');
+    try {
+        const response = await fetch('https://almustqbal-school-site.onrender.com/api/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailInput })
         });
+
+        const responseText = await response.text();
+        let data = {};
+        
+        try {
+            data = responseText ? JSON.parse(responseText) : {};
+        } catch (e) {
+            console.error('استجابة غير صالحة من السيرفر:', responseText);
+        }
+        
+        if (response.ok && data.success) {
+            alert('تم توليد كلمة مرور جديدة وتحديثها في قاعدة البيانات، وإرسالها إلى بريدك الإلكتروني بنجاح!');
+        } else {
+            alert(data.message || 'فشل إرسال الطلب، تأكد من صحة البريد الإلكتروني أو استيقاظ الخادم.');
+        }
+    } catch (err) {
+        console.error('خطأ في الاتصال:', err);
+        alert('حدث خطأ أثناء الاتصال بالخادم.');
+    }
 }
 
 // دالة لجلب السجلات من الخادم السحابي وتوزيعها على التصنيفات
@@ -140,13 +143,11 @@ async function deleteRecord(id) {
     }
 }
 
-// حذف سجل من لوحة الإدارة
 async function adminDeleteRecord(id) {
     await deleteRecord(id);
     await loadAllRecordsForAdmin();
 }
 
-// إظهار/إخفاء السبب الآخر
 function toggleOtherReason(val) {
     const otherGroup = document.getElementById('otherReasonGroup');
     if (otherGroup) {
@@ -259,7 +260,6 @@ async function addEscape(e) {
     }
 }
 
-// البحث وطباعة تقرير شامل لطالب معين
 function searchStudentReport() {
     const searchName = document.getElementById('searchInput').value.trim();
     if (!searchName) {
@@ -343,7 +343,6 @@ function searchStudentReport() {
     openPrintWindow(reportHTML);
 }
 
-// طباعة تقرير فئة معينة في نافذة منفصلة ونظيفة
 function printCategoryReport(type, titleText) {
     const items = dbData[type];
     if (!items || items.length === 0) {
@@ -409,7 +408,6 @@ function printCategoryReport(type, titleText) {
     openPrintWindow(reportHTML);
 }
 
-// دالة مساعدة لفتح نافذة الطباعة المستقلة
 function openPrintWindow(htmlContent) {
     const printWindow = window.open('', '_blank', 'width=900,height=700');
     printWindow.document.write(htmlContent);
@@ -421,32 +419,6 @@ function openPrintWindow(htmlContent) {
     }, 500);
 }
 
-// تصدير نسخة احتياطية
-async function exportData() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dbData));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `سجلات_المدرسة_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-}
-
-// استرجاع نسخة احتياطية
-function importData(event) {
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-        try {
-            const importedData = JSON.parse(e.target.result);
-            alert('تم قراءة ملف النسخة الاحتياطية بنجاح!');
-        } catch(err) {
-            alert('الملف غير صالح!');
-        }
-    };
-    reader.readAsText(event.target.files[0]);
-}
-
-// فتح لوحة الإدارة وجلب البيانات فوراً
 async function openAdminDashboard() {
     const modal = document.getElementById('adminModal');
     if (modal) {
@@ -463,7 +435,6 @@ async function openAdminDashboard() {
     }
 }
 
-// إغلاق لوحة الإدارة تماماً
 function closeAdminDashboard() {
     const modal = document.getElementById('adminModal');
     if (modal) {
@@ -471,7 +442,6 @@ function closeAdminDashboard() {
     }
 }
 
-// جلب كافة السجلات ورسمها فوراً
 async function loadAllRecordsForAdmin() {
     try {
         const response = await fetch(API_URL);
@@ -486,7 +456,6 @@ async function loadAllRecordsForAdmin() {
     }
 }
 
-// دالة ترجمة أنواع السجلات لعرضها بشكل صحيح
 function translateType(type) {
     if (type === 'lateness' || type === 'تأخير') return 'تأخير صباحي';
     if (type === 'uniform' || type === 'زي') return 'الزي المدرسي';
@@ -494,10 +463,8 @@ function translateType(type) {
     return type || 'سجل عام';
 }
 
-// تبديل تبويبات التقارير
 function switchReportTab(type) {
     const title = document.getElementById('adminReportTitle');
-    
     if (type === 'daily') {
         if (title) title.innerText = `التقرير اليومي`;
     } else if (type === 'weekly') {
@@ -505,11 +472,9 @@ function switchReportTab(type) {
     } else if (type === 'monthly') {
         if (title) title.innerText = 'التقرير الشهري الشامل';
     }
-
     renderAdminTable(currentAllRecords);
 }
 
-// رسم جدول الإدارة المباشر والمضمون
 function renderAdminTable(records) {
     const tbody = document.getElementById('adminTableBody');
     if (!tbody) return;
@@ -541,36 +506,4 @@ function renderAdminTable(records) {
     }
 
     tbody.innerHTML = html;
-}
-
-async function forgotPassword() {
-    const emailInput = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:", "sameer.m.musleh@gmail.com");
-    if (!emailInput) return;
-
-    try {
-        const response = await fetch('https://almustqbal-school-site.onrender.com/api/forgot-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: emailInput })
-        });
-
-        // قراءة الاستجابة كنص أولاً لتجنب انهيار التطبيق إذا كانت فارغة أو HTML
-        const responseText = await response.text();
-        let data = {};
-        
-        try {
-            data = responseText ? JSON.parse(responseText) : {};
-        } catch (e) {
-            console.error('استجابة غير صالحة من السيرفر:', responseText);
-        }
-        
-        if (response.ok && data.success) {
-            alert('تم توليد كلمة مرور جديدة وتحديثها في قاعدة البيانات، وإرسالها إلى بريدك الإلكتروني بنجاح!');
-        } else {
-            alert(data.message || 'فشل إرسال الطلب، تأكد من صحة البريد الإلكتروني أو استيقاظ الخادم.');
-        }
-    } catch (err) {
-        console.error('خطأ في الاتصال:', err);
-        alert('حدث خطأ أثناء الاتصال بالخادم.');
-    }
 }
