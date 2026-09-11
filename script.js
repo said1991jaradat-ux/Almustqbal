@@ -50,7 +50,7 @@ function forgotPassword() {
         return;
     }
 
-    emailjs.send('service_uh9k24u', 'template_j4p459u', templateParams)
+    emailjs.send('service_uh9k24u', 'template_wgygsdn', templateParams)
         .then(function(response) {
             alert('تم إرسال بريد استعادة كلمة المرور بنجاح إلى بريدك.');
         }, function(error) {
