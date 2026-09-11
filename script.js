@@ -543,24 +543,27 @@ function renderAdminTable(records) {
     tbody.innerHTML = html;
 }
 async function forgotPassword() {
-    const userEmail = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:");
-    if (!userEmail) return;
+    // يمكنك جعل الكود يطلب إدخال الإيميل أو تعبئته تلقائياً
+    const emailInput = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:", "sameer.m.musleh@gmail.com");
+    if (!emailInput) return;
 
     try {
-        const response = await fetch('https://quizzical-bell1.onrender.com/api/forgot-password', {
+        // لاحظ هنا تم استخدام رابط سيرفرك على Render مباشرة
+        const response = await fetch('https://almustqbal-school-site.onrender.com/api/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmail })
+            body: JSON.stringify({ email: emailInput })
         });
 
         const data = await response.json();
+        
         if (data.success) {
-            alert('تم توليد كلمة مرور جديدة وإرسالها إلى بريدك الإلكتروني بنجاح!');
+            alert('تم توليد كلمة مرور جديدة وتحديثها في قاعدة البيانات، وإرسالها إلى بريدك الإلكتروني بنجاح!');
         } else {
-            alert(data.message || 'فشل طلب الاستعادة');
+            alert(data.message || 'فشل إرسال الطلب، تأكد من صحة البريد الإلكتروني.');
         }
     } catch (err) {
-        console.error(err);
-        alert('حدث خطأ في الاتصال بالخادم');
+        console.error('خطأ في الاتصال:', err);
+        alert('حدث خطأ أثناء الاتصال بالخادم.');
     }
 }
