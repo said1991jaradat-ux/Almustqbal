@@ -1,5 +1,5 @@
 // عنوان الخادم الخلفي (Backend API) الموحد والصحيح
-const API_URL = 'https://almustqbal-school-site.onrender.com/api/records';
+const API_URL = 'https://quizzical-bell1.onrender.com/api/records';
 
 // الهيكل الأساسي للبيانات المؤقتة للواجهة
 let dbData = {
