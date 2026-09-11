@@ -163,26 +163,20 @@ app.listen(PORT, () => {
 app.post('/api/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
-
     if (!email || email.trim().toLowerCase() !== RECOVERY_EMAIL.toLowerCase()) {
       return res.json({ success: false, message: 'البريد الإلكتروني غير صحيح' });
     }
-
-    // توليد كلمة مرور عشوائية من 4 أرقام (بين 1000 و 9999)
     const newPassword = String(Math.floor(1000 + Math.random() * 9000));
-
     await setCurrentPassword(newPassword);
-
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: RECOVERY_EMAIL,
       subject: 'كلمة المرور الجديدة - نظام إدارة الانضباط المدرسي',
-      text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${newPassword}\n\nالرجاء عدم مشاركتها مع أي شخص آخر.`
+      text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${newPassword}`
     });
-
     res.json({ success: true, message: 'تم إرسال كلمة مرور جديدة إلى بريدك الإلكتروني' });
   } catch (err) {
     console.error('خطأ في إرسال الإيميل:', err);
-    res.status(500).json({ success: false, message: 'حدث خطأ أثناء إرسال الإيميل، حاول لاحقًا' });
+    res.status(500).json({ success: false, message: 'حدث خطأ أثناء إرسال الإيميل' });
   }
 });
