@@ -542,3 +542,25 @@ function renderAdminTable(records) {
 
     tbody.innerHTML = html;
 }
+async function forgotPassword() {
+    const userEmail = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:");
+    if (!userEmail) return;
+
+    try {
+        const response = await fetch('https://quizzical-bell1.onrender.com/api/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert('تم توليد كلمة مرور جديدة وإرسالها إلى بريدك الإلكتروني بنجاح!');
+        } else {
+            alert(data.message || 'فشل طلب الاستعادة');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('حدث خطأ في الاتصال بالخادم');
+    }
+}
