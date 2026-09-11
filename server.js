@@ -74,7 +74,6 @@ app.delete('/api/records/:id', async (req, res) => {
 
 /* ================= إدارة كلمة المرور ================= */
 
-// يخزن الإعدادات العامة للنظام (حاليًا: كلمة المرور الحالية)
 const settingSchema = new mongoose.Schema({
   key: { type: String, unique: true },
   value: String
@@ -83,9 +82,8 @@ const settingSchema = new mongoose.Schema({
 const Setting = mongoose.model('Setting', settingSchema);
 
 const DEFAULT_PASSWORD = "1234";
-const RECOVERY_EMAIL = "sameer.m.musleh@gmail.com"; // الإيميل المصرّح له باسترجاع كلمة المرور
+const RECOVERY_EMAIL = "sameer.m.musleh@gmail.com";
 
-// يتأكد أن في كلمة مرور محفوظة بقاعدة البيانات، وإذا مو موجودة ينشئها بالقيمة الافتراضية
 async function getCurrentPassword() {
   let setting = await Setting.findOne({ key: 'loginPassword' });
   if (!setting) {
@@ -102,16 +100,24 @@ async function setCurrentPassword(newPassword) {
   );
 }
 
-// إعداد مرسل الإيميل عبر Gmail (بيانات الحساب المرسل تُقرأ من متغيرات البيئة على Render)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // إيميل الحساب المرسل
-    pass: process.env.EMAIL_PASS  // App Password من جوجل (16 رمز)
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
-// تسجيل الدخول: يتحقق من كلمة المرور المحفوظة بقاعدة البيانات
+// دالة إرسال الإيميل
+async function sendRecoveryEmail(recipientEmail, password) {
+  return transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: recipientEmail,
+    subject: 'كلمة المرور الجديدة - نظام إدارة الانضباط المدرسي',
+    text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${password}\n\nالرجاء عدم مشاركتها مع أي شخص آخر.`
+  });
+}
+
 app.post('/api/login', async (req, res) => {
   try {
     const { password } = req.body;
@@ -127,7 +133,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// نسيت كلمة المرور: يتحقق من الإيميل، يولّد كلمة مرور جديدة، ويبعتها بالإيميل
+// مسار نسيت كلمة المرور الموحد والسليم
 app.post('/api/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -136,17 +142,11 @@ app.post('/api/forgot-password', async (req, res) => {
       return res.json({ success: false, message: 'البريد الإلكتروني غير صحيح' });
     }
 
-    // توليد كلمة مرور عشوائية من 4 أرقام (بين 1000 و 9999)
     const newPassword = String(Math.floor(1000 + Math.random() * 9000));
 
     await setCurrentPassword(newPassword);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: RECOVERY_EMAIL,
-      subject: 'كلمة المرور الجديدة - نظام إدارة الانضباط المدرسي',
-      text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${newPassword}\n\nالرجاء عدم مشاركتها مع أي شخص آخر.`
-    });
+    await sendRecoveryEmail(RECOVERY_EMAIL, newPassword);
 
     res.json({ success: true, message: 'تم إرسال كلمة مرور جديدة إلى بريدك الإلكتروني' });
   } catch (err) {
@@ -159,32 +159,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`الخادم يعمل على البورت ${PORT}`);
 });
-// نسيت كلمة المرور: يتحقق من الإيميل، يولّد كلمة مرور جديدة، ويبعتها بالإيميل
-app.post('/api/forgot-password', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email || email.trim().toLowerCase() !== RECOVERY_EMAIL.toLowerCase()) {
-      return res.json({ success: false, message: 'البريد الإلكتروني غير صحيح' });
-    }
-    const newPassword = String(Math.floor(1000 + Math.random() * 9000));
-    await setCurrentPassword(newPassword);
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: RECOVERY_EMAIL,
-      subject: 'كلمة المرور الجديدة - نظام إدارة الانضباط المدرسي',
-      text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${newPassword}`
-    });
-    res.json({ success: true, message: 'تم إرسال كلمة مرور جديدة إلى بريدك الإلكتروني' });
-  } catch (err) {
-    console.error('خطأ في إرسال الإيميل:', err);
-    res.status(500).json({ success: false, message: 'حدث خطأ أثناء إرسال الإيميل' });
-  }
-});
-async function sendRecoveryEmail(recipientEmail, password) {
-  return transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: recipientEmail,
-    subject: 'كلمة المرور الجديدة - نظام إدارة الانضباط المدرسي',
-    text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${password}\n\nالرجاء عدم مشاركتها مع أي شخص آخر.`
-  });
-}
