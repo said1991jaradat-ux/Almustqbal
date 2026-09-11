@@ -798,7 +798,7 @@ function forgotPassword() {
         message: "تم طلب استعادة كلمة المرور الخاصة بنظام متابعة الطلاب - مدرسة ذكور المستقبل الصالح."
     };
 
-    emailjs.send('service_uh9k24u', 'template_j2hx3ch', templateParams)
+    emailjs.send('service_uh9k24u', 'template_wgygsdn', templateParams)
         .then(function(response) {
             alert('تم إرسال بريد استعادة كلمة المرور بنجاح إلى بريدك.');
         }, function(error) {
