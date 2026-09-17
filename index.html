@@ -1,1 +1,389 @@
-<!DOCTYPE html> <html lang="ar" dir="rtl"> <head> <!-- أضف هذه المكتبة في قسم الـ <head> إذا لم تكن موجودة --> <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>نظام إدارة الانضباط المدرسي - مدرسة ذكور المستقبل الصالح الأساسية العليا</title> <link rel="stylesheet" href="styles.css"> <!-- مكتبة localForage للحفظ الدائم والمضمون --> <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script> <style> /* تنسيق شاشة تسجيل الدخول */ #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; display: flex; justify-content: center; align-items: center; z-index: 9999; } .login-box { background: white; padding: 30px; text-align: center; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; } .login-box input, .login-box button { padding: 10px; margin: 10px 0; font-size: 16px; width: 100%; box-sizing: border-box; } .login-box button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; } .login-box button:hover { background-color: #0056b3; } </style> </head> <body> <!-- شاشة تسجيل الدخول --> <div id="loginScreen"> <div class="login-box"> <h2>تسجيل الدخول</h2> <p>الرجاء إدخال كلمة المرور للدخول إلى نظام المدرسة</p> <input type="password" id="passInput" placeholder="كلمة المرور"> <br> <button onclick="checkPassword()">دخول</button> <p id="errorMsg" style="color: red; display: none; margin-top: 5px;">كلمة المرور غير صحيحة!</p> <p style="margin-top: 15px; font-size: 0.85rem;"> <a href="#" onclick="forgotPassword(); return false;" style="color: #007bff; text-decoration: underline;">نسيت كلمة المرور؟</a> </p> </div> </div> <!-- محتوى الموقع الأساسي (مخفي حتى يتم إدخال كلمة المرور) --> <div id="mainContent" style="display: none;"> <!-- الترويسة الرئيسية --> <header class="header"> <div class="school-info"> <h1>مدرسة ذكور المستقبل الصالح الأساسية العليا</h1> <h2>مدير المدرسة: أ. سمير مصلح</h2> <div class="live-date" id="currentDateDisplay">جاري تحضير التاريخ...</div> </div> <div class="header-actions"> <div class="search-box"> <input type="text" id="searchInput" placeholder="ابحث باسم الطالب للتقرير..."> <button onclick="searchStudentReport()" class="btn-gold">بحث وطباعة تقرير</button> </div> <div class="backup-btns"> <button onclick="exportData()" class="btn-sub">تصدير نسخة احتياطية</button> <input type="file" id="importFile" onchange="importData(event)" style="display:none"> <button onclick="document.getElementById('importFile').click()" class="btn-sub">استرجاع نسخة</button> <!-- زر تسجيل الخروج --> <button onclick="logout()" class="btn-sub" style="background-color: #dc3545; color: white;">تسجيل خروج</button> </div> </div> </header> <main class="container"> <!-- البند الأول: التأخير الصباحي --> <section class="card"> <h3>1. تسجيل التأخير الصباحي</h3> <form id="latenessForm" onsubmit="addLateness(event)"> <div class="form-group"> <label>اليوم والتاريخ:</label> <input type="text" class="auto-date" readonly> </div> <div class="form-group"> <label>وقت التأخير:</label> <input type="time" id="lateTime" required> </div> <div class="form-group"> <label>اسم الطالب:</label> <input type="text" id="lateStudent" required placeholder="الاسم الرباعي"> </div> <div class="form-row"> <div class="form-group"> <label>الصف:</label> <select id="lateGrade"> <option>الخامس</option> <option>السادس</option> <option>السابع</option> <option>الثامن</option> <option>التاسع</option> </select> </div> <div class="form-group"> <label>الشعبة:</label> <select id="lateSection"> <option>أ</option> <option>ب</option> <option>ج</option> <option>د</option> </select> </div> </div> <div class="form-group"> <label>سبب التأخير:</label> <select id="lateReason" onchange="toggleOtherReason(this.value)"> <option>أزمة طريق</option> <option>عائلي</option> <option>النوم</option> <option>بعد المسافة</option> <option value="أخرى">أخرى</option> </select> </div> <div class="form-group hidden" id="otherReasonGroup"> <label>اذكر السبب:</label> <input type="text" id="otherReasonText" placeholder="اكتب السبب هنا"> </div> <button type="submit" class="btn">تسجيل التأخير</button> </form> <div class="logs-section"> <h4>السجلات الأخيرة للتأخير:</h4> <div id="latenessLogs" class="logs-list"></div> </div> <!-- زر طباعة تقرير التأخير الشامل --> <button onclick="printCategoryReport('lateness', 'تقرير التأخير الصباحي الشامل')" class="btn" style="margin-top: 15px; background-color: #6c757d;">طباعة تقرير التأخير الشامل</button> </section> <!-- البند الثاني: الالتزام بالزي --> <section class="card"> <h3>2. الالتزام بالزي المدرسي</h3> <form id="uniformForm" onsubmit="addUniform(event)"> <div class="form-group"> <label>اليوم والتاريخ:</label> <input type="text" class="auto-date" readonly> </div> <div class="form-group"> <label>اسم الطالب:</label> <input type="text" id="uniformStudent" required placeholder="الاسم الرباعي"> </div> <div class="form-row"> <div class="form-group"> <label>الصف:</label> <select id="uniformGrade"> <option>الخامس</option> <option>السادس</option> <option>السابع</option> <option>الثامن</option> <option>التاسع</option> </select> </div> <div class="form-group"> <label>الشعبة:</label> <select id="uniformSection"> <option>أ</option> <option>ب</option> <option>ج</option> <option>د</option> </select> </div> </div> <div class="form-group"> <label>مدى الالتزام:</label> <select id="uniformStatus"> <option value="غير ملتزم">غير ملتزم</option> <option value="ملتزم">ملتزم</option> </select> </div> <button type="submit" class="btn">تسجيل حالة الزي</button> </form> <div class="logs-section"> <h4>السجلات الأخيرة للزي:</h4> <div id="uniformLogs" class="logs-list"></div> </div> <!-- زر طباعة تقرير الزي الشامل --> <button onclick="printCategoryReport('uniform', 'تقرير الالتزام بالزي المدرسي الشامل')" class="btn" style="margin-top: 15px; background-color: #6c757d;">طباعة تقرير الزي الشامل</button> </section> <!-- البند الثالث: الهروب --> <section class="card"> <h3>3. تسجيل حالة الهروب</h3> <form id="escapeForm" onsubmit="addEscape(event)"> <div class="form-group"> <label>اليوم والتاريخ:</label> <input type="text" class="auto-date" readonly> </div> <div class="form-group"> <label>وقت الهروب:</label> <input type="time" id="escapeTime" required> </div> <div class="form-group"> <label>اسم الطالب:</label> <input type="text" id="escapeStudent" required placeholder="الاسم الرباعي"> </div> <div class="form-row"> <div class="form-group"> <label>الصف:</label> <select id="escapeGrade"> <option>الخامس</option> <option>السادس</option> <option>السابع</option> <option>الثامن</option> <option>التاسع</option> </select> </div> <div class="form-group"> <label>الشعبة:</label> <select id="escapeSection"> <option>أ</option> <option>ب</option> <option>ج</option> <option>د</option> </select> </div> </div> <button type="submit" class="btn btn-danger">تسجيل الهروب</button> </form> <div class="logs-section"> <h4>السجلات الأخيرة للهروب:</h4> <div id="escapeLogs" class="logs-list"></div> </div> <!-- زر طباعة تقرير الهروب الشامل --> <button onclick="printCategoryReport('escape', 'تقرير حالات الهروب الشامل')" class="btn" style="margin-top: 15px; background-color: #6c757d;">طباعة تقرير الهروب الشامل</button> </section> </main> <!-- منطقة التقرير القابلة للطباعة (يجب أن تكون موجودة هنا) --> <div id="printReport" class="print-only"> <div class="report-header"> <h2>مدرسة ذكور المستقبل الصالح الأساسية العليا</h2> <h3>تقرير السلوك والانضباط المدرسي</h3> <p><strong>مدير المدرسة:</strong> أ. سمير مصلح</p> <p id="reportPrintDate"></p> <hr> <div class="student-title-wrap"> <p id="reportStudentInfo" class="student-title"></p> </div> </div> <div id="reportContent"></div> <div class="report-footer"> <div>توقيع مدير المدرسة: __________________</div> <div>خاتم المدرسة</div> </div> </div> </div> <!-- شاشة الإدارة والتقارير --> <div id="adminModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10000; overflow-y:auto; padding:20px;"> <div style="background:white; max-width:1000px; margin:30px auto; padding:20px; border-radius:8px; position:relative;"> <button onclick="closeAdminDashboard()" style="float:left; background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;">إغلاق X</button> <h2>لوحة الإدارة والتقارير الشاملة</h2> <hr> <!-- أزرار تبديل التقارير --> <div style="margin: 15px 0; display: flex; gap: 10px;"> <button onclick="switchReportTab('daily')" class="btn" style="flex:1;">التقرير اليومي</button> <button onclick="switchReportTab('weekly')" class="btn" style="flex:1; background:#17a2b8;">التقرير الأسبوعي</button> <button onclick="switchReportTab('monthly')" class="btn" style="flex:1; background:#6f42c1;">التقرير الشهري</button> </div> <h3 id="adminReportTitle" style="text-align:center; margin-top:15px;">التقرير اليومي</h3> <!-- جدول عرض البيانات وإدارة الحذف --> <div style="overflow-x:auto; max-height:400px; margin-top:15px;"> <table style="width:100%; border-collapse:collapse;"> <thead> <tr style="background:#f2f2f2;"> <th style="border:1px solid #ddd; padding:8px;">التاريخ</th> <th style="border:1px solid #ddd; padding:8px;">نوع السجل</th> <th style="border:1px solid #ddd; padding:8px;">اسم الطالب</th> <th style="border:1px solid #ddd; padding:8px;">الصف والشعبة</th> <th style="border:1px solid #ddd; padding:8px;">التفاصيل / الوقت</th> <th style="border:1px solid #ddd; padding:8px;">الإجراء</th> </tr> </thead> <tbody id="adminTableBody"> <!-- سيتم تعبئتها برمجياً --> </tbody> </table> </div> </div> </div> <!-- دوال التحكم بتسجيل الدخول والخروج --> <script> // عنوان السيرفر الخلفي المستخدم لتسجيل الدخول واسترجاع كلمة المرور const AUTH_BASE_URL = 'https://almustqbal.onrender.com'; async function checkPassword() { const userInput = document.getElementById("passInput").value; const loginBtn = document.querySelector('.login-box button'); const originalBtnText = loginBtn.innerText; loginBtn.disabled = true; loginBtn.innerText = "جاري التحقق..."; document.getElementById("errorMsg").style.display = "none"; try { const response = await fetch(${AUTH_BASE_URL}/api/login, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: userInput }) }); const result = await response.json(); if (result.success) { document.getElementById("loginScreen").style.display = "none"; document.getElementById("mainContent").style.display = "block"; } else { document.getElementById("errorMsg").style.display = "block"; } } catch (err) { alert("تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا."); } finally { loginBtn.disabled = false; loginBtn.innerText = originalBtnText; } } function logout() { document.getElementById("mainContent").style.display = "none"; document.getElementById("loginScreen").style.display = "flex"; document.getElementById("passInput").value = ""; document.getElementById("errorMsg").style.display = "none"; } // استرجاع كلمة المرور عبر التحقق من الإيميل وإرسال كلمة مرور عشوائية async function forgotPassword() { const email = prompt("الرجاء إدخال البريد الإلكتروني لاسترجاع كلمة المرور:"); if (!email) return; try { const response = await fetch(${AUTH_BASE_URL}/api/forgot-password, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim() }) }); const result = await response.json(); alert(result.message); } catch (err) { alert("تعذر الاتصال بالسيرفر، حاول لاحقًا."); } } </script> <!-- ملف الجافاسكريبت الخاص بالنظام --> <script src="script.js"></script> </body> </html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <!-- أضف هذه المكتبة في قسم الـ <head> إذا لم تكن موجودة -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الانضباط المدرسي - مدرسة ذكور المستقبل الصالح الأساسية العليا</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- مكتبة localForage للحفظ الدائم والمضمون -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <style>
+        /* تنسيق شاشة تسجيل الدخول */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        .login-box input, .login-box button {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .login-box button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .login-box button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>تسجيل الدخول</h2>
+            <p>الرجاء إدخال كلمة المرور للدخول إلى نظام المدرسة</p>
+            <input type="password" id="passInput" placeholder="كلمة المرور">
+            <br>
+            <button onclick="checkPassword()">دخول</button>
+            <p id="errorMsg" style="color: red; display: none; margin-top: 5px;">كلمة المرور غير صحيحة!</p>
+            <p style="margin-top: 15px; font-size: 0.85rem;">
+                <a href="#" onclick="forgotPassword(); return false;" style="color: #007bff; text-decoration: underline;">نسيت كلمة المرور؟</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- محتوى الموقع الأساسي (مخفي حتى يتم إدخال كلمة المرور) -->
+    <div id="mainContent" style="display: none;">
+
+        <!-- الترويسة الرئيسية -->
+        <header class="header">
+            <div class="school-info">
+                <h1>مدرسة ذكور المستقبل الصالح الأساسية العليا</h1>
+                <h2>مدير المدرسة: أ. سمير مصلح</h2>
+                <div class="live-date" id="currentDateDisplay">جاري تحضير التاريخ...</div>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="ابحث باسم الطالب للتقرير...">
+                    <button onclick="searchStudentReport()" class="btn-gold">بحث وطباعة تقرير</button>
+                </div>
+                <div class="backup-btns">
+                    <button onclick="exportData()" class="btn-sub">تصدير نسخة احتياطية</button>
+                    <input type="file" id="importFile" onchange="importData(event)" style="display:none">
+                    <button onclick="document.getElementById('importFile').click()" class="btn-sub">استرجاع نسخة</button>
+                    <!-- زر تسجيل الخروج -->
+                    <button onclick="logout()" class="btn-sub" style="background-color: #dc3545; color: white;">تسجيل خروج</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+
+            <!-- البند الأول: التأخير الصباحي -->
+            <section class="card">
+                <h3>1. تسجيل التأخير الصباحي</h3>
+                <form id="latenessForm" onsubmit="addLateness(event)">
+                    <div class="form-group">
+                        <label>اليوم والتاريخ:</label>
+                        <input type="text" class="auto-date" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>وقت التأخير:</label>
+                        <input type="time" id="lateTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم الطالب:</label>
+                        <input type="text" id="lateStudent" required placeholder="الاسم الرباعي">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الصف:</label>
+                            <select id="lateGrade">
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الشعبة:</label>
+                            <select id="lateSection">
+                                <option>أ</option>
+                                <option>ب</option>
+                                <option>ج</option>
+                                <option>د</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>سبب التأخير:</label>
+                        <select id="lateReason" onchange="toggleOtherReason(this.value)">
+                            <option>أزمة طريق</option>
+                            <option>عائلي</option>
+                            <option>النوم</option>
+                            <option>بعد المسافة</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="otherReasonGroup">
+                        <label>اذكر السبب:</label>
+                        <input type="text" id="otherReasonText" placeholder="اكتب السبب هنا">
+                    </div>
+                    <button type="submit" class="btn">تسجيل التأخير</button>
+                </form>
+
+                <div class="logs-section">
+                    <h4>السجلات الأخيرة للتأخير:</h4>
+                    <div id="latenessLogs" class="logs-list"></div>
+                </div>
+
+                <!-- زر طباعة تقرير التأخير الشامل -->
+                <button onclick="printCategoryReport('lateness', 'تقرير التأخير الصباحي الشامل')" class="btn" style="margin-top: 15px; background-color: #6c757d;">طباعة تقرير التأخير الشامل</button>
+            </section>
+
+            <!-- البند الثاني: الالتزام بالزي -->
+            <section class="card">
+                <h3>2. الالتزام بالزي المدرسي</h3>
+                <form id="uniformForm" onsubmit="addUniform(event)">
+                    <div class="form-group">
+                        <label>اليوم والتاريخ:</label>
+                        <input type="text" class="auto-date" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم الطالب:</label>
+                        <input type="text" id="uniformStudent" required placeholder="الاسم الرباعي">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الصف:</label>
+                            <select id="uniformGrade">
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الشعبة:</label>
+                            <select id="uniformSection">
+                                <option>أ</option>
+                                <option>ب</option>
+                                <option>ج</option>
+                                <option>د</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>مدى الالتزام:</label>
+                        <select id="uniformStatus">
+                            <option value="غير ملتزم">غير ملتزم</option>
+                            <option value="ملتزم">ملتزم</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">تسجيل حالة الزي</button>
+                </form>
+
+                <div class="logs-section">
+                    <h4>السجلات الأخيرة للزي:</h4>
+                    <div id="uniformLogs" class="logs-list"></div>
+                </div>
+
+                <!-- زر طباعة تقرير الزي الشامل -->
+                <button onclick="printCategoryReport('uniform', 'تقرير الالتزام بالزي المدرسي الشامل')" class="btn" style="margin-top: 15px; background-color: #6c757d;">طباعة تقرير الزي الشامل</button>
+            </section>
+
+            <!-- البند الثالث: الهروب -->
+            <section class="card">
+                <h3>3. تسجيل حالة الهروب</h3>
+                <form id="escapeForm" onsubmit="addEscape(event)">
+                    <div class="form-group">
+                        <label>اليوم والتاريخ:</label>
+                        <input type="text" class="auto-date" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>وقت الهروب:</label>
+                        <input type="time" id="escapeTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم الطالب:</label>
+                        <input type="text" id="escapeStudent" required placeholder="الاسم الرباعي">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الصف:</label>
+                            <select id="escapeGrade">
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الشعبة:</label>
+                            <select id="escapeSection">
+                                <option>أ</option>
+                                <option>ب</option>
+                                <option>ج</option>
+                                <option>د</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger">تسجيل الهروب</button>
+                </form>
+
+                <div class="logs-section">
+                    <h4>السجلات الأخيرة للهروب:</h4>
+                    <div id="escapeLogs" class="logs-list"></div>
+                </div>
+
+                <!-- زر طباعة تقرير الهروب الشامل -->
+                <button onclick="printCategoryReport('escape', 'تقرير حالات الهروب الشامل')" class="btn" style="margin-top: 15px; background-color: #6c757d;">طباعة تقرير الهروب الشامل</button>
+            </section>
+
+        </main>
+
+        
+        <!-- منطقة التقرير القابلة للطباعة (يجب أن تكون موجودة هنا) -->
+        <div id="printReport" class="print-only">
+            <div class="report-header">
+                <h2>مدرسة ذكور المستقبل الصالح الأساسية العليا</h2>
+                <h3>تقرير السلوك والانضباط المدرسي</h3>
+                <p><strong>مدير المدرسة:</strong> أ. سمير مصلح</p>
+                <p id="reportPrintDate"></p>
+                <hr>
+                <div class="student-title-wrap">
+                    <p id="reportStudentInfo" class="student-title"></p>
+                </div>
+            </div>
+            <div id="reportContent"></div>
+            <div class="report-footer">
+                <div>توقيع مدير المدرسة: __________________</div>
+                <div>خاتم المدرسة</div>
+            </div>
+        </div>
+
+    </div>
+    <!-- شاشة الإدارة والتقارير -->
+<div id="adminModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10000; overflow-y:auto; padding:20px;">
+    <div style="background:white; max-width:1000px; margin:30px auto; padding:20px; border-radius:8px; position:relative;">
+        <button onclick="closeAdminDashboard()" style="float:left; background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;">إغلاق X</button>        <h2>لوحة الإدارة والتقارير الشاملة</h2>
+        <hr>
+        
+        <!-- أزرار تبديل التقارير -->
+        <div style="margin: 15px 0; display: flex; gap: 10px;">
+            <button onclick="switchReportTab('daily')" class="btn" style="flex:1;">التقرير اليومي</button>
+            <button onclick="switchReportTab('weekly')" class="btn" style="flex:1; background:#17a2b8;">التقرير الأسبوعي</button>
+            <button onclick="switchReportTab('monthly')" class="btn" style="flex:1; background:#6f42c1;">التقرير الشهري</button>
+        </div>
+
+        <h3 id="adminReportTitle" style="text-align:center; margin-top:15px;">التقرير اليومي</h3>
+        
+        <!-- جدول عرض البيانات وإدارة الحذف -->
+        <div style="overflow-x:auto; max-height:400px; margin-top:15px;">
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="background:#f2f2f2;">
+                        <th style="border:1px solid #ddd; padding:8px;">التاريخ</th>
+                        <th style="border:1px solid #ddd; padding:8px;">نوع السجل</th>
+                        <th style="border:1px solid #ddd; padding:8px;">اسم الطالب</th>
+                        <th style="border:1px solid #ddd; padding:8px;">الصف والشعبة</th>
+                        <th style="border:1px solid #ddd; padding:8px;">التفاصيل / الوقت</th>
+                        <th style="border:1px solid #ddd; padding:8px;">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody">
+                    <!-- سيتم تعبئتها برمجياً -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <!-- دوال التحكم بتسجيل الدخول والخروج -->
+    <script>
+        // عنوان السيرفر الخلفي المستخدم لتسجيل الدخول واسترجاع كلمة المرور
+        const AUTH_BASE_URL = 'https://almustqbal.onrender.com';
+
+        async function checkPassword() {
+            const userInput = document.getElementById("passInput").value;
+            const loginBtn = document.querySelector('.login-box button');
+            const originalBtnText = loginBtn.innerText;
+
+            loginBtn.disabled = true;
+            loginBtn.innerText = "جاري التحقق...";
+            document.getElementById("errorMsg").style.display = "none";
+
+            try {
+                const response = await fetch(`${AUTH_BASE_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: userInput })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById("loginScreen").style.display = "none";
+                    document.getElementById("mainContent").style.display = "block";
+                } else {
+                    document.getElementById("errorMsg").style.display = "block";
+                }
+            } catch (err) {
+                alert("تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.");
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerText = originalBtnText;
+            }
+        }
+
+        function logout() {
+            document.getElementById("mainContent").style.display = "none";
+            document.getElementById("loginScreen").style.display = "flex";
+            document.getElementById("passInput").value = "";
+            document.getElementById("errorMsg").style.display = "none";
+            
+        }
+
+        // استرجاع كلمة المرور عبر التحقق من الإيميل وإرسال كلمة مرور عشوائية
+        async function forgotPassword() {
+            const email = prompt("الرجاء إدخال البريد الإلكتروني لاسترجاع كلمة المرور:");
+            if (!email) return;
+
+            try {
+                const response = await fetch(`${AUTH_BASE_URL}/api/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email.trim() })
+                });
+                const result = await response.json();
+                alert(result.message);
+            } catch (err) {
+                alert("تعذر الاتصال بالسيرفر، حاول لاحقًا.");
+            }
+        }
+        
+    </script>
+
+    <!-- ملف الجافاسكريبت الخاص بالنظام -->
+    <script src="script.js"></script>
+</body>
+</html>
