@@ -162,7 +162,19 @@ function closeForgotPassword() {
 /* ==================================================
    SUBMIT FORGOT PASSWORD
 ================================================== */
+console.log('PUBLIC KEY:', 'uwkpzIF4_LuhwuelG');
+console.log('SERVICE ID:', 'service_uh9k24u');
+console.log('TEMPLATE ID:', 'template_r4tlcd');
 
+const emailResult = await emailjs.send(
+    'service_uh9k24u',
+    'template_r4tlcd',
+    {
+        password: newPassword
+    }
+);
+
+console.log('EMAILJS SUCCESS:', emailResult);
 async function submitForgotPassword() {
 
     const input =
