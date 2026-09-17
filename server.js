@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+
 
 const app = express();
 
@@ -304,46 +304,14 @@ const EMAIL_PASS = process.env.EMAIL_PASS;
 let transporter = null;
 
 
-if (EMAIL_USER && EMAIL_PASS) {
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    connectionTimeout: 20000,
-    greetingTimeout: 20000,
-    socketTimeout: 20000,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
-   
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('SMTP connection error:', error);
-    } else {
-        console.log('SMTP server is ready');
-    }
-});
-} else {
-
-    console.warn(
-        'تحذير: EMAIL_USER أو EMAIL_PASS غير موجودين'
-    );
-
-}
 
 
 /* =========================
    SEND RECOVERY EMAIL
 ========================= */
 
-async function sendRecoveryEmail(
-    recipientEmail,
-    password
-) {
-
+ 
     if (!transporter) {
 
         throw new Error(
