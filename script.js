@@ -310,13 +310,12 @@ async function submitForgotPassword() {
 
         try {
 
-    const emailResult =
+ const emailResult =
     await emailjs.send(
-        'service_uh9k24',
+        'service_uh9k24u',
         'template_r4tlcd',
         {
-            password: newPassword,
-            newPassword: newPassword
+            password: newPassword
         }
     );
 
