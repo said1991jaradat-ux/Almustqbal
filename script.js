@@ -94,7 +94,7 @@ async function forgotPassword() {
 
     try {
 
-        // أولاً: طلب إنشاء كلمة مرور جديدة من السيرفر
+        // 1️⃣ إنشاء كلمة المرور من السيرفر
         const response = await fetch(
             'https://almustqbal.onrender.com/api/forgot-password',
             {
@@ -107,31 +107,53 @@ async function forgotPassword() {
 
         const data = await response.json();
 
+        console.log('Backend response:', data);
+
         if (!response.ok || !data.success) {
+
             alert(
                 data.message ||
                 'حدث خطأ أثناء إنشاء كلمة المرور الجديدة.'
             );
+
             return;
         }
 
-        // كلمة المرور الجديدة التي أنشأها السيرفر
+
         const newPassword = data.password;
 
-        // إرسالها عبر EmailJS
+
+        // 2️⃣ إرسال كلمة المرور بواسطة EmailJS
+        console.log(
+            'سيتم إرسال كلمة المرور عبر EmailJS:',
+            newPassword
+        );
+
+
         const emailResult = await emailjs.send(
+
             'service_uh9k24u',
+
             'template_r4tlcdl',
+
             {
                 password: newPassword
             }
+
         );
 
-        console.log('EmailJS result:', emailResult);
 
+        console.log(
+            'EmailJS result:',
+            emailResult
+        );
+
+
+        // 3️⃣ نجاح
         alert(
             'تم إنشاء كلمة مرور جديدة وإرسالها إلى البريد الإلكتروني بنجاح.'
         );
+
 
     } catch (error) {
 
@@ -140,10 +162,13 @@ async function forgotPassword() {
             error
         );
 
+
         alert(
-            'تعذر إرسال كلمة السر إلى البريد الإلكتروني.'
+            'تم إنشاء كلمة مرور جديدة، لكن تعذر إرسالها إلى البريد الإلكتروني.\n\nراجع Console لمعرفة سبب الخطأ.'
         );
+
     }
+
 }
 
 /* ==================================================
