@@ -1483,6 +1483,267 @@
     </div>
 
 </div>
+
+    <script>
+
+    /* =========================================
+       فتح نافذة نسيت كلمة المرور
+    ========================================= */
+
+    function forgotPassword() {
+
+        document
+            .getElementById(
+                "forgotPasswordModal"
+            )
+            .style.display = "flex";
+
+
+        document
+            .getElementById(
+                "favoriteNumberInput"
+            )
+            .value = "";
+
+
+        document
+            .getElementById(
+                "forgotErrorMsg"
+            )
+            .style.display = "none";
+
+
+        setTimeout(() => {
+
+            document
+                .getElementById(
+                    "favoriteNumberInput"
+                )
+                .focus();
+
+        }, 100);
+
+    }
+
+
+
+    /* =========================================
+       إغلاق النافذة
+    ========================================= */
+
+    function closeForgotPassword() {
+
+        document
+            .getElementById(
+                "forgotPasswordModal"
+            )
+            .style.display = "none";
+
+    }
+
+
+
+    /* =========================================
+       التحقق من رقم الأمان
+    ========================================= */
+
+    async function submitForgotPassword() {
+
+        const answer =
+            document
+                .getElementById(
+                    "favoriteNumberInput"
+                )
+                .value
+                .trim();
+
+
+        const errorMsg =
+            document
+                .getElementById(
+                    "forgotErrorMsg"
+                );
+
+
+        const submitBtn =
+            document
+                .getElementById(
+                    "forgotSubmitBtn"
+                );
+
+
+        errorMsg.style.display = "none";
+
+
+        if (!answer) {
+
+            errorMsg.innerText =
+                "يرجى إدخال رقمك المفضل";
+
+            errorMsg.style.display = "block";
+
+            return;
+
+        }
+
+
+        submitBtn.disabled = true;
+
+        submitBtn.innerText =
+            "جاري التحقق...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${AUTH_BASE_URL}/api/forgot-password`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                answer:
+                                    answer
+
+                            })
+
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (!result.success) {
+
+                errorMsg.innerText =
+                    result.message ||
+                    "الإجابة غير صحيحة";
+
+                errorMsg.style.display =
+                    "block";
+
+                return;
+
+            }
+
+
+            /* =====================================
+               الإجابة صحيحة
+            ===================================== */
+
+            const newPassword =
+                result.password;
+
+
+            /*
+             * هنا يتم إرسال كلمة المرور
+             * عبر EmailJS
+             */
+
+            await sendPasswordByEmail(
+                newPassword
+            );
+
+
+            alert(
+                "تم التحقق بنجاح، وتم إرسال كلمة المرور إلى البريد الإلكتروني."
+            );
+
+
+            closeForgotPassword();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            errorMsg.innerText =
+                "تعذر الاتصال بالسيرفر، حاول مرة أخرى.";
+
+            errorMsg.style.display =
+                "block";
+
+        }
+
+
+        finally {
+
+            submitBtn.disabled = false;
+
+            submitBtn.innerText =
+                "متابعة";
+
+        }
+
+    }
+
+
+
+    /* =========================================
+       إرسال كلمة المرور عبر EmailJS
+    ========================================= */
+
+    async function sendPasswordByEmail(
+        password
+    ) {
+
+        await emailjs.send(
+
+            "YOUR_SERVICE_ID",
+
+            "YOUR_TEMPLATE_ID",
+
+            {
+
+                password:
+                    password
+
+            }
+
+        );
+
+    }
+
+
+
+    /* =========================================
+       Enter داخل سؤال الأمان
+    ========================================= */
+
+    document
+        .getElementById(
+            "favoriteNumberInput"
+        )
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    submitForgotPassword();
+
+                }
+
+            }
+        );
+
+</script>
+    
 </body>
 </html>
 
