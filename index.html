@@ -295,7 +295,301 @@
 
     </div>
     <!-- شاشة الإدارة والتقارير -->
-<div id="adminModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10000; overflow-y:auto; padding:20px;">
+<div
+    id="adminModal"
+    class="admin-modal"
+    style="display:none;">
+
+    <div class="admin-page">
+
+
+        <!-- =========================
+             HEADER
+        ========================== -->
+
+        <div class="admin-header">
+
+            <div>
+
+                <h2>
+                    📊 لوحة الإدارة والتقارير
+                </h2>
+
+                <p>
+                    مدرسة ذكور المستقبل الصالح الأساسية العليا
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="admin-close-btn"
+                onclick="closeAdminDashboard()">
+
+                ✕ العودة للنظام
+
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             TABS
+        ========================== -->
+
+        <div class="admin-tabs">
+
+            <button
+                type="button"
+                class="admin-tab active"
+                data-type="daily"
+                onclick="switchReportTab('daily')">
+
+                📅 التقرير اليومي
+
+            </button>
+
+
+            <button
+                type="button"
+                class="admin-tab"
+                data-type="weekly"
+                onclick="switchReportTab('weekly')">
+
+                📆 التقرير الأسبوعي
+
+            </button>
+
+
+            <button
+                type="button"
+                class="admin-tab"
+                data-type="monthly"
+                onclick="switchReportTab('monthly')">
+
+                🗓️ التقرير الشهري
+
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             CONTROLS
+        ========================== -->
+
+        <div class="admin-controls">
+
+            <div>
+
+                <label>
+                    اختر التاريخ المرجعي:
+                </label>
+
+                <input
+                    type="date"
+                    id="adminReferenceDate"
+                    onchange="changeAdminReportDate()">
+
+            </div>
+
+
+            <div class="admin-period">
+
+                <strong id="adminReportTitle">
+                    التقرير اليومي
+                </strong>
+
+                <span id="adminPeriodLabel">
+                    -
+                </span>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="admin-refresh-btn"
+                onclick="loadAllRecordsForAdmin()">
+
+                🔄 تحديث
+
+            </button>
+
+
+            <button
+                type="button"
+                class="admin-print-btn"
+                onclick="printAdminReport()">
+
+                🖨️ طباعة التقرير
+
+            </button>
+
+        </div>
+
+
+        <!-- =========================
+             SUMMARY
+        ========================== -->
+
+        <div class="admin-summary">
+
+
+            <div class="summary-card total">
+
+                <div class="summary-icon">
+                    📊
+                </div>
+
+                <div>
+
+                    <span>
+                        إجمالي الحالات
+                    </span>
+
+                    <strong id="adminTotalCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card lateness">
+
+                <div class="summary-icon">
+                    ⏰
+                </div>
+
+                <div>
+
+                    <span>
+                        التأخير الصباحي
+                    </span>
+
+                    <strong id="adminLatenessCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card uniform">
+
+                <div class="summary-icon">
+                    👕
+                </div>
+
+                <div>
+
+                    <span>
+                        الزي المدرسي
+                    </span>
+
+                    <strong id="adminUniformCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card escape">
+
+                <div class="summary-icon">
+                    🚪
+                </div>
+
+                <div>
+
+                    <span>
+                        الهروب
+                    </span>
+
+                    <strong id="adminEscapeCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =========================
+             TABLE
+        ========================== -->
+
+        <div class="admin-table-container">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            التاريخ
+                        </th>
+
+                        <th>
+                            نوع الحالة
+                        </th>
+
+                        <th>
+                            اسم الطالب
+                        </th>
+
+                        <th>
+                            الصف / الشعبة
+                        </th>
+
+                        <th>
+                            الوقت / التفاصيل
+                        </th>
+
+                        <th>
+                            إجراء
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="adminTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="no-data">
+
+                            جاري تحميل البيانات...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </div>
+
+</div>
     <div style="background:white; max-width:1000px; margin:30px auto; padding:20px; border-radius:8px; position:relative;">
         <button onclick="closeAdminDashboard()" style="float:left; background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;">إغلاق X</button>        <h2>لوحة الإدارة والتقارير الشاملة</h2>
         <hr>
