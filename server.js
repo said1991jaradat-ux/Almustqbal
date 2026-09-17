@@ -306,17 +306,26 @@ let transporter = null;
 
 if (EMAIL_USER && EMAIL_PASS) {
 
-    transporter = nodemailer.createTransport({
-
-        service: 'gmail',
-
-        auth: {
-            user: EMAIL_USER,
-            pass: EMAIL_PASS
-        }
-
-    });
-
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+   
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('SMTP connection error:', error);
+    } else {
+        console.log('SMTP server is ready');
+    }
+});
 } else {
 
     console.warn(
