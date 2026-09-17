@@ -309,7 +309,8 @@ async function submitForgotPassword() {
         ========================================= */
 
         try {
-
+console.log('EMAILJS SERVICE ID =', 'service_uh9k24u');
+console.log('EMAILJS TEMPLATE ID =', 'template_r4tlcd');
  const emailResult =
     await emailjs.send(
         'service_uh9k24u',
