@@ -1486,137 +1486,247 @@
 
     <script>
 
+<!-- ==================================================
+     FORGOT PASSWORD MODAL
+================================================== -->
+
+<div
+    id="forgotPasswordModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.55);
+        z-index:10000;
+        justify-content:center;
+        align-items:center;
+    ">
+
+    <div
+        style="
+            background:white;
+            width:90%;
+            max-width:400px;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 10px 35px rgba(0,0,0,0.2);
+            text-align:center;
+        ">
+
+        <h2>استعادة كلمة المرور</h2>
+
+        <p>ما هو رقمك المفضل؟</p>
+
+        <input
+            type="number"
+            id="favoriteNumberInput"
+            placeholder="أدخل رقمك المفضل"
+            autocomplete="off"
+            style="
+                width:100%;
+                box-sizing:border-box;
+                padding:12px;
+                margin:10px 0;
+                font-size:16px;
+                text-align:center;
+                border:1px solid #ddd;
+                border-radius:6px;
+            ">
+
+        <button
+            type="button"
+            id="forgotSubmitBtn"
+            onclick="submitForgotPassword()"
+            style="
+                width:100%;
+                padding:12px;
+                margin-top:8px;
+                background:#007bff;
+                color:white;
+                border:none;
+                border-radius:6px;
+                font-size:16px;
+                cursor:pointer;
+            ">
+            متابعة
+        </button>
+
+        <button
+            type="button"
+            onclick="closeForgotPassword()"
+            style="
+                width:100%;
+                padding:10px;
+                margin-top:8px;
+                background:#6c757d;
+                color:white;
+                border:none;
+                border-radius:6px;
+                cursor:pointer;
+            ">
+            إلغاء
+        </button>
+
+        <p
+            id="forgotErrorMsg"
+            style="
+                color:red;
+                display:none;
+                margin-top:12px;
+            ">
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     FORGOT PASSWORD FUNCTIONS
+================================================== -->
+
+<script>
+
     /* =========================================
        فتح نافذة نسيت كلمة المرور
     ========================================= */
 
     function forgotPassword() {
 
-        document
-            .getElementById(
+        const modal =
+            document.getElementById(
                 "forgotPasswordModal"
-            )
-            .style.display = "flex";
+            );
 
-
-        document
-            .getElementById(
+        const input =
+            document.getElementById(
                 "favoriteNumberInput"
-            )
-            .value = "";
+            );
 
-
-        document
-            .getElementById(
+        const errorMsg =
+            document.getElementById(
                 "forgotErrorMsg"
-            )
-            .style.display = "none";
+            );
 
+        if (!modal) {
+            console.error(
+                "forgotPasswordModal غير موجود"
+            );
+            return;
+        }
 
-        setTimeout(() => {
+        modal.style.display = "flex";
 
-            document
-                .getElementById(
-                    "favoriteNumberInput"
-                )
-                .focus();
+        if (input) {
+            input.value = "";
 
-        }, 100);
+            setTimeout(function () {
+                input.focus();
+            }, 100);
+        }
+
+        if (errorMsg) {
+            errorMsg.textContent = "";
+            errorMsg.style.display = "none";
+        }
 
     }
 
 
-
     /* =========================================
-       إغلاق النافذة
+       إغلاق نافذة استعادة كلمة المرور
     ========================================= */
 
     function closeForgotPassword() {
 
-        document
-            .getElementById(
+        const modal =
+            document.getElementById(
                 "forgotPasswordModal"
-            )
-            .style.display = "none";
+            );
+
+        if (modal) {
+            modal.style.display = "none";
+        }
 
     }
 
 
-
     /* =========================================
-       التحقق من رقم الأمان
+       إرسال طلب استعادة كلمة المرور
     ========================================= */
 
     async function submitForgotPassword() {
 
-        const answer =
-            document
-                .getElementById(
-                    "favoriteNumberInput"
-                )
-                .value
-                .trim();
-
+        const input =
+            document.getElementById(
+                "favoriteNumberInput"
+            );
 
         const errorMsg =
-            document
-                .getElementById(
-                    "forgotErrorMsg"
-                );
-
+            document.getElementById(
+                "forgotErrorMsg"
+            );
 
         const submitBtn =
-            document
-                .getElementById(
-                    "forgotSubmitBtn"
-                );
+            document.getElementById(
+                "forgotSubmitBtn"
+            );
+
+        const answer =
+            input
+                ? input.value.trim()
+                : "";
 
 
-        errorMsg.style.display = "none";
+        if (errorMsg) {
+            errorMsg.textContent = "";
+            errorMsg.style.display = "none";
+        }
 
 
         if (!answer) {
 
-            errorMsg.innerText =
-                "يرجى إدخال رقمك المفضل";
+            if (errorMsg) {
+                errorMsg.textContent =
+                    "يرجى إدخال رقمك المفضل";
 
-            errorMsg.style.display = "block";
+                errorMsg.style.display =
+                    "block";
+            }
 
             return;
-
         }
 
 
-        submitBtn.disabled = true;
-
-        submitBtn.innerText =
-            "جاري التحقق...";
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText =
+                "جاري التحقق...";
+        }
 
 
         try {
+
+            /* =====================================
+               التحقق من رقم الأمان عبر Render
+            ===================================== */
 
             const response =
                 await fetch(
                     `${AUTH_BASE_URL}/api/forgot-password`,
                     {
-
                         method: "POST",
 
                         headers: {
-
                             "Content-Type":
                                 "application/json"
-
                         },
 
                         body:
                             JSON.stringify({
-
                                 answer:
                                     answer
-
                             })
-
                     }
                 );
 
@@ -1625,40 +1735,69 @@
                 await response.json();
 
 
-            if (!result.success) {
+            console.log(
+                "Forgot Password Response:",
+                result
+            );
 
-                errorMsg.innerText =
-                    result.message ||
-                    "الإجابة غير صحيحة";
 
-                errorMsg.style.display =
-                    "block";
+            /* =====================================
+               الرقم غير صحيح
+            ===================================== */
+
+            if (!response.ok || !result.success) {
+
+                if (errorMsg) {
+
+                    errorMsg.textContent =
+                        result.message ||
+                        "الإجابة غير صحيحة";
+
+                    errorMsg.style.display =
+                        "block";
+                }
 
                 return;
-
             }
 
 
             /* =====================================
-               الإجابة صحيحة
+               الرقم صحيح
             ===================================== */
 
             const newPassword =
                 result.password;
 
 
-            /*
-             * هنا يتم إرسال كلمة المرور
-             * عبر EmailJS
-             */
+            if (!newPassword) {
+
+                throw new Error(
+                    "لم تصل كلمة المرور الجديدة من السيرفر"
+                );
+
+            }
+
+
+            console.log(
+                "كلمة المرور الجديدة تم إنشاؤها بنجاح"
+            );
+
+
+            /* =====================================
+               إرسال كلمة المرور عبر EmailJS
+            ===================================== */
 
             await sendPasswordByEmail(
                 newPassword
             );
 
 
+            /* =====================================
+               نجاح العملية بالكامل
+            ===================================== */
+
             alert(
-                "تم التحقق بنجاح، وتم إرسال كلمة المرور إلى البريد الإلكتروني."
+                "تم التحقق بنجاح، وتم إرسال كلمة المرور الجديدة إلى البريد الإلكتروني."
             );
 
 
@@ -1667,29 +1806,34 @@
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "FORGOT PASSWORD ERROR:",
+                error
+            );
 
 
-            errorMsg.innerText =
-                "تعذر الاتصال بالسيرفر، حاول مرة أخرى.";
+            if (errorMsg) {
 
-            errorMsg.style.display =
-                "block";
+                errorMsg.textContent =
+                    "حدث خطأ أثناء استعادة كلمة المرور.";
 
-        }
+                errorMsg.style.display =
+                    "block";
+            }
 
+        } finally {
 
-        finally {
+            if (submitBtn) {
 
-            submitBtn.disabled = false;
+                submitBtn.disabled = false;
 
-            submitBtn.innerText =
-                "متابعة";
+                submitBtn.innerText =
+                    "متابعة";
+            }
 
         }
 
     }
-
 
 
     /* =========================================
@@ -1700,47 +1844,76 @@
         password
     ) {
 
-  await emailjs.send(
+        if (
+            typeof emailjs === "undefined"
+        ) {
 
-    "service_uh9k24u",
+            throw new Error(
+                "EmailJS غير محمّل في الصفحة"
+            );
 
-    "template_r4tlcd",
+        }
 
-    {
 
-        password:
-            password
+        const result =
+            await emailjs.send(
+                "service_uh9k24u",
+                "template_r4tlcd",
+                {
+                    password: password
+                }
+            );
+
+
+        console.log(
+            "EMAILJS SUCCESS:",
+            result
+        );
+
+
+        return result;
 
     }
 
-);
-
 
     /* =========================================
-       Enter داخل سؤال الأمان
+       Enter داخل حقل رقم الأمان
     ========================================= */
 
-    document
-        .getElementById(
-            "favoriteNumberInput"
-        )
-        .addEventListener(
-            "keydown",
-            function(event) {
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
 
-                if (
-                    event.key === "Enter"
-                ) {
+            const input =
+                document.getElementById(
+                    "favoriteNumberInput"
+                );
 
-                    submitForgotPassword();
+            if (!input) {
+                return;
+            }
+
+            input.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key === "Enter"
+                    ) {
+
+                        event.preventDefault();
+
+                        submitForgotPassword();
+
+                    }
 
                 }
+            );
 
-            }
-        );
+        }
+    );
 
 </script>
-    
+
 </body>
 </html>
-
