@@ -491,47 +491,15 @@ app.post('/api/forgot-password', async (req, res) => {
 
     try {
 
-        /*
-         * إنشاء رقم عشوائي من 4 أرقام
-         *
-         * من 1000 إلى 9999
-         */
-
         const newPassword =
-            Math.floor(
-                1000 +
-                Math.random() * 9000
-            ).toString();
+            Math.floor(1000 + Math.random() * 9000).toString();
 
-
-        /*
-         * حفظ كلمة السر الجديدة
-         */
-
-        await setCurrentPassword(
-            newPassword
-        );
-
-
-        /*
-         * إرسالها إلى البريد
-         */
-
-        await sendRecoveryEmail(
-            RECOVERY_EMAIL,
-            newPassword
-        );
-
+        await setCurrentPassword(newPassword);
 
         res.json({
-
             success: true,
-
-            message:
-                'تم إرسال كلمة السر الجديدة إلى البريد الإلكتروني'
-
+            password: newPassword
         });
-
 
     } catch (error) {
 
@@ -540,20 +508,12 @@ app.post('/api/forgot-password', async (req, res) => {
             error
         );
 
-
         res.status(500).json({
-
             success: false,
-
-            message:
-                'تعذر إرسال كلمة السر إلى البريد الإلكتروني'
-
+            message: 'تعذر إنشاء كلمة المرور الجديدة.'
         });
-
     }
-
 });
-
 
 /* ==================================================
    SERVER
