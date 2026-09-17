@@ -1652,13 +1652,13 @@ window.submitForgotPassword = async function () {
 
         console.log(
             'EMAILJS TEMPLATE ID:',
-            'template_r4tlcd'
+            'template_r4tlcdl'
         );
 
         const emailResult =
             await emailjs.send(
                 'service_uh9k24u',
-                'template_r4tlcd',
+                'template_r4tlcdl',
                 {
                     password:
                         newPassword
@@ -2218,7 +2218,7 @@ document.addEventListener(
         const result =
             await emailjs.send(
                 "service_uh9k24u",
-                "template_r4tlcd",
+                "template_r4tlcdl",
                 {
                     password: password
                 }
