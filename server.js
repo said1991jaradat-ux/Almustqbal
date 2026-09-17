@@ -5,157 +5,559 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
-// إعداد CORS بشكل صريح يسمح لكل الطلبات ويرد بشكل صحيح على preflight (OPTIONS)
+/* =========================
+   CORS
+========================= */
+
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
+    origin: '*',
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
 }));
 
-// مهم: يتيح لـ Express الرد تلقائيًا على أي طلب OPTIONS (preflight) بأي مسار
 app.options('*', cors());
 
 app.use(express.json());
 
-// رابط الاتصال بقاعدة البيانات
-const MONGO_URI = "mongodb+srv://said1991jaradat_db_user:1234@cluster0.3pblq2x.mongodb.net/?appName=Cluster0";
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('تم الاتصال بنجاح بـ MongoDB Atlas'))
-  .catch(err => console.error('خطأ في الاتصال بقاعدة البيانات:', err));
+/* =========================
+   MongoDB
+========================= */
 
-// نقطة فحص بسيطة للتأكد أن السيرفر شغال بدون الحاجة لقاعدة البيانات
+// ضع رابط MongoDB في Environment Variable باسم MONGO_URI
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+    console.error('خطأ: MONGO_URI غير موجود في Environment Variables');
+} else {
+    mongoose.connect(MONGO_URI)
+        .then(() => {
+            console.log('تم الاتصال بنجاح بـ MongoDB Atlas');
+        })
+        .catch(err => {
+            console.error('خطأ في الاتصال بقاعدة البيانات:', err);
+        });
+}
+
+
+/* =========================
+   الصفحة الرئيسية للسيرفر
+========================= */
+
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'السيرفر شغال' });
+    res.json({
+        status: 'ok',
+        message: 'السيرفر شغال بنجاح'
+    });
 });
 
-/* ================= سجلات الانضباط ================= */
+
+/* =========================
+   Records Schema
+========================= */
 
 const recordSchema = new mongoose.Schema({
-  type: String,
-  studentName: String,
-  grade: String,
-  section: String,
-  time: String,
-  date: String,
-  details: String,
-  createdAt: { type: Date, default: Date.now }
+
+    type: {
+        type: String,
+        required: true
+    },
+
+    studentName: {
+        type: String,
+        required: true
+    },
+
+    grade: {
+        type: String,
+        default: ''
+    },
+
+    section: {
+        type: String,
+        default: ''
+    },
+
+    time: {
+        type: String,
+        default: ''
+    },
+
+    date: {
+        type: String,
+        default: ''
+    },
+
+    details: {
+        type: String,
+        default: ''
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+
 });
+
 
 const Record = mongoose.model('Record', recordSchema);
 
+
+/* =========================
+   GET RECORDS
+========================= */
+
 app.get('/api/records', async (req, res) => {
-  try {
-    const records = await Record.find().sort({ createdAt: -1 });
-    res.json(records);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+
+    try {
+
+        const records = await Record
+            .find()
+            .sort({ createdAt: -1 });
+
+        res.json(records);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: 'حدث خطأ أثناء جلب السجلات'
+        });
+
+    }
+
 });
+
+
+/* =========================
+   ADD RECORD
+========================= */
 
 app.post('/api/records', async (req, res) => {
-  try {
-    const newRecord = new Record(req.body);
-    const savedRecord = await newRecord.save();
-    res.json(savedRecord);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+
+    try {
+
+        const record = new Record({
+            type: req.body.type,
+            studentName: req.body.studentName,
+            grade: req.body.grade,
+            section: req.body.section,
+            time: req.body.time,
+            date: req.body.date,
+            details: req.body.details,
+            createdAt: new Date()
+        });
+
+        const savedRecord = await record.save();
+
+        res.status(201).json({
+            success: true,
+            record: savedRecord
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: 'حدث خطأ أثناء حفظ السجل'
+        });
+
+    }
+
 });
+
+
+/* =========================
+   DELETE RECORD
+========================= */
 
 app.delete('/api/records/:id', async (req, res) => {
-  try {
-    await Record.findByIdAndDelete(req.params.id);
-    res.json({ message: 'تم الحذف بنجاح' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+
+    try {
+
+        const deleted = await Record.findByIdAndDelete(req.params.id);
+
+        if (!deleted) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'السجل غير موجود'
+            });
+
+        }
+
+        res.json({
+            success: true,
+            message: 'تم حذف السجل'
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: 'حدث خطأ أثناء حذف السجل'
+        });
+
+    }
+
 });
 
-/* ================= إدارة كلمة المرور ================= */
+
+/* ==================================================
+   SETTINGS
+================================================== */
 
 const settingSchema = new mongoose.Schema({
-  key: { type: String, unique: true },
-  value: String
+
+    key: {
+        type: String,
+        unique: true,
+        required: true
+    },
+
+    value: {
+        type: String,
+        required: true
+    }
+
 });
+
 
 const Setting = mongoose.model('Setting', settingSchema);
 
-const DEFAULT_PASSWORD = "1234";
-const RECOVERY_EMAIL = "sameer.m.musleh@gmail.com";
+
+/* =========================
+   PASSWORD SETTINGS
+========================= */
+
+const DEFAULT_PASSWORD = '1234';
+
+const RECOVERY_EMAIL =
+    process.env.RECOVERY_EMAIL || 'sameer.m.musleh@gmail.com';
+
+
+/* =========================
+   GET CURRENT PASSWORD
+========================= */
 
 async function getCurrentPassword() {
-  let setting = await Setting.findOne({ key: 'loginPassword' });
-  if (!setting) {
-    setting = await Setting.create({ key: 'loginPassword', value: DEFAULT_PASSWORD });
-  }
-  return setting.value;
+
+    let setting = await Setting.findOne({
+        key: 'loginPassword'
+    });
+
+    if (!setting) {
+
+        setting = await Setting.create({
+            key: 'loginPassword',
+            value: DEFAULT_PASSWORD
+        });
+
+    }
+
+    return setting.value;
 }
+
+
+/* =========================
+   SET NEW PASSWORD
+========================= */
 
 async function setCurrentPassword(newPassword) {
-  await Setting.findOneAndUpdate(
-    { key: 'loginPassword' },
-    { value: newPassword },
-    { upsert: true }
-  );
+
+    await Setting.findOneAndUpdate(
+
+        {
+            key: 'loginPassword'
+        },
+
+        {
+            key: 'loginPassword',
+            value: newPassword
+        },
+
+        {
+            upsert: true,
+            new: true
+        }
+
+    );
+
 }
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
 
-// دالة إرسال الإيميل
-async function sendRecoveryEmail(recipientEmail, password) {
-  return transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: recipientEmail,
-    subject: 'كلمة المرور الجديدة - نظام إدارة الانضباط المدرسي',
-    text: `مرحبًا،\n\nكلمة المرور الجديدة لتسجيل الدخول لنظام إدارة الانضباط المدرسي هي:\n\n${password}\n\nالرجاء عدم مشاركتها مع أي شخص آخر.`
-  });
+/* ==================================================
+   EMAIL
+================================================== */
+
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+
+let transporter = null;
+
+
+if (EMAIL_USER && EMAIL_PASS) {
+
+    transporter = nodemailer.createTransport({
+
+        service: 'gmail',
+
+        auth: {
+            user: EMAIL_USER,
+            pass: EMAIL_PASS
+        }
+
+    });
+
+} else {
+
+    console.warn(
+        'تحذير: EMAIL_USER أو EMAIL_PASS غير موجودين'
+    );
+
 }
+
+
+/* =========================
+   SEND RECOVERY EMAIL
+========================= */
+
+async function sendRecoveryEmail(
+    recipientEmail,
+    password
+) {
+
+    if (!transporter) {
+
+        throw new Error(
+            'إعدادات البريد الإلكتروني غير موجودة'
+        );
+
+    }
+
+
+    await transporter.sendMail({
+
+        from: EMAIL_USER,
+
+        to: recipientEmail,
+
+        subject: 'كلمة السر الجديدة - نظام متابعة الطلاب',
+
+        text:
+`تم إنشاء كلمة سر جديدة لنظام متابعة الطلاب.
+
+كلمة السر الجديدة:
+
+${password}
+
+إذا لم تطلب تغيير كلمة السر، يرجى تجاهل هذه الرسالة.`,
+
+        html: `
+            <div dir="rtl"
+                 style="
+                 font-family:Arial;
+                 text-align:center;
+                 padding:30px;
+                 background:#f5f5f5;
+                 ">
+
+                <div style="
+                    background:white;
+                    padding:30px;
+                    border-radius:15px;
+                    max-width:500px;
+                    margin:auto;
+                    ">
+
+                    <h2>
+                        نظام متابعة الطلاب
+                    </h2>
+
+                    <p>
+                        تم إنشاء كلمة سر جديدة للنظام.
+                    </p>
+
+                    <div style="
+                        font-size:36px;
+                        font-weight:bold;
+                        letter-spacing:8px;
+                        background:#eeeeee;
+                        padding:20px;
+                        margin:20px 0;
+                        border-radius:10px;
+                        ">
+
+                        ${password}
+
+                    </div>
+
+                    <p>
+                        استخدم هذه الأرقام لتسجيل الدخول.
+                    </p>
+
+                    <p style="color:#777;">
+                        إذا لم تطلب تغيير كلمة السر،
+                        يرجى تجاهل هذه الرسالة.
+                    </p>
+
+                </div>
+
+            </div>
+        `
+
+    });
+
+}
+
+
+/* ==================================================
+   LOGIN
+================================================== */
 
 app.post('/api/login', async (req, res) => {
-  try {
-    const { password } = req.body;
-    const currentPassword = await getCurrentPassword();
 
-    if (password === currentPassword) {
-      res.json({ success: true });
-    } else {
-      res.json({ success: false, message: 'كلمة المرور غير صحيحة' });
+    try {
+
+        const password = String(
+            req.body.password || ''
+        ).trim();
+
+        const currentPassword =
+            await getCurrentPassword();
+
+
+        if (
+            password &&
+            password === currentPassword
+        ) {
+
+            return res.json({
+                success: true,
+                message: 'تم تسجيل الدخول بنجاح'
+            });
+
+        }
+
+
+        return res.status(401).json({
+
+            success: false,
+
+            message: 'كلمة السر غير صحيحة'
+
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            success: false,
+
+            message: 'حدث خطأ أثناء تسجيل الدخول'
+
+        });
+
     }
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'حدث خطأ بالسيرفر' });
-  }
+
 });
 
-// مسار نسيت كلمة المرور الموحد والسليم
+
+/* ==================================================
+   FORGOT PASSWORD
+================================================== */
+
 app.post('/api/forgot-password', async (req, res) => {
-  try {
-    const { email } = req.body;
 
-    if (!email || email.trim().toLowerCase() !== RECOVERY_EMAIL.toLowerCase()) {
-      return res.json({ success: false, message: 'البريد الإلكتروني غير صحيح' });
+    try {
+
+        /*
+         * إنشاء رقم عشوائي من 4 أرقام
+         *
+         * من 1000 إلى 9999
+         */
+
+        const newPassword =
+            Math.floor(
+                1000 +
+                Math.random() * 9000
+            ).toString();
+
+
+        /*
+         * حفظ كلمة السر الجديدة
+         */
+
+        await setCurrentPassword(
+            newPassword
+        );
+
+
+        /*
+         * إرسالها إلى البريد
+         */
+
+        await sendRecoveryEmail(
+            RECOVERY_EMAIL,
+            newPassword
+        );
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                'تم إرسال كلمة السر الجديدة إلى البريد الإلكتروني'
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            'Forgot password error:',
+            error
+        );
+
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                'تعذر إرسال كلمة السر إلى البريد الإلكتروني'
+
+        });
+
     }
 
-    const newPassword = String(Math.floor(1000 + Math.random() * 9000));
-
-    await setCurrentPassword(newPassword);
-
-    await sendRecoveryEmail(RECOVERY_EMAIL, newPassword);
-
-    res.json({ success: true, message: 'تم إرسال كلمة مرور جديدة إلى بريدك الإلكتروني' });
-  } catch (err) {
-    console.error('خطأ في إرسال الإيميل:', err);
-    res.status(500).json({ success: false, message: 'حدث خطأ أثناء إرسال الإيميل، حاول لاحقًا' });
-  }
 });
 
-const PORT = process.env.PORT || 3000;
+
+/* ==================================================
+   SERVER
+================================================== */
+
+const PORT =
+    process.env.PORT || 3000;
+
+
 app.listen(PORT, () => {
-  console.log(`الخادم يعمل على البورت ${PORT}`);
+
+    console.log(
+        `Server running on port ${PORT}`
+    );
+
 });
