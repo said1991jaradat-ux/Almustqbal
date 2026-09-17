@@ -1,4 +1,4 @@
-```css
+
 /* =========================================================
    مدرسة ذكور المستقبل الصالح الأساسية العليا
    النظام الإلكتروني للانضباط المدرسي
@@ -1323,4 +1323,260 @@ input::placeholder {
         font-size: 19px;
     }
 }
-```
+/* =========================================================
+   FINAL COLOR FIX
+   إصلاح نهائي لألوان وشكل الصفحة الرئيسية
+========================================================= */
+
+/* الصفحة */
+body {
+    background: #f4f6f9 !important;
+    color: #212529 !important;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    background: linear-gradient(
+        135deg,
+        #0b1d3a 0%,
+        #162c50 100%
+    ) !important;
+
+    color: #ffffff !important;
+
+    border-bottom: 4px solid #d4af37 !important;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.15) !important;
+}
+
+.school-info h1 {
+    color: #d4af37 !important;
+}
+
+.school-info h2 {
+    color: #ffffff !important;
+}
+
+.live-date {
+    background: #d4af37 !important;
+    color: #0b1d3a !important;
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.search-box input {
+    background: #ffffff !important;
+    color: #222222 !important;
+
+    border: 2px solid #d4af37 !important;
+}
+
+.btn-gold {
+    background: #d4af37 !important;
+    color: #0b1d3a !important;
+}
+
+.btn-gold:hover {
+    background: #b89528 !important;
+}
+
+.btn-sub {
+    background: transparent !important;
+    color: #d4af37 !important;
+    border: 1px solid #d4af37 !important;
+}
+
+.btn-sub:hover {
+    background: #d4af37 !important;
+    color: #0b1d3a !important;
+}
+
+
+/* =========================
+   MAIN CARDS
+========================= */
+
+.container {
+    background: #f4f6f9 !important;
+}
+
+.card {
+    background: #ffffff !important;
+
+    border-top: 5px solid #0b1d3a !important;
+
+    border-radius: 12px !important;
+
+    box-shadow:
+        0 4px 18px rgba(0,0,0,0.10) !important;
+}
+
+.card h3 {
+    color: #0b1d3a !important;
+
+    border-bottom: 2px solid #d4af37 !important;
+}
+
+
+/* =========================
+   LABELS
+========================= */
+
+label {
+    color: #0b1d3a !important;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+input,
+select {
+    background: #ffffff !important;
+
+    color: #212529 !important;
+
+    border: 1px solid #cfd5dc !important;
+}
+
+input:focus,
+select:focus {
+    border-color: #162c50 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(22,44,80,0.12) !important;
+}
+
+.auto-date {
+    background: #eef1f5 !important;
+    color: #0b1d3a !important;
+}
+
+
+/* =========================
+   MAIN BUTTONS
+========================= */
+
+.btn {
+    background:
+        linear-gradient(
+            135deg,
+            #0b1d3a,
+            #162c50
+        ) !important;
+
+    color: #d4af37 !important;
+
+    border: 1px solid #d4af37 !important;
+}
+
+.btn:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #162c50,
+            #203b67
+        ) !important;
+}
+
+
+/* زر التقرير */
+.btn-report {
+    background: #6c757d !important;
+
+    color: #ffffff !important;
+
+    border-color: #6c757d !important;
+}
+
+
+/* =========================
+   LIVE LOGS
+========================= */
+
+.logs-section {
+    border-top: 1px solid #e1e5e9 !important;
+}
+
+.log-item {
+    background: #f8f9fa !important;
+
+    border-right: 4px solid #d4af37 !important;
+}
+
+
+/* =========================
+   ADMIN BUTTON
+========================= */
+
+.admin-open-btn {
+    background: #163d63 !important;
+    color: #ffffff !important;
+}
+
+
+/* =========================
+   DELETE
+========================= */
+
+.delete-btn {
+    color: #c0392b !important;
+}
+
+.btn-danger {
+    background: #c0392b !important;
+    color: #ffffff !important;
+}
+
+
+/* =========================
+   ADMIN DASHBOARD
+========================= */
+
+.admin-page {
+    background: #f4f6f9 !important;
+}
+
+.admin-header {
+    background:
+        linear-gradient(
+            135deg,
+            #102a43,
+            #163d63
+        ) !important;
+
+    color: #ffffff !important;
+}
+
+.admin-tabs {
+    background: #ffffff !important;
+}
+
+.admin-tab.active {
+    background: #163d63 !important;
+    color: #ffffff !important;
+}
+
+.admin-controls {
+    background: #ffffff !important;
+}
+
+.summary-card {
+    background: #ffffff !important;
+}
+
+.admin-table-container {
+    background: #ffffff !important;
+}
+
+.admin-table th {
+    background: #163d63 !important;
+    color: #ffffff !important;
+}
