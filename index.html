@@ -1380,6 +1380,366 @@
 
 <script src="script.js"></script>
 
+    <!-- ==================================================
+     FORGOT PASSWORD MODAL
+================================================== -->
+
+<div
+    id="forgotPasswordModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.55);
+        z-index:10000;
+        justify-content:center;
+        align-items:center;
+    ">
+
+    <div
+        style="
+            background:white;
+            width:90%;
+            max-width:400px;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 10px 35px rgba(0,0,0,0.2);
+            text-align:center;
+        ">
+
+        <h2>استعادة كلمة المرور</h2>
+
+        <p>ما هو رقمك المفضل؟</p>
+
+        <input
+            type="number"
+            id="favoriteNumberInput"
+            placeholder="أدخل رقمك المفضل"
+            autocomplete="off"
+            style="
+                width:100%;
+                box-sizing:border-box;
+                padding:12px;
+                margin:10px 0;
+                font-size:16px;
+                text-align:center;
+                border:1px solid #ddd;
+                border-radius:6px;
+            ">
+
+        <button
+            type="button"
+            id="forgotSubmitBtn"
+            onclick="submitForgotPassword()"
+            style="
+                width:100%;
+                padding:12px;
+                margin-top:8px;
+                background:#007bff;
+                color:white;
+                border:none;
+                border-radius:6px;
+                font-size:16px;
+                cursor:pointer;
+            ">
+            متابعة
+        </button>
+
+        <button
+            type="button"
+            onclick="closeForgotPassword()"
+            style="
+                width:100%;
+                padding:10px;
+                margin-top:8px;
+                background:#6c757d;
+                color:white;
+                border:none;
+                border-radius:6px;
+                cursor:pointer;
+            ">
+            إلغاء
+        </button>
+
+        <p
+            id="forgotErrorMsg"
+            style="
+                color:red;
+                display:none;
+                margin-top:12px;
+            ">
+        </p>
+
+    </div>
+</div>
+
+
+<script>
+
+/* =========================================
+   فتح نافذة استعادة كلمة المرور
+========================================= */
+
+window.forgotPassword = function () {
+
+    const modal =
+        document.getElementById(
+            'forgotPasswordModal'
+        );
+
+    const input =
+        document.getElementById(
+            'favoriteNumberInput'
+        );
+
+    const errorMsg =
+        document.getElementById(
+            'forgotErrorMsg'
+        );
+
+    if (!modal) {
+        console.error(
+            'forgotPasswordModal غير موجود'
+        );
+        return;
+    }
+
+    modal.style.display = 'flex';
+
+    if (input) {
+        input.value = '';
+
+        setTimeout(function () {
+            input.focus();
+        }, 100);
+    }
+
+    if (errorMsg) {
+        errorMsg.textContent = '';
+        errorMsg.style.display = 'none';
+    }
+};
+
+
+/* =========================================
+   إغلاق النافذة
+========================================= */
+
+window.closeForgotPassword = function () {
+
+    const modal =
+        document.getElementById(
+            'forgotPasswordModal'
+        );
+
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
+
+
+/* =========================================
+   استعادة كلمة المرور
+========================================= */
+
+window.submitForgotPassword = async function () {
+
+    const input =
+        document.getElementById(
+            'favoriteNumberInput'
+        );
+
+    const errorMsg =
+        document.getElementById(
+            'forgotErrorMsg'
+        );
+
+    const submitBtn =
+        document.getElementById(
+            'forgotSubmitBtn'
+        );
+
+    const answer =
+        input
+            ? input.value.trim()
+            : '';
+
+    if (errorMsg) {
+        errorMsg.textContent = '';
+        errorMsg.style.display = 'none';
+    }
+
+    if (!answer) {
+
+        if (errorMsg) {
+            errorMsg.textContent =
+                'يرجى إدخال رقمك المفضل';
+
+            errorMsg.style.display =
+                'block';
+        }
+
+        return;
+    }
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText =
+            'جاري التحقق...';
+    }
+
+    try {
+
+        /* التحقق من رقم الأمان */
+
+        const response =
+            await fetch(
+                'https://almustqbal.onrender.com/api/forgot-password',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body:
+                        JSON.stringify({
+                            answer:
+                                answer
+                        })
+                }
+            );
+
+        const result =
+            await response.json();
+
+        console.log(
+            'Forgot password response:',
+            result
+        );
+
+        if (!response.ok ||
+            !result.success) {
+
+            if (errorMsg) {
+                errorMsg.textContent =
+                    result.message ||
+                    'الإجابة غير صحيحة';
+
+                errorMsg.style.display =
+                    'block';
+            }
+
+            return;
+        }
+
+        const newPassword =
+            result.password;
+
+        if (!newPassword) {
+            throw new Error(
+                'لم تصل كلمة المرور الجديدة من السيرفر'
+            );
+        }
+
+        /* إرسال كلمة المرور عبر EmailJS */
+
+        console.log(
+            'EMAILJS SERVICE ID:',
+            'service_uh9k24u'
+        );
+
+        console.log(
+            'EMAILJS TEMPLATE ID:',
+            'template_r4tlcd'
+        );
+
+        const emailResult =
+            await emailjs.send(
+                'service_uh9k24u',
+                'template_r4tlcd',
+                {
+                    password:
+                        newPassword
+                }
+            );
+
+        console.log(
+            'EMAILJS SUCCESS:',
+            emailResult
+        );
+
+        alert(
+            'تم إنشاء كلمة مرور جديدة وإرسالها إلى البريد الإلكتروني بنجاح.'
+        );
+
+        closeForgotPassword();
+
+    } catch (error) {
+
+        console.error(
+            'FORGOT PASSWORD ERROR:',
+            error
+        );
+
+        if (errorMsg) {
+
+            errorMsg.textContent =
+                error.text ||
+                error.message ||
+                'حدث خطأ أثناء استعادة كلمة المرور';
+
+            errorMsg.style.display =
+                'block';
+        }
+
+    } finally {
+
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText =
+                'متابعة';
+        }
+
+    }
+};
+
+
+/* =========================================
+   Enter لإرسال الإجابة
+========================================= */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const input =
+            document.getElementById(
+                'favoriteNumberInput'
+            );
+
+        if (!input) return;
+
+        input.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (event.key === 'Enter') {
+
+                    event.preventDefault();
+
+                    submitForgotPassword();
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
 <!-- ==================================================
      FORGOT PASSWORD MODAL
 ================================================== -->
