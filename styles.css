@@ -1,9 +1,608 @@
-/* ==================================================
-   ADMIN DASHBOARD
-================================================== */
+```css
+/* =========================================================
+   مدرسة ذكور المستقبل الصالح الأساسية العليا
+   النظام الإلكتروني للانضباط المدرسي
+   FULL STYLESHEET
+========================================================= */
+
+:root {
+    --navy: #0b1d3a;
+    --navy-light: #162c50;
+    --navy-soft: #203b67;
+
+    --gold: #d4af37;
+    --gold-hover: #b89528;
+
+    --white: #ffffff;
+    --gray-bg: #f4f6f9;
+    --gray-light: #eef1f5;
+    --gray-border: #d7dce2;
+    --gray-text: #6c757d;
+    --dark: #212529;
+
+    --red: #c0392b;
+    --red-dark: #a93226;
+
+    --orange: #e67e22;
+    --purple: #8e44ad;
+    --green: #27ae60;
+    --blue: #2980b9;
+
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+    --radius: 10px;
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family:
+        "Segoe UI",
+        Tahoma,
+        Arial,
+        sans-serif;
+}
+
+html {
+    direction: rtl;
+    scroll-behavior: smooth;
+}
+
+body {
+    direction: rtl;
+    background: var(--gray-bg);
+    color: var(--dark);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+.login-container {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b1d3a 0%,
+            #162c50 55%,
+            #203b67 100%
+        );
+}
+
+.login-box {
+    width: 100%;
+    max-width: 430px;
+
+    background: var(--white);
+
+    padding: 35px 30px;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.25);
+
+    text-align: center;
+}
+
+.login-box h1 {
+    color: var(--navy);
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.login-box h2 {
+    color: var(--gray-text);
+    font-size: 17px;
+    font-weight: normal;
+    margin-bottom: 25px;
+}
+
+.login-box label {
+    text-align: right;
+}
+
+.login-box input {
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+.login-btn {
+    margin-top: 18px;
+}
+
+.forgot-password {
+    display: block;
+
+    margin-top: 18px;
+
+    color: var(--blue);
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   MAIN HEADER
+========================================================= */
+
+.header {
+    background:
+        linear-gradient(
+            135deg,
+            var(--navy),
+            var(--navy-light)
+        );
+
+    color: var(--white);
+
+    padding: 18px 25px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    border-bottom: 4px solid var(--gold);
+
+    flex-wrap: wrap;
+
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+.school-info {
+    flex: 1;
+    min-width: 260px;
+}
+
+.school-info h1 {
+    color: var(--gold);
+
+    font-size: 24px;
+
+    margin-bottom: 4px;
+}
+
+.school-info h2 {
+    color: var(--white);
+
+    font-size: 16px;
+
+    font-weight: normal;
+
+    margin-bottom: 8px;
+}
+
+.live-date {
+    display: inline-block;
+
+    background: var(--gold);
+
+    color: var(--navy);
+
+    padding: 5px 12px;
+
+    border-radius: 6px;
+
+    font-weight: bold;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   HEADER ACTIONS
+========================================================= */
+
+.header-actions {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+
+    min-width: 320px;
+}
+
+.search-box {
+    display: flex;
+
+    gap: 8px;
+
+    width: 100%;
+}
+
+.search-box input {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 10px 12px;
+
+    border: 2px solid var(--gold);
+
+    border-radius: 7px;
+
+    background: var(--white);
+
+    color: var(--dark);
+
+    outline: none;
+}
+
+.search-box input:focus {
+    box-shadow:
+        0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.btn-gold {
+    background: var(--gold);
+
+    color: var(--navy);
+
+    border: none;
+
+    padding: 10px 16px;
+
+    font-weight: bold;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.btn-gold:hover {
+    background: var(--gold-hover);
+
+    transform: translateY(-1px);
+}
+
+.backup-btns {
+    display: flex;
+
+    gap: 7px;
+
+    justify-content: flex-end;
+
+    flex-wrap: wrap;
+}
+
+.btn-sub {
+    background: transparent;
+
+    border: 1px solid var(--gold);
+
+    color: var(--gold);
+
+    padding: 7px 10px;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    transition: 0.2s;
+}
+
+.btn-sub:hover {
+    background: var(--gold);
+
+    color: var(--navy);
+}
+
+
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+.container {
+    width: 100%;
+
+    max-width: 1500px;
+
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 22px;
+
+    padding: 25px;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+    background: var(--white);
+
+    border-radius: 12px;
+
+    padding: 22px;
+
+    box-shadow: var(--shadow);
+
+    border-top: 5px solid var(--navy);
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow-hover);
+}
+
+.card h3 {
+    color: var(--navy);
+
+    margin-bottom: 18px;
+
+    padding-bottom: 9px;
+
+    border-bottom: 2px solid var(--gold);
+
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-row {
+    display: flex;
+
+    gap: 12px;
+
+    width: 100%;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--navy);
+
+    font-weight: bold;
+
+    font-size: 14px;
+}
+
+input,
+select {
+    width: 100%;
+
+    padding: 10px 11px;
+
+    border: 1px solid var(--gray-border);
+
+    border-radius: 7px;
+
+    background: var(--white);
+
+    color: var(--dark);
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--navy-light);
+
+    box-shadow:
+        0 0 0 3px rgba(22, 44, 80, 0.1);
+}
+
+input::placeholder {
+    color: #999;
+}
+
+.auto-date {
+    background: var(--gray-light);
+
+    color: var(--navy);
+
+    font-weight: bold;
+
+    cursor: default;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn {
+    width: 100%;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--navy),
+            var(--navy-light)
+        );
+
+    color: var(--gold);
+
+    border: 1px solid var(--gold);
+
+    padding: 11px;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    margin-top: 8px;
+
+    transition: 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.btn-danger {
+    background: var(--red);
+
+    color: var(--white);
+
+    border-color: var(--red);
+}
+
+.btn-danger:hover {
+    background: var(--red-dark);
+}
+
+.btn-report {
+    margin-top: 15px;
+
+    background: var(--gray-text);
+
+    border-color: var(--gray-text);
+
+    color: var(--white);
+}
+
+
+/* =========================================================
+   HIDDEN
+========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================================================
+   LIVE LOGS
+========================================================= */
+
+.logs-section {
+    margin-top: 20px;
+
+    border-top: 1px solid #eee;
+
+    padding-top: 13px;
+}
+
+.logs-section h4 {
+    font-size: 14px;
+
+    color: var(--navy);
+
+    margin-bottom: 9px;
+}
+
+.logs-list {
+    max-height: 180px;
+
+    overflow-y: auto;
+
+    font-size: 13px;
+}
+
+.log-item {
+    background: #f8f9fa;
+
+    border-right: 4px solid var(--gold);
+
+    padding: 8px 10px;
+
+    margin-bottom: 7px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+
+    border-radius: 5px;
+}
+
+.delete-btn {
+    color: var(--red);
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    border: none;
+
+    background: none;
+
+    padding: 3px 7px;
+}
+
+
+/* =========================================================
+   ADMIN DASHBOARD OVERLAY
+========================================================= */
 
 .admin-modal {
-
     position: fixed;
 
     inset: 0;
@@ -20,32 +619,31 @@
     justify-content: center;
 
     padding: 0;
-
 }
 
 
-.admin-page {
+/* =========================================================
+   ADMIN PAGE
+========================================================= */
 
+.admin-page {
     width: 100%;
 
     height: 100%;
 
     overflow-y: auto;
 
-    background:
-        #f4f6f9;
+    background: #f4f6f9;
 
     direction: rtl;
-
 }
 
 
-/* =========================
-   HEADER
-========================= */
+/* =========================================================
+   ADMIN HEADER
+========================================================= */
 
 .admin-header {
-
     background:
         linear-gradient(
             135deg,
@@ -64,31 +662,22 @@
     align-items: center;
 
     gap: 20px;
-
 }
 
-
 .admin-header h2 {
-
     margin: 0 0 7px;
 
     font-size: 26px;
-
 }
 
-
 .admin-header p {
-
     margin: 0;
 
     opacity: 0.85;
-
 }
 
-
 .admin-close-btn {
-
-    background: #c0392b;
+    background: var(--red);
 
     color: white;
 
@@ -102,40 +691,34 @@
 
     font-weight: bold;
 
+    transition: 0.2s;
 }
-
 
 .admin-close-btn:hover {
-
-    background: #a93226;
-
+    background: var(--red-dark);
 }
 
 
-/* =========================
-   OPEN BUTTON
-========================= */
+/* =========================================================
+   ADMIN OPEN BUTTON
+========================================================= */
 
 .admin-open-btn {
-
-    background:
-        #163d63 !important;
+    background: #163d63 !important;
 
     color: white !important;
 
     border: none !important;
 
     font-weight: bold;
-
 }
 
 
-/* =========================
-   TABS
-========================= */
+/* =========================================================
+   ADMIN TABS
+========================================================= */
 
 .admin-tabs {
-
     background: white;
 
     display: flex;
@@ -148,11 +731,10 @@
 
     border-bottom: 1px solid #ddd;
 
+    flex-wrap: wrap;
 }
 
-
 .admin-tab {
-
     border: 1px solid #d5dbe1;
 
     background: #f5f7f9;
@@ -169,35 +751,27 @@
 
     font-size: 15px;
 
+    transition: 0.2s;
 }
-
 
 .admin-tab:hover {
-
     background: #e9eef3;
-
 }
 
-
 .admin-tab.active {
-
-    background:
-        #163d63;
+    background: #163d63;
 
     color: white;
 
-    border-color:
-        #163d63;
-
+    border-color: #163d63;
 }
 
 
-/* =========================
-   CONTROLS
-========================= */
+/* =========================================================
+   ADMIN CONTROLS
+========================================================= */
 
 .admin-controls {
-
     margin: 20px;
 
     padding: 18px;
@@ -216,23 +790,17 @@
     gap: 15px;
 
     flex-wrap: wrap;
-
 }
 
-
 .admin-controls label {
-
     display: block;
 
     font-weight: bold;
 
     margin-bottom: 6px;
-
 }
 
-
 .admin-controls input[type="date"] {
-
     padding: 10px;
 
     border: 1px solid #ccc;
@@ -240,12 +808,9 @@
     border-radius: 7px;
 
     font-size: 15px;
-
 }
 
-
 .admin-period {
-
     flex: 1;
 
     display: flex;
@@ -253,29 +818,25 @@
     flex-direction: column;
 
     gap: 5px;
-
 }
 
-
 .admin-period strong {
-
     font-size: 20px;
 
     color: #163d63;
-
 }
-
 
 .admin-period span {
-
     color: #777;
-
 }
 
+
+/* =========================================================
+   ADMIN BUTTONS
+========================================================= */
 
 .admin-refresh-btn,
 .admin-print-btn {
-
     border: none;
 
     padding: 11px 18px;
@@ -288,43 +849,31 @@
 
     font-weight: bold;
 
+    transition: 0.2s;
 }
-
 
 .admin-refresh-btn {
-
-    background: #2980b9;
-
+    background: var(--blue);
 }
-
 
 .admin-print-btn {
-
-    background: #27ae60;
-
+    background: var(--green);
 }
-
 
 .admin-refresh-btn:hover {
-
     background: #2471a3;
-
 }
-
 
 .admin-print-btn:hover {
-
     background: #229954;
-
 }
 
 
-/* =========================
-   SUMMARY
-========================= */
+/* =========================================================
+   ADMIN SUMMARY
+========================================================= */
 
 .admin-summary {
-
     display: grid;
 
     grid-template-columns:
@@ -333,12 +882,9 @@
     gap: 15px;
 
     margin: 20px;
-
 }
 
-
 .summary-card {
-
     background: white;
 
     border-radius: 12px;
@@ -355,47 +901,29 @@
         0 2px 10px rgba(0,0,0,0.06);
 
     border-right: 5px solid #163d63;
-
 }
-
 
 .summary-card.total {
-
     border-right-color: #163d63;
-
 }
-
 
 .summary-card.lateness {
-
-    border-right-color: #e67e22;
-
+    border-right-color: var(--orange);
 }
-
 
 .summary-card.uniform {
-
-    border-right-color: #8e44ad;
-
+    border-right-color: var(--purple);
 }
-
 
 .summary-card.escape {
-
-    border-right-color: #c0392b;
-
+    border-right-color: var(--red);
 }
-
 
 .summary-icon {
-
     font-size: 30px;
-
 }
 
-
 .summary-card span {
-
     display: block;
 
     color: #777;
@@ -403,27 +931,22 @@
     font-size: 14px;
 
     margin-bottom: 5px;
-
 }
 
-
 .summary-card strong {
-
     display: block;
 
     font-size: 30px;
 
     color: #163d63;
-
 }
 
 
-/* =========================
-   TABLE
-========================= */
+/* =========================================================
+   ADMIN TABLE
+========================================================= */
 
 .admin-table-container {
-
     margin: 20px;
 
     background: white;
@@ -434,25 +957,18 @@
 
     box-shadow:
         0 2px 10px rgba(0,0,0,0.06);
-
 }
 
-
 .admin-table {
-
     width: 100%;
 
     border-collapse: collapse;
 
     min-width: 850px;
-
 }
 
-
 .admin-table th {
-
-    background:
-        #163d63;
+    background: #163d63;
 
     color: white;
 
@@ -462,37 +978,31 @@
 
     white-space: nowrap;
 
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
 }
 
-
 .admin-table td {
-
     padding: 12px 10px;
 
     border-bottom:
         1px solid #e5e5e5;
 
     text-align: center;
-
 }
-
 
 .admin-table tbody tr:hover {
-
     background: #f8fafc;
-
 }
-
 
 .admin-table small {
-
     color: #777;
-
 }
 
-
 .report-type {
-
     display: inline-block;
 
     padding: 5px 9px;
@@ -506,13 +1016,10 @@
     font-size: 13px;
 
     font-weight: bold;
-
 }
 
-
 .admin-delete-btn {
-
-    background: #c0392b;
+    background: var(--red);
 
     color: white;
 
@@ -523,99 +1030,297 @@
     border-radius: 6px;
 
     cursor: pointer;
-
 }
-
 
 .admin-delete-btn:hover {
-
-    background: #a93226;
-
+    background: var(--red-dark);
 }
 
-
 .no-data {
-
     padding: 40px !important;
 
     color: #777;
 
     font-size: 16px;
-
 }
 
 
-/* =========================
-   MOBILE
-========================= */
+/* =========================================================
+   OLD ADMIN CLASSES - COMPATIBILITY
+========================================================= */
 
-@media (max-width: 900px) {
+.admin-box {
+    background: var(--white);
+
+    max-width: 1000px;
+
+    margin: 30px auto;
+
+    padding: 20px;
+
+    border-radius: 8px;
+
+    position: relative;
+}
+
+.admin-box h2 {
+    color: var(--navy);
+
+    margin-bottom: 10px;
+}
+
+.admin-close {
+    float: left;
+
+    background: #dc3545;
+
+    color: var(--white);
+
+    border: none;
+
+    padding: 6px 12px;
+
+    cursor: pointer;
+
+    border-radius: 4px;
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+
+    max-height: 400px;
+
+    margin-top: 15px;
+}
+
+.admin-del-btn {
+    background: #dc3545;
+
+    color: var(--white);
+
+    border: none;
+
+    padding: 5px 10px;
+
+    cursor: pointer;
+
+    border-radius: 3px;
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+
+    body {
+        background: white;
+    }
+
+    .admin-modal {
+        position: static;
+
+        background: white;
+
+        display: block !important;
+    }
+
+    .admin-close-btn,
+    .admin-tabs,
+    .admin-controls,
+    .admin-delete-btn {
+        display: none !important;
+    }
+
+    .admin-page {
+        height: auto;
+
+        overflow: visible;
+    }
 
     .admin-summary {
+        grid-template-columns:
+            repeat(4, 1fr);
+    }
 
+    .admin-table-container {
+        box-shadow: none;
+
+        margin: 10px 0;
+    }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .container {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-summary {
         grid-template-columns:
             repeat(2, 1fr);
-
     }
-
 }
 
 
-@media (max-width: 600px) {
+/* =========================================================
+   MOBILE
+========================================================= */
 
-    .admin-header {
+@media (max-width: 700px) {
 
+    .header {
         flex-direction: column;
 
         align-items: stretch;
 
         text-align: center;
 
+        padding: 16px;
     }
 
-
-    .admin-tabs {
-
-        flex-direction: column;
-
+    .school-info {
+        min-width: 0;
     }
 
+    .school-info h1 {
+        font-size: 20px;
+    }
 
-    .admin-tab {
+    .school-info h2 {
+        font-size: 14px;
+    }
+
+    .header-actions {
+        min-width: 0;
 
         width: 100%;
-
     }
 
+    .search-box {
+        flex-direction: column;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
+
+    .backup-btns {
+        justify-content: center;
+    }
+
+    .container {
+        grid-template-columns: 1fr;
+
+        padding: 14px;
+
+        gap: 15px;
+    }
+
+    .card {
+        padding: 17px;
+    }
+
+    .form-row {
+        flex-direction: column;
+
+        gap: 0;
+    }
+
+    .admin-header {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        text-align: center;
+
+        padding: 17px;
+    }
+
+    .admin-header h2 {
+        font-size: 21px;
+    }
+
+    .admin-tabs {
+        flex-direction: column;
+
+        padding: 10px;
+    }
+
+    .admin-tab {
+        width: 100%;
+    }
 
     .admin-controls {
+        margin: 12px;
 
         flex-direction: column;
 
         align-items: stretch;
 
+        text-align: center;
     }
-
 
     .admin-period {
-
         text-align: center;
 
+        width: 100%;
     }
-
-
-    .admin-summary {
-
-        grid-template-columns: 1fr;
-
-    }
-
 
     .admin-refresh-btn,
     .admin-print-btn {
-
         width: 100%;
-
     }
 
+    .admin-summary {
+        grid-template-columns: 1fr;
+
+        margin: 12px;
+    }
+
+    .admin-table-container {
+        margin: 12px;
+
+        border-radius: 8px;
+    }
+
+    .summary-card {
+        padding: 16px;
+    }
+
+    .login-box {
+        padding: 28px 20px;
+    }
 }
+
+
+/* =========================================================
+   VERY SMALL SCREENS
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .school-info h1 {
+        font-size: 18px;
+    }
+
+    .card h3 {
+        font-size: 18px;
+    }
+
+    .btn {
+        font-size: 14px;
+    }
+
+    .admin-header h2 {
+        font-size: 19px;
+    }
+}
+```
