@@ -87,51 +87,26 @@ document.addEventListener(
 async function forgotPassword() {
 
     const confirmed = confirm(
-
         'سيتم إنشاء كلمة سر جديدة مكونة من 4 أرقام وإرسالها إلى البريد الإلكتروني المعتمد.\n\nهل تريد المتابعة؟'
-
     );
-
 
     if (!confirmed) return;
 
-
     try {
 
-        const response =
-            await fetch(
-
-                'https://quizzical-bell1.onrender.com/api/forgot-password',
-
-                {
-
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
-
-                    body: JSON.stringify({
-
-                        email:
-                            'sameer.m.musleh@gmail.com'
-
-                    })
-
+        const response = await fetch(
+            'https://almustqbal.onrender.com/api/forgot-password',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
+            }
+        );
 
-            );
+        const data = await response.json();
 
-
-        const data =
-            await response.json();
-
-
-        if (
-            response.ok &&
-            data.success
-        ) {
+        if (response.ok && data.success) {
 
             alert(
                 'تم إنشاء كلمة سر جديدة من 4 أرقام وإرسالها إلى البريد الإلكتروني.'
@@ -146,7 +121,6 @@ async function forgotPassword() {
 
         }
 
-
     } catch (error) {
 
         console.error(
@@ -154,15 +128,11 @@ async function forgotPassword() {
             error
         );
 
-
         alert(
             'تعذر الاتصال بالسيرفر. حاول مرة أخرى.'
         );
-
     }
-
 }
-
 
 /* ==================================================
    FETCH RECORDS
