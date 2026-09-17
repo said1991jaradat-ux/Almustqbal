@@ -76,66 +76,270 @@ document.addEventListener(
 
 
 /* ==================================================
-   FORGOT PASSWORD - EMAILJS
+   FORGOT PASSWORD
 ================================================== */
 
-async function forgotPassword() {
+function forgotPassword() {
 
-    const confirmed = confirm(
-        'سيتم إنشاء كلمة سر جديدة مكونة من 4 أرقام وإرسالها إلى البريد الإلكتروني المعتمد.\n\nهل تريد المتابعة؟'
-    );
+    const modal =
+        document.getElementById(
+            'forgotPasswordModal'
+        );
 
-    if (!confirmed) return;
+    if (!modal) {
+
+        console.error(
+            'Forgot password modal not found'
+        );
+
+        return;
+
+    }
+
+
+    modal.style.display = 'flex';
+
+
+    const input =
+        document.getElementById(
+            'favoriteNumberInput'
+        );
+
+
+    const errorMsg =
+        document.getElementById(
+            'forgotErrorMsg'
+        );
+
+
+    if (input) {
+
+        input.value = '';
+
+        setTimeout(function () {
+
+            input.focus();
+
+        }, 100);
+
+    }
+
+
+    if (errorMsg) {
+
+        errorMsg.style.display =
+            'none';
+
+        errorMsg.textContent = '';
+
+    }
+
+}
+
+
+/* ==================================================
+   CLOSE FORGOT PASSWORD
+================================================== */
+
+function closeForgotPassword() {
+
+    const modal =
+        document.getElementById(
+            'forgotPasswordModal'
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            'none';
+
+    }
+
+}
+
+
+/* ==================================================
+   SUBMIT FORGOT PASSWORD
+================================================== */
+
+async function submitForgotPassword() {
+
+    const input =
+        document.getElementById(
+            'favoriteNumberInput'
+        );
+
+
+    const errorMsg =
+        document.getElementById(
+            'forgotErrorMsg'
+        );
+
+
+    const submitBtn =
+        document.getElementById(
+            'forgotSubmitBtn'
+        );
+
+
+    const answer =
+        input
+            ? input.value.trim()
+            : '';
+
+
+    if (errorMsg) {
+
+        errorMsg.style.display =
+            'none';
+
+        errorMsg.textContent = '';
+
+    }
+
+
+    if (!answer) {
+
+        if (errorMsg) {
+
+            errorMsg.textContent =
+                'يرجى إدخال رقمك المفضل';
+
+            errorMsg.style.display =
+                'block';
+
+        }
+
+        return;
+
+    }
+
+
+    if (submitBtn) {
+
+        submitBtn.disabled = true;
+
+        submitBtn.innerText =
+            'جاري التحقق...';
+
+    }
+
 
     try {
 
-        // إنشاء كلمة المرور من السيرفر
-        const response = await fetch(
-            'https://almustqbal.onrender.com/api/forgot-password',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+        /* =========================================
+           التحقق من سؤال الأمان
+        ========================================= */
+
+        const response =
+            await fetch(
+                'https://almustqbal.onrender.com/api/forgot-password',
+                {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type':
+                            'application/json'
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            answer:
+                                answer
+
+                        })
+
                 }
-            }
-        );
-
-        const data = await response.json();
-
-        console.log('Backend response:', data);
-
-        if (!response.ok || !data.success) {
-
-            alert(
-                data.message ||
-                'حدث خطأ أثناء إنشاء كلمة المرور الجديدة.'
             );
 
-            return;
-        }
 
-        const newPassword = data.password;
+        const data =
+            await response.json();
+
 
         console.log(
-            'كلمة المرور الجديدة تم إنشاؤها بنجاح'
+            'Forgot password response:',
+            data
         );
 
-        // إرسال البريد بواسطة EmailJS
+
+        /* =========================================
+           إجابة خاطئة
+        ========================================= */
+
+        if (!response.ok ||
+            !data.success) {
+
+            if (errorMsg) {
+
+                errorMsg.textContent =
+                    data.message ||
+                    'الإجابة غير صحيحة';
+
+                errorMsg.style.display =
+                    'block';
+
+            }
+
+            return;
+
+        }
+
+
+        /* =========================================
+           الإجابة صحيحة
+        ========================================= */
+
+        const newPassword =
+            data.password;
+
+
+        console.log(
+            'تم التحقق من سؤال الأمان وإنشاء كلمة مرور جديدة'
+        );
+
+
+        /* =========================================
+           إرسال كلمة المرور عبر EmailJS
+        ========================================= */
+
         try {
 
-            const result = await emailjs.send(
-                'service_uh9k24u',
-                'template_r4tlcdl',
-                {
-                    password: newPassword
-                }
+            const emailResult =
+                await emailjs.send(
+
+                    'service_uh9k24',
+
+                    'template_r4tlcd',
+
+                    {
+
+                        password:
+                            newPassword
+
+                    }
+
+                );
+
+
+            console.log(
+                'EmailJS SUCCESS:',
+                emailResult
             );
 
-            console.log('EmailJS SUCCESS:', result);
 
             alert(
                 'تم إنشاء كلمة مرور جديدة وإرسالها إلى البريد الإلكتروني بنجاح.'
             );
+
+
+            closeForgotPassword();
+
 
         } catch (emailError) {
 
@@ -144,15 +348,25 @@ async function forgotPassword() {
                 emailError
             );
 
+
             alert(
-                'تم إنشاء كلمة المرور الجديدة بنجاح، لكن فشل إرسال البريد.\n\n' +
+                'تم إنشاء كلمة المرور الجديدة، لكن حدث خطأ أثناء إرسال البريد.\n\n' +
                 'EmailJS Status: ' +
-                (emailError.status || 'غير معروف') +
+                (
+                    emailError.status ||
+                    'غير معروف'
+                ) +
                 '\n\n' +
                 'EmailJS Text: ' +
-                (emailError.text || emailError.message || 'غير معروف')
+                (
+                    emailError.text ||
+                    emailError.message ||
+                    'غير معروف'
+                )
             );
+
         }
+
 
     } catch (error) {
 
@@ -161,13 +375,34 @@ async function forgotPassword() {
             error
         );
 
-        alert(
-            'حدث خطأ في الاتصال بالسيرفر.\n\n' +
-            (error.message || error)
-        );
-    }
-}
 
+        if (errorMsg) {
+
+            errorMsg.textContent =
+                'تعذر الاتصال بالسيرفر، حاول مرة أخرى.';
+
+            errorMsg.style.display =
+                'block';
+
+        }
+
+    }
+
+
+    finally {
+
+        if (submitBtn) {
+
+            submitBtn.disabled = false;
+
+            submitBtn.innerText =
+                'متابعة';
+
+        }
+
+    }
+
+}
 /* ==================================================
    FETCH RECORDS
 ================================================== */
