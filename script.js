@@ -94,7 +94,7 @@ async function forgotPassword() {
 
     try {
 
-        // 1️⃣ إنشاء كلمة المرور من السيرفر
+        // إنشاء كلمة المرور من السيرفر
         const response = await fetch(
             'https://almustqbal.onrender.com/api/forgot-password',
             {
@@ -119,56 +119,58 @@ async function forgotPassword() {
             return;
         }
 
-
         const newPassword = data.password;
 
-
-        // 2️⃣ إرسال كلمة المرور بواسطة EmailJS
         console.log(
-            'سيتم إرسال كلمة المرور عبر EmailJS:',
-            newPassword
+            'كلمة المرور الجديدة تم إنشاؤها بنجاح'
         );
 
+        // إرسال البريد بواسطة EmailJS
+        try {
 
-        const emailResult = await emailjs.send(
+            const result = await emailjs.send(
+                'service_uh9k24u',
+                'template_r4tlcdl',
+                {
+                    password: newPassword
+                }
+            );
 
-            'service_uh9k24u',
+            console.log('EmailJS SUCCESS:', result);
 
-            'template_r4tlcdl',
+            alert(
+                'تم إنشاء كلمة مرور جديدة وإرسالها إلى البريد الإلكتروني بنجاح.'
+            );
 
-            {
-                password: newPassword
-            }
+        } catch (emailError) {
 
-        );
+            console.error(
+                'EMAILJS ERROR:',
+                emailError
+            );
 
-
-        console.log(
-            'EmailJS result:',
-            emailResult
-        );
-
-
-        // 3️⃣ نجاح
-        alert(
-            'تم إنشاء كلمة مرور جديدة وإرسالها إلى البريد الإلكتروني بنجاح.'
-        );
-
+            alert(
+                'تم إنشاء كلمة المرور الجديدة بنجاح، لكن فشل إرسال البريد.\n\n' +
+                'EmailJS Status: ' +
+                (emailError.status || 'غير معروف') +
+                '\n\n' +
+                'EmailJS Text: ' +
+                (emailError.text || emailError.message || 'غير معروف')
+            );
+        }
 
     } catch (error) {
 
         console.error(
-            'Forgot password error:',
+            'FORGOT PASSWORD ERROR:',
             error
         );
 
-
         alert(
-            'تم إنشاء كلمة مرور جديدة، لكن تعذر إرسالها إلى البريد الإلكتروني.\n\nراجع Console لمعرفة سبب الخطأ.'
+            'حدث خطأ في الاتصال بالسيرفر.\n\n' +
+            (error.message || error)
         );
-
     }
-
 }
 
 /* ==================================================
