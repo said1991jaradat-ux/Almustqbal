@@ -1,509 +1,2414 @@
-// عنوان الخادم الخلفي (Backend API) الموحد والصحيح
-const API_URL = 'https://quizzical-bell1.onrender.com/api/records';
+/* ==================================================
+   API
+================================================== */
 
-// الهيكل الأساسي للبيانات المؤقتة للواجهة
+const API_URL =
+    'https://quizzical-bell1.onrender.com/api/records';
+
+
+/* ==================================================
+   DATA
+================================================== */
+
 let dbData = {
+
     lateness: [],
+
     uniform: [],
+
     escape: []
+
 };
 
-let currentFormattedDate = '';
+
 let currentAllRecords = [];
 
-// عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', async () => {
-    const today = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    currentFormattedDate = today.toLocaleDateString('ar-EG', options);
-    
-    // التأكد من إظهار التاريخ في العنصر المخصص بالترويسة
-    const dateDisplay = document.getElementById('currentDateDisplay');
-    if (dateDisplay) {
-        dateDisplay.innerText = `اليوم والتاريخ: ${currentFormattedDate}`;
-    }
-    
-    document.querySelectorAll('.auto-date').forEach(input => {
-        input.value = currentFormattedDate;
-    });
+let currentAdminReportType = 'daily';
 
-    await fetchRecordsFromCloud();
-});
 
-// دالة استعادة كلمة المرور عبر الخادم الخلفي (Backend API) والـ MongoDB
-async function forgotPassword() {
-    const emailInput = prompt("الرجاء إدخال البريد الإلكتروني المصرّح له للاستعادة:", "sameer.m.musleh@gmail.com");
-    if (!emailInput) return;
+/* ==================================================
+   DATE
+================================================== */
 
-    try {
-        const response = await fetch('https://quizzical-bell1.onrender.com/api/forgot-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: emailInput })
+let currentFormattedDate = '';
+
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const now = new Date();
+
+        currentFormattedDate =
+            now.toLocaleDateString(
+                'ar-EG',
+                {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }
+            );
+
+
+        document.querySelectorAll(
+            '.auto-date'
+        ).forEach(function (element) {
+
+            element.value =
+                now.toISOString().split('T')[0];
+
         });
 
-        const responseText = await response.text();
-        let data = {};
-        
-        try {
-            data = responseText ? JSON.parse(responseText) : {};
-        } catch (e) {
-            console.error('استجابة غير صالحة من السيرفر:', responseText);
+
+        const currentDateElement =
+            document.getElementById(
+                'currentDate'
+            );
+
+        if (currentDateElement) {
+
+            currentDateElement.textContent =
+                currentFormattedDate;
+
         }
-        
-        if (response.ok && data.success) {
-            alert('تم توليد كلمة مرور جديدة وتحديثها في قاعدة البيانات، وإرسالها إلى بريدك الإلكتروني بنجاح!');
-        } else {
-            alert(data.message || 'فشل إرسال الطلب، تأكد من صحة البريد الإلكتروني أو استيقاظ الخادم.');
-        }
-    } catch (err) {
-        console.error('خطأ في الاتصال:', err);
-        alert('حدث خطأ أثناء الاتصال بالخادم.');
+
+
+        fetchRecordsFromCloud();
+
     }
+);
+
+
+/* ==================================================
+   FORGOT PASSWORD
+================================================== */
+
+async function forgotPassword() {
+
+    const confirmed = confirm(
+
+        'سيتم إنشاء كلمة سر جديدة مكونة من 4 أرقام وإرسالها إلى البريد الإلكتروني المعتمد.\n\nهل تريد المتابعة؟'
+
+    );
+
+
+    if (!confirmed) return;
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                'https://quizzical-bell1.onrender.com/api/forgot-password',
+
+                {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        email:
+                            'sameer.m.musleh@gmail.com'
+
+                    })
+
+                }
+
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            response.ok &&
+            data.success
+        ) {
+
+            alert(
+                'تم إنشاء كلمة سر جديدة من 4 أرقام وإرسالها إلى البريد الإلكتروني.'
+            );
+
+        } else {
+
+            alert(
+                data.message ||
+                'حدث خطأ أثناء استعادة كلمة السر.'
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            'Forgot password error:',
+            error
+        );
+
+
+        alert(
+            'تعذر الاتصال بالسيرفر. حاول مرة أخرى.'
+        );
+
+    }
+
 }
 
-// دالة لجلب السجلات من الخادم السحابي وتوزيعها على التصنيفات
+
+/* ==================================================
+   FETCH RECORDS
+================================================== */
+
 async function fetchRecordsFromCloud() {
+
     try {
-        const response = await fetch(API_URL);
-        const records = await response.json();
-        
-        dbData = { lateness: [], uniform: [], escape: [] };
-        
-        records.forEach(record => {
-            if (dbData[record.type]) {
-                dbData[record.type].push({
-                    id: record._id,
-                    date: record.date,
-                    time: record.time,
-                    student: record.studentName,
-                    grade: record.grade,
-                    section: record.section,
-                    reason: record.details,
-                    status: record.details
-                });
+
+        const response =
+            await fetch(API_URL);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                'Failed to load records'
+            );
+
+        }
+
+
+        const records =
+            await response.json();
+
+
+        dbData = {
+
+            lateness: [],
+
+            uniform: [],
+
+            escape: []
+
+        };
+
+
+        records.forEach(function (record) {
+
+            const mapped = {
+
+                id: record._id,
+
+                student:
+                    record.studentName || '',
+
+                grade:
+                    record.grade || '',
+
+                section:
+                    record.section || '',
+
+                date:
+                    record.date || '',
+
+                time:
+                    record.time || '',
+
+                reason:
+                    record.details || '',
+
+                status:
+                    record.details || '',
+
+                createdAt:
+                    record.createdAt || null
+
+            };
+
+
+            if (
+                record.type === 'lateness'
+            ) {
+
+                dbData.lateness.push(mapped);
+
             }
+
+            else if (
+                record.type === 'uniform'
+            ) {
+
+                dbData.uniform.push(mapped);
+
+            }
+
+            else if (
+                record.type === 'escape'
+            ) {
+
+                dbData.escape.push(mapped);
+
+            }
+
         });
+
 
         renderLogs();
-    } catch (err) {
-        console.error('خطأ في جلب البيانات من الخادم:', err);
+
     }
+
+    catch (error) {
+
+        console.error(
+            'Error loading records:',
+            error
+        );
+
+    }
+
 }
 
-// عرض السجلات المباشرة أسفل كل بند
+
+/* ==================================================
+   RENDER LOGS
+================================================== */
+
 function renderLogs() {
-    const lateContainer = document.getElementById('latenessLogs');
-    if (lateContainer) {
-        lateContainer.innerHTML = dbData.lateness.slice(-5).reverse().map((item) => `
-            <div class="log-item">
-                <span><strong>${item.student}</strong> (${item.grade}/${item.section}) - ${item.time}</span>
-                <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
-            </div>
-        `).join('') || '<small>لا توجد سجلات حديثة</small>';
-    }
 
-    const uniformContainer = document.getElementById('uniformLogs');
-    if (uniformContainer) {
-        uniformContainer.innerHTML = dbData.uniform.slice(-5).reverse().map((item) => `
-            <div class="log-item">
-                <span><strong>${item.student}</strong> - ${item.status}</span>
-                <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
-            </div>
-        `).join('') || '<small>لا توجد سجلات حديثة</small>';
-    }
+    renderCategoryLogs(
+        'lateness',
+        'latenessLogs'
+    );
 
-    const escapeContainer = document.getElementById('escapeLogs');
-    if (escapeContainer) {
-        escapeContainer.innerHTML = dbData.escape.slice(-5).reverse().map((item) => `
-            <div class="log-item">
-                <span><strong>${item.student}</strong> (${item.grade}/${item.section}) - ${item.time}</span>
-                <button class="delete-btn" onclick="deleteRecord('${item.id}')">✕</button>
-            </div>
-        `).join('') || '<small>لا توجد سجلات حديثة</small>';
-    }
+    renderCategoryLogs(
+        'uniform',
+        'uniformLogs'
+    );
+
+    renderCategoryLogs(
+        'escape',
+        'escapeLogs'
+    );
+
 }
 
-// حذف سجل محدد من الخادم
+
+function renderCategoryLogs(
+    category,
+    elementId
+) {
+
+    const container =
+        document.getElementById(elementId);
+
+
+    if (!container) return;
+
+
+    const records =
+        dbData[category] || [];
+
+
+    if (!records.length) {
+
+        container.innerHTML =
+            '<div class="empty-log">لا توجد سجلات</div>';
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        records
+            .slice(0, 5)
+            .map(function (record) {
+
+                return `
+
+                    <div class="log-item">
+
+                        <div>
+
+                            <strong>
+                                ${escapeHtml(record.student)}
+                            </strong>
+
+                            <div>
+                                ${escapeHtml(record.date)}
+                            </div>
+
+                        </div>
+
+                        <button
+                            onclick="deleteRecord('${record.id}')"
+                            class="delete-btn">
+
+                            حذف
+
+                        </button>
+
+                    </div>
+
+                `;
+
+            })
+            .join('');
+
+}
+
+
+/* ==================================================
+   ESCAPE HTML
+================================================== */
+
+function escapeHtml(value) {
+
+    if (value === null ||
+        value === undefined) {
+
+        return '';
+
+    }
+
+
+    return String(value)
+
+        .replace(/&/g, '&amp;')
+
+        .replace(/</g, '&lt;')
+
+        .replace(/>/g, '&gt;')
+
+        .replace(/"/g, '&quot;')
+
+        .replace(/'/g, '&#039;');
+
+}
+
+
+/* ==================================================
+   DELETE RECORD
+================================================== */
+
 async function deleteRecord(id) {
-    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
-        try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                await fetchRecordsFromCloud();
-            } else {
-                alert('فشل عملية الحذف من الخادم');
-            }
-        } catch (err) {
-            console.error('خطأ في الاتصال:', err);
-            alert('حدث خطأ أثناء الحذف!');
-        }
+
+    if (
+        !confirm(
+            'هل أنت متأكد من حذف هذا السجل؟'
+        )
+    ) {
+
+        return;
+
     }
-}
 
-async function adminDeleteRecord(id) {
-    await deleteRecord(id);
-    await loadAllRecordsForAdmin();
-}
-
-function toggleOtherReason(val) {
-    const otherGroup = document.getElementById('otherReasonGroup');
-    if (otherGroup) {
-        otherGroup.classList.toggle('hidden', val !== 'أخرى');
-    }
-}
-
-// 1. تسجيل تأخير
-async function addLateness(e) {
-    e.preventDefault();
-    const reasonVal = document.getElementById('lateReason').value;
-    const finalReason = reasonVal === 'أخرى' ? document.getElementById('otherReasonText').value : reasonVal;
-
-    const newRecord = {
-        type: 'lateness',
-        studentName: document.getElementById('lateStudent').value.trim(),
-        grade: document.getElementById('lateGrade').value,
-        section: document.getElementById('lateSection').value,
-        time: document.getElementById('lateTime').value,
-        date: currentFormattedDate,
-        details: finalReason
-    };
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newRecord)
-        });
 
-        if (response.ok) {
-            await fetchRecordsFromCloud();
-            alert('تم حفظ حالة التأخير بنجاح في السحابة!');
-            document.getElementById('latenessForm').reset();
-            document.querySelectorAll('.auto-date').forEach(i => i.value = currentFormattedDate);
-        } else {
-            alert('فشل حفظ البيانات');
-        }
-    } catch (err) {
-        console.error(err);
-        alert('خطأ في الاتصال بالخادم!');
-    }
-}
+        const response =
+            await fetch(
+                `${API_URL}/${id}`,
+                {
+                    method: 'DELETE'
+                }
+            );
 
-// 2. تسجيل زي
-async function addUniform(e) {
-    e.preventDefault();
-    const newRecord = {
-        type: 'uniform',
-        studentName: document.getElementById('uniformStudent').value.trim(),
-        grade: document.getElementById('uniformGrade').value,
-        section: document.getElementById('uniformSection').value,
-        time: '--',
-        date: currentFormattedDate,
-        details: document.getElementById('uniformStatus').value
-    };
 
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newRecord)
-        });
+        if (!response.ok) {
 
-        if (response.ok) {
-            await fetchRecordsFromCloud();
-            alert('تم حفظ حالة الزي بنجاح في السحابة!');
-            document.getElementById('uniformForm').reset();
-            document.querySelectorAll('.auto-date').forEach(i => i.value = currentFormattedDate);
-        } else {
-            alert('فشل حفظ البيانات');
-        }
-    } catch (err) {
-        console.error(err);
-        alert('خطأ في الاتصال بالخادم!');
-    }
-}
+            throw new Error(
+                'Delete failed'
+            );
 
-// 3. تسجيل هروب
-async function addEscape(e) {
-    e.preventDefault();
-    const newRecord = {
-        type: 'escape',
-        studentName: document.getElementById('escapeStudent').value.trim(),
-        grade: document.getElementById('escapeGrade').value,
-        section: document.getElementById('escapeSection').value,
-        time: document.getElementById('escapeTime').value,
-        date: currentFormattedDate,
-        details: 'حالة هروب'
-    };
-
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newRecord)
-        });
-
-        if (response.ok) {
-            await fetchRecordsFromCloud();
-            alert('تم حفظ حالة الهروب بنجاح في السحابة!');
-            document.getElementById('escapeForm').reset();
-            document.querySelectorAll('.auto-date').forEach(i => i.value = currentFormattedDate);
-        } else {
-            alert('فشل حفظ البيانات');
-        }
-    } catch (err) {
-        console.error(err);
-        alert('خطأ في الاتصال بالخادم!');
-    }
-}
-
-function searchStudentReport() {
-    const searchName = document.getElementById('searchInput').value.trim();
-    if (!searchName) {
-        alert('يرجى إدخال اسم الطالب للبحث');
-        return;
-    }
-
-    const studentLate = dbData.lateness.filter(r => r.student.includes(searchName));
-    const studentUniform = dbData.uniform.filter(r => r.student.includes(searchName));
-    const studentEscape = dbData.escape.filter(r => r.student.includes(searchName));
-
-    if (studentLate.length === 0 && studentUniform.length === 0 && studentEscape.length === 0) {
-        alert('لم يتم العثور على أي سجلات بهذا الاسم');
-        return;
-    }
-
-    const firstRecord = studentLate[0] || studentUniform[0] || studentEscape[0];
-
-    let reportHTML = `
-        <html lang="ar" dir="rtl">
-        <head>
-            <meta charset="UTF-8">
-            <title>تقرير الطالب: ${searchName}</title>
-            <style>
-                body { font-family: Tahoma, Arial, sans-serif; direction: rtl; padding: 20px; color: #000; }
-                .header { text-align: center; margin-bottom: 30px; }
-                h2, h3 { margin: 5px 0; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 25px; }
-                th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; }
-                th { background-color: #f2f2f2; }
-                .footer { display: flex; justify-content: space-between; margin-top: 60px; font-weight: bold; font-size: 16px; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>مدرسة ذكور المستقبل الصالح الأساسية العليا</h2>
-                <h3>تقرير السلوك والانضباط المدرسي</h3>
-                <p><strong>مدير المدرسة:</strong> أ. سمير مصلح</p>
-                <p>تاريخ الإصدار: ${currentFormattedDate}</p>
-                <hr>
-                <p>اسم الطالب: <strong>${searchName}</strong> | الصف: ${firstRecord.grade} | الشعبة: ${firstRecord.section}</p>
-            </div>
-    `;
-
-    if (studentLate.length > 0) {
-        reportHTML += `<h4>أولاً: سجل التأخير الصباحي (${studentLate.length}):</h4>`;
-        reportHTML += `<table><tr><th>التاريخ</th><th>وقت التأخير</th><th>السبب</th></tr>`;
-        studentLate.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.reason}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    if (studentUniform.length > 0) {
-        reportHTML += `<h4>ثانياً: سجل عدم الالتزام بالزي (${studentUniform.length}):</h4>`;
-        reportHTML += `<table><tr><th>التاريخ</th><th>الحالة</th></tr>`;
-        studentUniform.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.status}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    if (studentEscape.length > 0) {
-        reportHTML += `<h4>ثالثاً: سجل حالات الهروب (${studentEscape.length}):</h4>`;
-        reportHTML += `<table><tr><th>التاريخ</th><th>وقت الهروب</th></tr>`;
-        studentEscape.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    reportHTML += `
-            <div class="footer">
-                <span>توقيع مدير المدرسة: __________________</span>
-                <span>خاتم المدرسة</span>
-            </div>
-        </body>
-        </html>
-    `;
-
-    openPrintWindow(reportHTML);
-}
-
-function printCategoryReport(type, titleText) {
-    const items = dbData[type];
-    if (!items || items.length === 0) {
-        alert('لا توجد سجلات متاحة لهذه الفئة حالياً.');
-        return;
-    }
-
-    let reportHTML = `
-        <html lang="ar" dir="rtl">
-        <head>
-            <meta charset="UTF-8">
-            <title>${titleText}</title>
-            <style>
-                body { font-family: Tahoma, Arial, sans-serif; direction: rtl; padding: 20px; color: #000; }
-                .header { text-align: center; margin-bottom: 30px; }
-                h2, h3 { margin: 5px 0; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 25px; }
-                th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; }
-                th { background-color: #f2f2f2; }
-                .footer { display: flex; justify-content: space-between; margin-top: 60px; font-weight: bold; font-size: 16px; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>مدرسة ذكور المستقبل الصالح الأساسية العليا</h2>
-                <h3>${titleText}</h3>
-                <p><strong>مدير المدرسة:</strong> أ. سمير مصلح</p>
-                <p>تاريخ الإصدار: ${currentFormattedDate}</p>
-                <hr>
-                <p>الإجمالي الكلي: <strong>${items.length} حالة</strong></p>
-            </div>
-    `;
-
-    if (type === 'lateness') {
-        reportHTML += `<table><tr><th>التاريخ</th><th>الوقت</th><th>اسم الطالب</th><th>الصف والشعبة</th><th>السبب</th></tr>`;
-        items.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.student}</td><td>${r.grade} / ${r.section}</td><td>${r.reason}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    } else if (type === 'uniform') {
-        reportHTML += `<table><tr><th>التاريخ</th><th>اسم الطالب</th><th>الصف والشعبة</th><th>حالة الزي</th></tr>`;
-        items.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.student}</td><td>${r.grade} / ${r.section}</td><td>${r.status}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    } else if (type === 'escape') {
-        reportHTML += `<table><tr><th>التاريخ</th><th>وقت الهروب</th><th>اسم الطالب</th><th>الصف والشعبة</th></tr>`;
-        items.forEach(r => {
-            reportHTML += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.student}</td><td>${r.grade} / ${r.section}</td></tr>`;
-        });
-        reportHTML += `</table>`;
-    }
-
-    reportHTML += `
-            <div class="footer">
-                <span>توقيع مدير المدرسة: __________________</span>
-                <span>خاتم المدرسة</span>
-            </div>
-        </body>
-        </html>
-    `;
-
-    openPrintWindow(reportHTML);
-}
-
-function openPrintWindow(htmlContent) {
-    const printWindow = window.open('', '_blank', 'width=900,height=700');
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.focus();
-    
-    setTimeout(() => {
-        printWindow.print();
-    }, 500);
-}
-
-async function openAdminDashboard() {
-    const modal = document.getElementById('adminModal');
-    if (modal) {
-        modal.style.display = 'block';
-        
-        const tbody = document.getElementById('adminTableBody');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px;">جاري تحميل السجلات من السحابة...</td></tr>`;
         }
 
-        await loadAllRecordsForAdmin();
-    } else {
-        alert('عنصر شاشة الإدارة غير موجود في الصفحة!');
+
+        await fetchRecordsFromCloud();
+
+
+        alert(
+            'تم حذف السجل بنجاح'
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            'حدث خطأ أثناء حذف السجل'
+        );
+
     }
+
 }
+
+
+/* ==================================================
+   ADMIN DASHBOARD
+================================================== */
+
+function openAdminDashboard() {
+
+    const modal =
+        document.getElementById(
+            'adminModal'
+        );
+
+
+    if (!modal) return;
+
+
+    modal.style.display = 'flex';
+
+
+    const dateInput =
+        document.getElementById(
+            'adminReferenceDate'
+        );
+
+
+    if (dateInput) {
+
+        dateInput.value =
+            getLocalDateInputValue();
+
+    }
+
+
+    currentAdminReportType =
+        'daily';
+
+
+    updateAdminTabs();
+
+
+    loadAllRecordsForAdmin();
+
+}
+
 
 function closeAdminDashboard() {
-    const modal = document.getElementById('adminModal');
+
+    const modal =
+        document.getElementById(
+            'adminModal'
+        );
+
+
     if (modal) {
-        modal.style.display = 'none';
+
+        modal.style.display =
+            'none';
+
     }
+
 }
+
+
+/* ==================================================
+   LOCAL DATE
+================================================== */
+
+function getLocalDateInputValue() {
+
+    const now = new Date();
+
+
+    const year =
+        now.getFullYear();
+
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(2, '0');
+
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(2, '0');
+
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+/* ==================================================
+   LOAD ADMIN RECORDS
+================================================== */
 
 async function loadAllRecordsForAdmin() {
-    try {
-        const response = await fetch(API_URL);
-        currentAllRecords = await response.json();
-        renderAdminTable(currentAllRecords);
-    } catch (err) {
-        console.error('خطأ في جلب بيانات الإدارة:', err);
-        const tbody = document.getElementById('adminTableBody');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding:15px;">حدث خطأ أثناء جلب البيانات من الخادم.</td></tr>`;
-        }
+
+    const body =
+        document.getElementById(
+            'adminTableBody'
+        );
+
+
+    if (body) {
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    style="text-align:center">
+
+                    جاري تحميل التقرير...
+
+                </td>
+
+            </tr>
+
+        `;
+
     }
+
+
+    try {
+
+        const response =
+            await fetch(API_URL);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                'Failed to load records'
+            );
+
+        }
+
+
+        currentAllRecords =
+            await response.json();
+
+
+        renderAdminReport();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        if (body) {
+
+            body.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        style="text-align:center">
+
+                        حدث خطأ أثناء تحميل البيانات
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+    }
+
 }
 
-function translateType(type) {
-    if (type === 'lateness' || type === 'تأخير') return 'تأخير صباحي';
-    if (type === 'uniform' || type === 'زي') return 'الزي المدرسي';
-    if (type === 'escape' || type === 'هروب') return 'حالة هروب';
-    return type || 'سجل عام';
-}
+
+/* ==================================================
+   REPORT TAB
+================================================== */
 
 function switchReportTab(type) {
-    const title = document.getElementById('adminReportTitle');
-    if (type === 'daily') {
-        if (title) title.innerText = `التقرير اليومي`;
-    } else if (type === 'weekly') {
-        if (title) title.innerText = 'التقرير الأسبوعي';
-    } else if (type === 'monthly') {
-        if (title) title.innerText = 'التقرير الشهري الشامل';
-    }
-    renderAdminTable(currentAllRecords);
+
+    currentAdminReportType =
+        type;
+
+
+    updateAdminTabs();
+
+
+    renderAdminReport();
+
 }
 
+
+/* ==================================================
+   UPDATE TABS
+================================================== */
+
+function updateAdminTabs() {
+
+    document
+        .querySelectorAll(
+            '.admin-tab'
+        )
+        .forEach(function (button) {
+
+            button.classList.remove(
+                'active'
+            );
+
+            if (
+                button.dataset.type ===
+                currentAdminReportType
+            ) {
+
+                button.classList.add(
+                    'active'
+                );
+
+            }
+
+        });
+
+}
+
+
+/* ==================================================
+   REPORT RANGE
+================================================== */
+
+function getAdminDateRange(
+    type,
+    dateValue
+) {
+
+    const selected =
+        dateValue
+            ? new Date(
+                `${dateValue}T00:00:00`
+            )
+            : new Date();
+
+
+    let start;
+    let end;
+
+
+    /* =========================
+       DAILY
+    ========================= */
+
+    if (type === 'daily') {
+
+        start =
+            new Date(selected);
+
+        end =
+            new Date(selected);
+
+        end.setDate(
+            end.getDate() + 1
+        );
+
+    }
+
+
+    /* =========================
+       WEEKLY
+       الأحد → السبت
+    ========================= */
+
+    else if (type === 'weekly') {
+
+        start =
+            new Date(selected);
+
+
+        const day =
+            start.getDay();
+
+
+        start.setDate(
+            start.getDate() - day
+        );
+
+
+        start.setHours(
+            0, 0, 0, 0
+        );
+
+
+        end =
+            new Date(start);
+
+
+        end.setDate(
+            end.getDate() + 7
+        );
+
+    }
+
+
+    /* =========================
+       MONTHLY
+    ========================= */
+
+    else {
+
+        start =
+            new Date(
+                selected.getFullYear(),
+                selected.getMonth(),
+                1
+            );
+
+
+        end =
+            new Date(
+                selected.getFullYear(),
+                selected.getMonth() + 1,
+                1
+            );
+
+    }
+
+
+    return {
+        start,
+        end
+    };
+
+}
+
+
+/* ==================================================
+   FILTER ADMIN RECORDS
+================================================== */
+
+function getFilteredAdminRecords() {
+
+    const dateInput =
+        document.getElementById(
+            'adminReferenceDate'
+        );
+
+
+    const dateValue =
+        dateInput &&
+        dateInput.value
+            ? dateInput.value
+            : getLocalDateInputValue();
+
+
+    const range =
+        getAdminDateRange(
+            currentAdminReportType,
+            dateValue
+        );
+
+
+    return currentAllRecords.filter(
+        function (record) {
+
+            if (!record.createdAt) {
+
+                return false;
+
+            }
+
+
+            const recordDate =
+                new Date(
+                    record.createdAt
+                );
+
+
+            return (
+                recordDate >= range.start &&
+                recordDate < range.end
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   REPORT TITLE
+================================================== */
+
+function getAdminReportTitle() {
+
+    if (
+        currentAdminReportType ===
+        'daily'
+    ) {
+
+        return 'التقرير اليومي';
+
+    }
+
+
+    if (
+        currentAdminReportType ===
+        'weekly'
+    ) {
+
+        return 'التقرير الأسبوعي';
+
+    }
+
+
+    return 'التقرير الشهري';
+
+}
+
+
+/* ==================================================
+   REPORT PERIOD
+================================================== */
+
+function getAdminPeriodLabel() {
+
+    const dateInput =
+        document.getElementById(
+            'adminReferenceDate'
+        );
+
+
+    const dateValue =
+        dateInput &&
+        dateInput.value
+            ? dateInput.value
+            : getLocalDateInputValue();
+
+
+    const range =
+        getAdminDateRange(
+            currentAdminReportType,
+            dateValue
+        );
+
+
+    const startText =
+        range.start.toLocaleDateString(
+            'ar-EG',
+            {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }
+        );
+
+
+    const endDate =
+        new Date(range.end);
+
+
+    endDate.setDate(
+        endDate.getDate() - 1
+    );
+
+
+    const endText =
+        endDate.toLocaleDateString(
+            'ar-EG',
+            {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }
+        );
+
+
+    if (
+        currentAdminReportType ===
+        'daily'
+    ) {
+
+        return startText;
+
+    }
+
+
+    return `${startText} — ${endText}`;
+
+}
+
+
+/* ==================================================
+   RENDER ADMIN REPORT
+================================================== */
+
+function renderAdminReport() {
+
+    const records =
+        getFilteredAdminRecords();
+
+
+    const titleElement =
+        document.getElementById(
+            'adminReportTitle'
+        );
+
+
+    const periodElement =
+        document.getElementById(
+            'adminPeriodLabel'
+        );
+
+
+    if (titleElement) {
+
+        titleElement.textContent =
+            getAdminReportTitle();
+
+    }
+
+
+    if (periodElement) {
+
+        periodElement.textContent =
+            getAdminPeriodLabel();
+
+    }
+
+
+    const total =
+        records.length;
+
+
+    const lateness =
+        records.filter(
+            r => r.type === 'lateness'
+        ).length;
+
+
+    const uniform =
+        records.filter(
+            r => r.type === 'uniform'
+        ).length;
+
+
+    const escape =
+        records.filter(
+            r => r.type === 'escape'
+        ).length;
+
+
+    setText(
+        'adminTotalCount',
+        total
+    );
+
+
+    setText(
+        'adminLatenessCount',
+        lateness
+    );
+
+
+    setText(
+        'adminUniformCount',
+        uniform
+    );
+
+
+    setText(
+        'adminEscapeCount',
+        escape
+    );
+
+
+    renderAdminTable(records);
+
+}
+
+
+/* ==================================================
+   SET TEXT
+================================================== */
+
+function setText(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+/* ==================================================
+   TRANSLATE TYPE
+================================================== */
+
+function translateType(type) {
+
+    if (type === 'lateness') {
+
+        return 'التأخير الصباحي';
+
+    }
+
+
+    if (type === 'uniform') {
+
+        return 'الزي المدرسي';
+
+    }
+
+
+    if (type === 'escape') {
+
+        return 'الهروب';
+
+    }
+
+
+    return type || '';
+
+}
+
+
+/* ==================================================
+   ADMIN TABLE
+================================================== */
+
 function renderAdminTable(records) {
-    const tbody = document.getElementById('adminTableBody');
-    if (!tbody) return;
 
-    if (!records || records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; border:1px solid #ddd;">لا توجد سجلات مطابقة حالياً.</td></tr>`;
+    const body =
+        document.getElementById(
+            'adminTableBody'
+        );
+
+
+    if (!body) return;
+
+
+    if (!records.length) {
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="no-data">
+
+                    لا توجد سجلات في هذه الفترة
+
+                </td>
+
+            </tr>
+
+        `;
+
         return;
+
     }
 
-    let html = '';
-    for (let i = 0; i < records.length; i++) {
-        let r = records[i];
-        let recordId = r._id || r.id || '';
-        let recDate = r.date || '--';
-        let recType = translateType(r.type);
-        let studentName = r.studentName || r.student || 'غير محدد';
-        let gradeSec = (r.grade || '--') + ' / ' + (r.section || '--');
-        let detailsVal = r.details || r.reason || r.status || '--';
-        let timeVal = r.time ? '(' + r.time + ')' : '';
 
-        html += '<tr>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + recDate + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + recType + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + studentName + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + gradeSec + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;">' + detailsVal + ' ' + timeVal + '</td>';
-        html += '<td style="border:1px solid #ddd; padding:8px; text-align:center;"><button onclick="adminDeleteRecord(\'' + recordId + '\')" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px;">حذف</button></td>';
-        html += '</tr>';
+    const sorted =
+        [...records].sort(
+            function (a, b) {
+
+                return new Date(
+                    b.createdAt
+                ) - new Date(
+                    a.createdAt
+                );
+
+            }
+        );
+
+
+    body.innerHTML =
+        sorted.map(
+            function (record) {
+
+                const recordDate =
+                    record.createdAt
+                        ? new Date(
+                            record.createdAt
+                        ).toLocaleDateString(
+                            'ar-EG'
+                        )
+                        : record.date || '';
+
+
+                const details =
+                    record.details || '';
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(recordDate)}
+                        </td>
+
+                        <td>
+                            <span class="report-type">
+                                ${escapeHtml(
+                                    translateType(
+                                        record.type
+                                    )
+                                )}
+                            </span>
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${escapeHtml(
+                                    record.studentName
+                                )}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.grade
+                            )}
+                            /
+                            ${escapeHtml(
+                                record.section
+                            )}
+                        </td>
+
+                        <td>
+
+                            ${
+                                escapeHtml(
+                                    record.time || ''
+                                )
+                            }
+
+                            <br>
+
+                            <small>
+                                ${
+                                    escapeHtml(
+                                        details
+                                    )
+                                }
+                            </small>
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="admin-delete-btn"
+                                onclick="adminDeleteRecord('${record._id}')">
+
+                                حذف
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join('');
+
+}
+
+
+/* ==================================================
+   ADMIN DELETE
+================================================== */
+
+async function adminDeleteRecord(id) {
+
+    if (
+        !confirm(
+            'هل أنت متأكد من حذف هذا السجل؟'
+        )
+    ) {
+
+        return;
+
     }
 
-    tbody.innerHTML = html;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${id}`,
+                {
+                    method: 'DELETE'
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                'Delete failed'
+            );
+
+        }
+
+
+        await fetchRecordsFromCloud();
+
+        await loadAllRecordsForAdmin();
+
+
+        alert(
+            'تم حذف السجل بنجاح'
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            'حدث خطأ أثناء حذف السجل'
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   CHANGE REPORT DATE
+================================================== */
+
+function changeAdminReportDate() {
+
+    renderAdminReport();
+
+}
+
+
+/* ==================================================
+   PRINT ADMIN REPORT
+================================================== */
+
+function printAdminReport() {
+
+    const records =
+        getFilteredAdminRecords();
+
+
+    const title =
+        getAdminReportTitle();
+
+
+    const period =
+        getAdminPeriodLabel();
+
+
+    const total =
+        records.length;
+
+
+    const lateness =
+        records.filter(
+            r => r.type === 'lateness'
+        ).length;
+
+
+    const uniform =
+        records.filter(
+            r => r.type === 'uniform'
+        ).length;
+
+
+    const escape =
+        records.filter(
+            r => r.type === 'escape'
+        ).length;
+
+
+    const rows =
+        records.map(
+            function (record) {
+
+                const recordDate =
+                    record.createdAt
+                        ? new Date(
+                            record.createdAt
+                        ).toLocaleDateString(
+                            'ar-EG'
+                        )
+                        : record.date || '';
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(recordDate)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                translateType(
+                                    record.type
+                                )
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.studentName
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.grade
+                            )}
+                            /
+                            ${escapeHtml(
+                                record.section
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.time
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.details
+                            )}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join('');
+
+
+    const printWindow =
+        window.open(
+            '',
+            '_blank',
+            'width=1200,height=800'
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            'يرجى السماح بالنوافذ المنبثقة لطباعة التقرير.'
+        );
+
+        return;
+
+    }
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html lang="ar" dir="rtl">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                ${escapeHtml(title)}
+            </title>
+
+            <style>
+
+                body {
+                    font-family: Arial, sans-serif;
+                    direction: rtl;
+                    padding: 30px;
+                }
+
+                h1 {
+                    text-align: center;
+                }
+
+                .period {
+                    text-align: center;
+                    margin-bottom: 25px;
+                    color: #555;
+                }
+
+                .summary {
+                    display: flex;
+                    gap: 10px;
+                    margin-bottom: 25px;
+                }
+
+                .box {
+                    flex: 1;
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    text-align: center;
+                    border-radius: 8px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                th,
+                td {
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    text-align: center;
+                }
+
+                th {
+                    background: #eeeeee;
+                }
+
+                @media print {
+
+                    button {
+                        display: none;
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h1>
+                مدرسة ذكور المستقبل الصالح الأساسية العليا
+            </h1>
+
+            <h2 style="text-align:center">
+                ${escapeHtml(title)}
+            </h2>
+
+            <div class="period">
+                ${escapeHtml(period)}
+            </div>
+
+
+            <div class="summary">
+
+                <div class="box">
+                    <strong>إجمالي الحالات</strong>
+                    <br>
+                    ${total}
+                </div>
+
+                <div class="box">
+                    <strong>التأخير</strong>
+                    <br>
+                    ${lateness}
+                </div>
+
+                <div class="box">
+                    <strong>الزي المدرسي</strong>
+                    <br>
+                    ${uniform}
+                </div>
+
+                <div class="box">
+                    <strong>الهروب</strong>
+                    <br>
+                    ${escape}
+                </div>
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>التاريخ</th>
+
+                        <th>نوع الحالة</th>
+
+                        <th>اسم الطالب</th>
+
+                        <th>الصف / الشعبة</th>
+
+                        <th>الوقت</th>
+
+                        <th>التفاصيل</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${rows}
+
+                </tbody>
+
+            </table>
+
+
+            <script>
+
+                window.onload = function() {
+
+                    window.print();
+
+                };
+
+            <\/script>
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+}
+
+
+/* ==================================================
+   OTHER REASONS
+================================================== */
+
+function toggleOtherReason() {
+
+    const reason =
+        document.getElementById(
+            'latenessReason'
+        );
+
+
+    const other =
+        document.getElementById(
+            'otherReason'
+        );
+
+
+    if (!reason || !other) return;
+
+
+    if (
+        reason.value === 'other'
+    ) {
+
+        other.style.display =
+            'block';
+
+    } else {
+
+        other.style.display =
+            'none';
+
+    }
+
+}
+
+
+/* ==================================================
+   ADD LATENESS
+================================================== */
+
+async function addLateness(event) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    const student =
+        getValue('latenessStudent');
+
+
+    const grade =
+        getValue('latenessGrade');
+
+
+    const section =
+        getValue('latenessSection');
+
+
+    const reasonElement =
+        document.getElementById(
+            'latenessReason'
+        );
+
+
+    const reason =
+        reasonElement
+            ? reasonElement.value
+            : '';
+
+
+    const other =
+        getValue('otherReason');
+
+
+    const finalReason =
+        reason === 'other'
+            ? other
+            : reason;
+
+
+    const time =
+        getValue('latenessTime');
+
+
+    const date =
+        getValue('latenessDate')
+        || getLocalDateInputValue();
+
+
+    if (!student) {
+
+        alert(
+            'يرجى إدخال اسم الطالب'
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await saveRecord({
+
+            type: 'lateness',
+
+            studentName: student,
+
+            grade: grade,
+
+            section: section,
+
+            time: time,
+
+            date: date,
+
+            details: finalReason
+
+        });
+
+
+        alert(
+            'تم تسجيل التأخير بنجاح'
+        );
+
+
+        const form =
+            document.getElementById(
+                'latenessForm'
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        setAutoDate(
+            'latenessDate'
+        );
+
+
+        await fetchRecordsFromCloud();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            'حدث خطأ أثناء حفظ السجل'
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   ADD UNIFORM
+================================================== */
+
+async function addUniform(event) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    const student =
+        getValue('uniformStudent');
+
+
+    const grade =
+        getValue('uniformGrade');
+
+
+    const section =
+        getValue('uniformSection');
+
+
+    const status =
+        getValue('uniformStatus');
+
+
+    const date =
+        getValue('uniformDate')
+        || getLocalDateInputValue();
+
+
+    if (!student) {
+
+        alert(
+            'يرجى إدخال اسم الطالب'
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await saveRecord({
+
+            type: 'uniform',
+
+            studentName: student,
+
+            grade: grade,
+
+            section: section,
+
+            time: '',
+
+            date: date,
+
+            details: status
+
+        });
+
+
+        alert(
+            'تم تسجيل الحالة بنجاح'
+        );
+
+
+        const form =
+            document.getElementById(
+                'uniformForm'
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        setAutoDate(
+            'uniformDate'
+        );
+
+
+        await fetchRecordsFromCloud();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            'حدث خطأ أثناء حفظ السجل'
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   ADD ESCAPE
+================================================== */
+
+async function addEscape(event) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    const student =
+        getValue('escapeStudent');
+
+
+    const grade =
+        getValue('escapeGrade');
+
+
+    const section =
+        getValue('escapeSection');
+
+
+    const time =
+        getValue('escapeTime');
+
+
+    const date =
+        getValue('escapeDate')
+        || getLocalDateInputValue();
+
+
+    if (!student) {
+
+        alert(
+            'يرجى إدخال اسم الطالب'
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await saveRecord({
+
+            type: 'escape',
+
+            studentName: student,
+
+            grade: grade,
+
+            section: section,
+
+            time: time,
+
+            date: date,
+
+            details: 'هروب'
+
+        });
+
+
+        alert(
+            'تم تسجيل حالة الهروب بنجاح'
+        );
+
+
+        const form =
+            document.getElementById(
+                'escapeForm'
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        setAutoDate(
+            'escapeDate'
+        );
+
+
+        await fetchRecordsFromCloud();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            'حدث خطأ أثناء حفظ السجل'
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   SAVE RECORD
+================================================== */
+
+async function saveRecord(data) {
+
+    const response =
+        await fetch(
+            API_URL,
+            {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify(data)
+
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            'Save failed'
+        );
+
+    }
+
+
+    return await response.json();
+
+}
+
+
+/* ==================================================
+   HELPERS
+================================================== */
+
+function getValue(id) {
+
+    const element =
+        document.getElementById(id);
+
+
+    return element
+        ? element.value.trim()
+        : '';
+
+}
+
+
+function setAutoDate(id) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.value =
+            getLocalDateInputValue();
+
+    }
+
+}
+
+
+/* ==================================================
+   SEARCH STUDENT
+================================================== */
+
+function searchStudentReport() {
+
+    const input =
+        document.getElementById(
+            'searchStudent'
+        );
+
+
+    if (!input) return;
+
+
+    const search =
+        input.value.trim().toLowerCase();
+
+
+    if (!search) {
+
+        alert(
+            'يرجى إدخال اسم الطالب'
+        );
+
+        return;
+
+    }
+
+
+    const records =
+        currentAllRecords.length
+            ? currentAllRecords
+            : [];
+
+
+    const found =
+        records.filter(
+            function (record) {
+
+                return (
+                    record.studentName &&
+                    record.studentName
+                        .toLowerCase()
+                        .includes(search)
+                );
+
+            }
+        );
+
+
+    if (!found.length) {
+
+        alert(
+            'لا توجد سجلات لهذا الطالب'
+        );
+
+        return;
+
+    }
+
+
+    const rows =
+        found.map(
+            function (record) {
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                record.date
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                translateType(
+                                    record.type
+                                )
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.studentName
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.grade
+                            )}
+                            /
+                            ${escapeHtml(
+                                record.section
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.time
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.details
+                            )}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join('');
+
+
+    const win =
+        window.open(
+            '',
+            '_blank'
+        );
+
+
+    win.document.write(`
+
+        <html lang="ar" dir="rtl">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                تقرير الطالب
+            </title>
+
+            <style>
+
+                body {
+                    font-family:Arial;
+                    padding:30px;
+                    direction:rtl;
+                }
+
+                table {
+                    width:100%;
+                    border-collapse:collapse;
+                }
+
+                th, td {
+                    border:1px solid #ccc;
+                    padding:10px;
+                    text-align:center;
+                }
+
+                th {
+                    background:#eee;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h1>
+                تقرير الطالب
+            </h1>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>الطالب</th>
+                        <th>الصف / الشعبة</th>
+                        <th>الوقت</th>
+                        <th>التفاصيل</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${rows}
+
+                </tbody>
+
+            </table>
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    win.document.close();
+
+    win.print();
+
+}
+
+
+/* ==================================================
+   CATEGORY REPORT
+================================================== */
+
+function printCategoryReport(category) {
+
+    const records =
+        dbData[category] || [];
+
+
+    const title =
+        translateType(category);
+
+
+    const rows =
+        records.map(
+            function (record) {
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                record.date
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.student
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.grade
+                            )}
+                            /
+                            ${escapeHtml(
+                                record.section
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.time
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                record.reason ||
+                                record.status
+                            )}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join('');
+
+
+    const win =
+        window.open(
+            '',
+            '_blank'
+        );
+
+
+    win.document.write(`
+
+        <html lang="ar" dir="rtl">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                ${escapeHtml(title)}
+            </title>
+
+            <style>
+
+                body {
+                    font-family:Arial;
+                    direction:rtl;
+                    padding:30px;
+                }
+
+                table {
+                    width:100%;
+                    border-collapse:collapse;
+                }
+
+                th,td {
+                    border:1px solid #ccc;
+                    padding:10px;
+                    text-align:center;
+                }
+
+                th {
+                    background:#eee;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h1>
+                ${escapeHtml(title)}
+            </h1>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>التاريخ</th>
+                        <th>الطالب</th>
+                        <th>الصف / الشعبة</th>
+                        <th>الوقت</th>
+                        <th>التفاصيل</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${rows}
+
+                </tbody>
+
+            </table>
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    win.document.close();
+
+    win.print();
+
 }
