@@ -2,8 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-
 const app = express();
+
 
 /* =========================
    CORS
@@ -24,37 +24,56 @@ app.use(express.json());
    MongoDB
 ========================= */
 
-// ضع رابط MongoDB في Environment Variable باسم MONGO_URI
 const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
-    console.error('خطأ: MONGO_URI غير موجود في Environment Variables');
+
+    console.error(
+        'خطأ: MONGO_URI غير موجود في Environment Variables'
+    );
+
 } else {
+
     mongoose.connect(MONGO_URI)
         .then(() => {
-            console.log('تم الاتصال بنجاح بـ MongoDB Atlas');
+
+            console.log(
+                'تم الاتصال بنجاح بـ MongoDB Atlas'
+            );
+
         })
-        .catch(err => {
-            console.error('خطأ في الاتصال بقاعدة البيانات:', err);
+        .catch(error => {
+
+            console.error(
+                'خطأ في الاتصال بقاعدة البيانات:',
+                error
+            );
+
         });
+
 }
 
 
 /* =========================
-   الصفحة الرئيسية للسيرفر
+   الصفحة الرئيسية
 ========================= */
 
 app.get('/', (req, res) => {
+
     res.json({
+
         status: 'ok',
+
         message: 'السيرفر شغال بنجاح'
+
     });
+
 });
 
 
-/* =========================
-   Records Schema
-========================= */
+/* ==================================================
+   RECORDS SCHEMA
+================================================== */
 
 const recordSchema = new mongoose.Schema({
 
@@ -101,20 +120,24 @@ const recordSchema = new mongoose.Schema({
 });
 
 
-const Record = mongoose.model('Record', recordSchema);
+const Record =
+    mongoose.model('Record', recordSchema);
 
 
-/* =========================
+/* ==================================================
    GET RECORDS
-========================= */
+================================================== */
 
 app.get('/api/records', async (req, res) => {
 
     try {
 
-        const records = await Record
-            .find()
-            .sort({ createdAt: -1 });
+        const records =
+            await Record
+                .find()
+                .sort({
+                    createdAt: -1
+                });
 
         res.json(records);
 
@@ -123,8 +146,12 @@ app.get('/api/records', async (req, res) => {
         console.error(error);
 
         res.status(500).json({
+
             success: false,
-            message: 'حدث خطأ أثناء جلب السجلات'
+
+            message:
+                'حدث خطأ أثناء جلب السجلات'
+
         });
 
     }
@@ -132,30 +159,53 @@ app.get('/api/records', async (req, res) => {
 });
 
 
-/* =========================
+/* ==================================================
    ADD RECORD
-========================= */
+================================================== */
 
 app.post('/api/records', async (req, res) => {
 
     try {
 
-        const record = new Record({
-            type: req.body.type,
-            studentName: req.body.studentName,
-            grade: req.body.grade,
-            section: req.body.section,
-            time: req.body.time,
-            date: req.body.date,
-            details: req.body.details,
-            createdAt: new Date()
-        });
+        const record =
+            new Record({
 
-        const savedRecord = await record.save();
+                type: req.body.type,
+
+                studentName:
+                    req.body.studentName,
+
+                grade:
+                    req.body.grade,
+
+                section:
+                    req.body.section,
+
+                time:
+                    req.body.time,
+
+                date:
+                    req.body.date,
+
+                details:
+                    req.body.details,
+
+                createdAt:
+                    new Date()
+
+            });
+
+
+        const savedRecord =
+            await record.save();
+
 
         res.status(201).json({
+
             success: true,
+
             record: savedRecord
+
         });
 
     } catch (error) {
@@ -163,8 +213,12 @@ app.post('/api/records', async (req, res) => {
         console.error(error);
 
         res.status(500).json({
+
             success: false,
-            message: 'حدث خطأ أثناء حفظ السجل'
+
+            message:
+                'حدث خطأ أثناء حفظ السجل'
+
         });
 
     }
@@ -172,28 +226,41 @@ app.post('/api/records', async (req, res) => {
 });
 
 
-/* =========================
+/* ==================================================
    DELETE RECORD
-========================= */
+================================================== */
 
 app.delete('/api/records/:id', async (req, res) => {
 
     try {
 
-        const deleted = await Record.findByIdAndDelete(req.params.id);
+        const deleted =
+            await Record.findByIdAndDelete(
+                req.params.id
+            );
+
 
         if (!deleted) {
 
             return res.status(404).json({
+
                 success: false,
-                message: 'السجل غير موجود'
+
+                message:
+                    'السجل غير موجود'
+
             });
 
         }
 
+
         res.json({
+
             success: true,
-            message: 'تم حذف السجل'
+
+            message:
+                'تم حذف السجل'
+
         });
 
     } catch (error) {
@@ -201,8 +268,12 @@ app.delete('/api/records/:id', async (req, res) => {
         console.error(error);
 
         res.status(500).json({
+
             success: false,
-            message: 'حدث خطأ أثناء حذف السجل'
+
+            message:
+                'حدث خطأ أثناء حذف السجل'
+
         });
 
     }
@@ -214,63 +285,75 @@ app.delete('/api/records/:id', async (req, res) => {
    SETTINGS
 ================================================== */
 
-const settingSchema = new mongoose.Schema({
+const settingSchema =
+    new mongoose.Schema({
 
-    key: {
-        type: String,
-        unique: true,
-        required: true
-    },
+        key: {
+            type: String,
+            unique: true,
+            required: true
+        },
 
-    value: {
-        type: String,
-        required: true
-    }
+        value: {
+            type: String,
+            required: true
+        }
 
-});
-
-
-const Setting = mongoose.model('Setting', settingSchema);
+    });
 
 
-/* =========================
+const Setting =
+    mongoose.model('Setting', settingSchema);
+
+
+/* ==================================================
    PASSWORD SETTINGS
-========================= */
+================================================== */
 
 const DEFAULT_PASSWORD = '1234';
 
-const RECOVERY_EMAIL =
-    process.env.RECOVERY_EMAIL || 'sameer.m.musleh@gmail.com';
 
-
-/* =========================
+/* ==================================================
    GET CURRENT PASSWORD
-========================= */
+================================================== */
 
 async function getCurrentPassword() {
 
-    let setting = await Setting.findOne({
-        key: 'loginPassword'
-    });
+    let setting =
+        await Setting.findOne({
+
+            key: 'loginPassword'
+
+        });
+
 
     if (!setting) {
 
-        setting = await Setting.create({
-            key: 'loginPassword',
-            value: DEFAULT_PASSWORD
-        });
+        setting =
+            await Setting.create({
+
+                key: 'loginPassword',
+
+                value:
+                    DEFAULT_PASSWORD
+
+            });
 
     }
 
+
     return setting.value;
+
 }
 
 
-/* =========================
+/* ==================================================
    SET NEW PASSWORD
-========================= */
+================================================== */
 
-async function setCurrentPassword(newPassword) {
+async function setCurrentPassword(
+    newPassword
+) {
 
     await Setting.findOneAndUpdate(
 
@@ -280,118 +363,19 @@ async function setCurrentPassword(newPassword) {
 
         {
             key: 'loginPassword',
-            value: newPassword
+
+            value:
+                newPassword
+
         },
 
         {
             upsert: true,
+
             new: true
         }
 
     );
-
-}
-
-
-/* ==================================================
-   EMAIL
-================================================== */
-
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-
-
-let transporter = null;
-
-
-
-
-
-/* =========================
-   SEND RECOVERY EMAIL
-========================= */
-
- 
-    if (!transporter) {
-
-        throw new Error(
-            'إعدادات البريد الإلكتروني غير موجودة'
-        );
-
-    }
-
-
-    await transporter.sendMail({
-
-        from: EMAIL_USER,
-
-        to: recipientEmail,
-
-        subject: 'كلمة السر الجديدة - نظام متابعة الطلاب',
-
-        text:
-`تم إنشاء كلمة سر جديدة لنظام متابعة الطلاب.
-
-كلمة السر الجديدة:
-
-${password}
-
-إذا لم تطلب تغيير كلمة السر، يرجى تجاهل هذه الرسالة.`,
-
-        html: `
-            <div dir="rtl"
-                 style="
-                 font-family:Arial;
-                 text-align:center;
-                 padding:30px;
-                 background:#f5f5f5;
-                 ">
-
-                <div style="
-                    background:white;
-                    padding:30px;
-                    border-radius:15px;
-                    max-width:500px;
-                    margin:auto;
-                    ">
-
-                    <h2>
-                        نظام متابعة الطلاب
-                    </h2>
-
-                    <p>
-                        تم إنشاء كلمة سر جديدة للنظام.
-                    </p>
-
-                    <div style="
-                        font-size:36px;
-                        font-weight:bold;
-                        letter-spacing:8px;
-                        background:#eeeeee;
-                        padding:20px;
-                        margin:20px 0;
-                        border-radius:10px;
-                        ">
-
-                        ${password}
-
-                    </div>
-
-                    <p>
-                        استخدم هذه الأرقام لتسجيل الدخول.
-                    </p>
-
-                    <p style="color:#777;">
-                        إذا لم تطلب تغيير كلمة السر،
-                        يرجى تجاهل هذه الرسالة.
-                    </p>
-
-                </div>
-
-            </div>
-        `
-
-    });
 
 }
 
@@ -404,9 +388,11 @@ app.post('/api/login', async (req, res) => {
 
     try {
 
-        const password = String(
-            req.body.password || ''
-        ).trim();
+        const password =
+            String(
+                req.body.password || ''
+            ).trim();
+
 
         const currentPassword =
             await getCurrentPassword();
@@ -418,8 +404,12 @@ app.post('/api/login', async (req, res) => {
         ) {
 
             return res.json({
+
                 success: true,
-                message: 'تم تسجيل الدخول بنجاح'
+
+                message:
+                    'تم تسجيل الدخول بنجاح'
+
             });
 
         }
@@ -429,10 +419,10 @@ app.post('/api/login', async (req, res) => {
 
             success: false,
 
-            message: 'كلمة السر غير صحيحة'
+            message:
+                'كلمة السر غير صحيحة'
 
         });
-
 
     } catch (error) {
 
@@ -442,7 +432,8 @@ app.post('/api/login', async (req, res) => {
 
             success: false,
 
-            message: 'حدث خطأ أثناء تسجيل الدخول'
+            message:
+                'حدث خطأ أثناء تسجيل الدخول'
 
         });
 
@@ -453,35 +444,63 @@ app.post('/api/login', async (req, res) => {
 
 /* ==================================================
    FORGOT PASSWORD
+   EmailJS يقوم بإرسال البريد من الواجهة الأمامية
 ================================================== */
 
-app.post('/api/forgot-password', async (req, res) => {
+app.post(
+    '/api/forgot-password',
+    async (req, res) => {
 
-    try {
+        try {
 
-        const newPassword =
-            Math.floor(1000 + Math.random() * 9000).toString();
+            const newPassword =
+                Math.floor(
+                    1000 +
+                    Math.random() * 9000
+                ).toString();
 
-        await setCurrentPassword(newPassword);
 
-        res.json({
-            success: true,
-            password: newPassword
-        });
+            await setCurrentPassword(
+                newPassword
+            );
 
-    } catch (error) {
 
-        console.error(
-            'Forgot password error:',
-            error
-        );
+            console.log(
+                'تم إنشاء كلمة مرور جديدة'
+            );
 
-        res.status(500).json({
-            success: false,
-            message: 'تعذر إنشاء كلمة المرور الجديدة.'
-        });
+
+            res.json({
+
+                success: true,
+
+                password:
+                    newPassword
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Forgot password error:',
+                error
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                message:
+                    'تعذر إنشاء كلمة المرور الجديدة.'
+
+            });
+
+        }
+
     }
-});
+);
+
 
 /* ==================================================
    SERVER
