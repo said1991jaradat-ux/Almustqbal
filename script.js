@@ -1,3 +1,4 @@
+```javascript
 /* ==================================================
    API
 ================================================== */
@@ -6,42 +7,94 @@ const API_URL =
     'https://almustqbal.onrender.com/api/records';
 
 
-
 /* ==================================================
    DATA
 ================================================== */
 
 let dbData = {
-
     lateness: [],
-
     uniform: [],
-
     escape: [],
-
     absence: []
-
 };
 
-
 let currentAllRecords = [];
-
 let currentAdminReportType = 'daily';
+let currentFormattedDate = '';
 
 
 /* ==================================================
    DATE
 ================================================== */
 
-let currentFormattedDate = '';
+function getLocalDateInputValue() {
 
+    const now = new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(
+            2,
+            '0'
+        );
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(
+            2,
+            '0'
+        );
+
+    return `${year}-${month}-${day}`;
+}
+
+
+/* ==================================================
+   AUTOMATIC DATE + TIME
+   يتم أخذها لحظة الضغط على زر التسجيل
+================================================== */
+
+function getAutomaticDateTime() {
+
+    const now = new Date();
+
+    return {
+
+        date:
+            now.toLocaleDateString(
+                'ar-EG'
+            ),
+
+        time:
+            now.toLocaleTimeString(
+                'ar-EG',
+                {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }
+            ),
+
+        createdAt:
+            now.toISOString()
+
+    };
+}
+
+
+/* ==================================================
+   INITIALIZE
+================================================== */
 
 document.addEventListener(
     'DOMContentLoaded',
     function () {
 
         const now = new Date();
-
 
         currentFormattedDate =
             now.toLocaleDateString(
@@ -69,6 +122,12 @@ document.addEventListener(
         }
 
 
+        /*
+         * هذا يبقى فقط للحفاظ على
+         * أي عناصر .auto-date موجودة
+         * في الصفحة.
+         */
+
         document
             .querySelectorAll('.auto-date')
             .forEach(
@@ -82,6 +141,8 @@ document.addEventListener(
 
 
         fetchRecordsFromCloud();
+
+        setupForgotPasswordEnter();
 
     }
 );
@@ -98,12 +159,10 @@ function forgotPassword() {
             'forgotPasswordModal'
         );
 
-
     const input =
         document.getElementById(
             'favoriteNumberInput'
         );
-
 
     const errorMsg =
         document.getElementById(
@@ -129,7 +188,6 @@ function forgotPassword() {
     if (input) {
 
         input.value = '';
-
 
         setTimeout(
             function () {
@@ -189,12 +247,10 @@ async function submitForgotPassword() {
             'favoriteNumberInput'
         );
 
-
     const errorMsg =
         document.getElementById(
             'forgotErrorMsg'
         );
-
 
     const submitBtn =
         document.getElementById(
@@ -249,10 +305,6 @@ async function submitForgotPassword() {
 
     try {
 
-        /* =========================================
-           VERIFY SECURITY ANSWER
-        ========================================= */
-
         const response =
             await fetch(
                 'https://almustqbal.onrender.com/api/forgot-password',
@@ -283,12 +335,10 @@ async function submitForgotPassword() {
         );
 
 
-        /* =========================================
-           WRONG ANSWER
-        ========================================= */
-
-        if (!response.ok ||
-            !data.success) {
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             if (errorMsg) {
 
@@ -306,10 +356,6 @@ async function submitForgotPassword() {
         }
 
 
-        /* =========================================
-           CORRECT ANSWER
-        ========================================= */
-
         const newPassword =
             data.password;
 
@@ -323,28 +369,7 @@ async function submitForgotPassword() {
         }
 
 
-        console.log(
-            'تم إنشاء كلمة المرور الجديدة بنجاح'
-        );
-
-
-        /* =========================================
-           EMAILJS
-        ========================================= */
-
         try {
-
-            console.log(
-                'EMAILJS SERVICE ID:',
-                'service_uh9k24u'
-            );
-
-
-            console.log(
-                'EMAILJS TEMPLATE ID:',
-                'template_r4tlcdl'
-            );
-
 
             const emailResult =
                 await emailjs.send(
@@ -417,10 +442,7 @@ async function submitForgotPassword() {
 
         }
 
-    }
-
-
-    finally {
+    } finally {
 
         if (submitBtn) {
 
@@ -441,38 +463,47 @@ async function submitForgotPassword() {
    ENTER IN SECURITY INPUT
 ================================================== */
 
-document.addEventListener(
-    'DOMContentLoaded',
-    function () {
+function setupForgotPasswordEnter() {
 
-        const input =
-            document.getElementById(
-                'favoriteNumberInput'
-            );
-
-
-        if (!input) {
-            return;
-        }
-
-
-        input.addEventListener(
-            'keydown',
-            function (event) {
-
-                if (event.key === 'Enter') {
-
-                    event.preventDefault();
-
-                    submitForgotPassword();
-
-                }
-
-            }
+    const input =
+        document.getElementById(
+            'favoriteNumberInput'
         );
 
+
+    if (
+        !input ||
+        input.dataset.enterReady === '1'
+    ) {
+
+        return;
+
     }
-);
+
+
+    input.dataset.enterReady =
+        '1';
+
+
+    input.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (
+                event.key ===
+                'Enter'
+            ) {
+
+                event.preventDefault();
+
+                submitForgotPassword();
+
+            }
+
+        }
+    );
+
+}
 
 
 /* ==================================================
@@ -484,7 +515,9 @@ async function fetchRecordsFromCloud() {
     try {
 
         const response =
-            await fetch(API_URL);
+            await fetch(
+                API_URL
+            );
 
 
         if (!response.ok) {
@@ -509,8 +542,6 @@ async function fetchRecordsFromCloud() {
         }
 
 
-        /* حفظ جميع السجلات للبحث والتقارير */
-
         currentAllRecords =
             records;
 
@@ -521,7 +552,9 @@ async function fetchRecordsFromCloud() {
 
             uniform: [],
 
-            escape: []
+            escape: [],
+
+            absence: []
 
         };
 
@@ -580,6 +613,7 @@ async function fetchRecordsFromCloud() {
 
                 }
 
+
                 else if (
                     record.type ===
                     'uniform'
@@ -591,6 +625,7 @@ async function fetchRecordsFromCloud() {
 
                 }
 
+
                 else if (
                     record.type ===
                     'escape'
@@ -601,16 +636,18 @@ async function fetchRecordsFromCloud() {
                     );
 
                 }
-               else if (
-    record.type ===
-    'absence'
-) {
 
-    dbData.absence.push(
-        mapped
-    );
 
-}
+                else if (
+                    record.type ===
+                    'absence'
+                ) {
+
+                    dbData.absence.push(
+                        mapped
+                    );
+
+                }
 
             }
         );
@@ -619,13 +656,21 @@ async function fetchRecordsFromCloud() {
         renderLogs();
 
 
-        if (
+        const adminModal =
             document.getElementById(
                 'adminModal'
-            ) &&
+            );
+
+
+        const adminTableBody =
             document.getElementById(
                 'adminTableBody'
-            )
+            );
+
+
+        if (
+            adminModal &&
+            adminTableBody
         ) {
 
             renderAdminReport();
@@ -633,9 +678,7 @@ async function fetchRecordsFromCloud() {
         }
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             'Error loading records:',
@@ -650,6 +693,7 @@ async function fetchRecordsFromCloud() {
 /* ==================================================
    RENDER LOGS
 ================================================== */
+
 function renderLogs() {
 
     renderCategoryLogs(
@@ -657,15 +701,18 @@ function renderLogs() {
         'latenessLogs'
     );
 
+
     renderCategoryLogs(
         'uniform',
         'uniformLogs'
     );
 
+
     renderCategoryLogs(
         'escape',
         'escapeLogs'
     );
+
 
     renderCategoryLogs(
         'absence',
@@ -674,11 +721,134 @@ function renderLogs() {
 
 }
 
+
+function renderCategoryLogs(
+    category,
+    elementId
+) {
+
+    const container =
+        document.getElementById(
+            elementId
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    const records =
+        dbData[category] ||
+        [];
+
+
+    if (!records.length) {
+
+        container.innerHTML =
+            '<div class="empty-log">لا توجد سجلات</div>';
+
+        return;
+
+    }
+
+
+    const latestRecords =
+        [...records]
+            .sort(
+                function (a, b) {
+
+                    const dateA =
+                        getRecordDateObject(
+                            a
+                        );
+
+
+                    const dateB =
+                        getRecordDateObject(
+                            b
+                        );
+
+
+                    if (
+                        !dateA ||
+                        !dateB
+                    ) {
+
+                        return 0;
+
+                    }
+
+
+                    return dateB - dateA;
+
+                }
+            )
+            .slice(
+                0,
+                5
+            );
+
+
+    container.innerHTML =
+        latestRecords
+            .map(
+                function (record) {
+
+                    const timeText =
+                        record.time
+                            ? ` - ${escapeHtml(record.time)}`
+                            : '';
+
+
+                    return `
+
+                        <div class="log-item">
+
+                            <div>
+
+                                <strong>
+                                    ${escapeHtml(
+                                        record.student
+                                    )}
+                                </strong>
+
+                                <div>
+                                    ${escapeHtml(
+                                        record.date
+                                    )}${timeText}
+                                </div>
+
+                            </div>
+
+                            <button
+                                onclick="deleteRecord('${record.id}')"
+                                class="delete-btn">
+
+                                حذف
+
+                            </button>
+
+                        </div>
+
+                    `;
+
+                }
+            )
+            .join('');
+
+}
+
+
 /* ==================================================
    ESCAPE HTML
 ================================================== */
 
-function escapeHtml(value) {
+function escapeHtml(
+    value
+) {
 
     if (
         value === null ||
@@ -724,7 +894,9 @@ function escapeHtml(value) {
    DELETE RECORD
 ================================================== */
 
-async function deleteRecord(id) {
+async function deleteRecord(
+    id
+) {
 
     if (
         !confirm(
@@ -766,9 +938,7 @@ async function deleteRecord(id) {
         );
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             error
@@ -797,7 +967,9 @@ function openAdminDashboard() {
 
 
     if (!modal) {
+
         return;
+
     }
 
 
@@ -848,38 +1020,6 @@ function closeAdminDashboard() {
             'none';
 
     }
-
-}
-
-
-/* ==================================================
-   LOCAL DATE
-================================================== */
-
-function getAutomaticDateTime() {
-
-    const now = new Date();
-
-    return {
-
-        date:
-            now.toLocaleDateString(
-                'ar-EG'
-            ),
-
-        time:
-            now.toLocaleTimeString(
-                'ar-EG',
-                {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }
-            ),
-
-        createdAt:
-            now.toISOString()
-
-    };
 
 }
 
@@ -954,9 +1094,7 @@ async function loadAllRecordsForAdmin() {
         renderAdminReport();
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             error
@@ -996,12 +1134,13 @@ async function loadAllRecordsForAdmin() {
    REPORT TAB
 ================================================== */
 
-function switchReportTab(type) {
+function switchReportTab(
+    type
+) {
 
     currentAdminReportType =
         type;
 
-   
 
     updateAdminTabs();
 
@@ -1067,12 +1206,16 @@ function getAdminDateRange(
     let end;
 
 
-    /* DAILY */
-
-    if (type === 'daily') {
+    if (
+        type ===
+        'daily'
+    ) {
 
         start =
-            new Date(selected);
+            new Date(
+                selected
+            );
+
 
         start.setHours(
             0,
@@ -1083,7 +1226,9 @@ function getAdminDateRange(
 
 
         end =
-            new Date(start);
+            new Date(
+                start
+            );
 
 
         end.setDate(
@@ -1093,12 +1238,15 @@ function getAdminDateRange(
     }
 
 
-    /* WEEKLY - SUNDAY TO SATURDAY */
-
-    else if (type === 'weekly') {
+    else if (
+        type ===
+        'weekly'
+    ) {
 
         start =
-            new Date(selected);
+            new Date(
+                selected
+            );
 
 
         start.setHours(
@@ -1119,7 +1267,9 @@ function getAdminDateRange(
 
 
         end =
-            new Date(start);
+            new Date(
+                start
+            );
 
 
         end.setDate(
@@ -1128,8 +1278,6 @@ function getAdminDateRange(
 
     }
 
-
-    /* MONTHLY */
 
     else {
 
@@ -1163,9 +1311,13 @@ function getAdminDateRange(
    RECORD DATE
 ================================================== */
 
-function getRecordDateObject(record) {
+function getRecordDateObject(
+    record
+) {
 
-    if (record.createdAt) {
+    if (
+        record.createdAt
+    ) {
 
         const created =
             new Date(
@@ -1173,7 +1325,11 @@ function getRecordDateObject(record) {
             );
 
 
-        if (!isNaN(created.getTime())) {
+        if (
+            !isNaN(
+                created.getTime()
+            )
+        ) {
 
             return created;
 
@@ -1182,7 +1338,9 @@ function getRecordDateObject(record) {
     }
 
 
-    if (record.date) {
+    if (
+        record.date
+    ) {
 
         const localDate =
             new Date(
@@ -1190,7 +1348,11 @@ function getRecordDateObject(record) {
             );
 
 
-        if (!isNaN(localDate.getTime())) {
+        if (
+            !isNaN(
+                localDate.getTime()
+            )
+        ) {
 
             return localDate;
 
@@ -1240,13 +1402,17 @@ function getFilteredAdminRecords() {
 
 
             if (!recordDate) {
+
                 return false;
+
             }
 
 
             return (
-                recordDate >= range.start &&
-                recordDate < range.end
+                recordDate >=
+                    range.start &&
+                recordDate <
+                    range.end
             );
 
         }
@@ -1318,14 +1484,22 @@ function getAdminPeriodLabel() {
             {
                 year:
                     'numeric',
-
                 month:
                     'long',
-
                 day:
                     'numeric'
             }
         );
+
+
+    if (
+        currentAdminReportType ===
+        'daily'
+    ) {
+
+        return startText;
+
+    }
 
 
     const endDate =
@@ -1345,24 +1519,12 @@ function getAdminPeriodLabel() {
             {
                 year:
                     'numeric',
-
                 month:
                     'long',
-
                 day:
                     'numeric'
             }
         );
-
-
-    if (
-        currentAdminReportType ===
-        'daily'
-    ) {
-
-        return startText;
-
-    }
 
 
     return `${startText} — ${endText}`;
@@ -1451,6 +1613,19 @@ function renderAdminReport() {
         ).length;
 
 
+    const absence =
+        records.filter(
+            function (r) {
+
+                return (
+                    r.type ===
+                    'absence'
+                );
+
+            }
+        ).length;
+
+
     setText(
         'adminTotalCount',
         total
@@ -1475,27 +1650,16 @@ function renderAdminReport() {
     );
 
 
+    setText(
+        'adminAbsenceCount',
+        absence
+    );
+
+
     renderAdminTable(
         records
     );
 
-   const absence =
-    records.filter(
-        function (r) {
-
-            return (
-                r.type ===
-                'absence'
-            );
-
-        }
-    ).length;
-   
-setText(
-    'adminAbsenceCount',
-    absence
-);
-   
 }
 
 
@@ -1528,7 +1692,9 @@ function setText(
    TRANSLATE TYPE
 ================================================== */
 
-function translateType(type) {
+function translateType(
+    type
+) {
 
     if (
         type ===
@@ -1539,6 +1705,7 @@ function translateType(type) {
 
     }
 
+
     if (
         type ===
         'uniform'
@@ -1547,6 +1714,7 @@ function translateType(type) {
         return 'الزي المدرسي';
 
     }
+
 
     if (
         type ===
@@ -1557,6 +1725,7 @@ function translateType(type) {
 
     }
 
+
     if (
         type ===
         'absence'
@@ -1566,9 +1735,11 @@ function translateType(type) {
 
     }
 
+
     return type || '';
 
 }
+
 
 /* ==================================================
    ADMIN TABLE
@@ -1585,7 +1756,9 @@ function renderAdminTable(
 
 
     if (!body) {
+
         return;
+
     }
 
 
@@ -1628,8 +1801,10 @@ function renderAdminTable(
                     );
 
 
-                if (!dateA ||
-                    !dateB) {
+                if (
+                    !dateA ||
+                    !dateB
+                ) {
 
                     return 0;
 
@@ -1658,12 +1833,35 @@ function renderAdminTable(
                             ? recordDateObject.toLocaleDateString(
                                 'ar-EG'
                             )
-                            : record.date || '';
+                            : record.date ||
+                              '';
 
 
                     const details =
                         record.details ||
                         '';
+
+
+                    const time =
+                        record.time ||
+                        '';
+
+
+                    const grade =
+                        record.grade ||
+                        '';
+
+
+                    const section =
+                        record.section ||
+                        '';
+
+
+                    const gradeSection =
+                        grade ||
+                        section
+                            ? `${grade} / ${section}`
+                            : '--';
 
 
                     return `
@@ -1676,53 +1874,63 @@ function renderAdminTable(
                                 )}
                             </td>
 
+
                             <td>
+
                                 <span class="report-type">
+
                                     ${escapeHtml(
                                         translateType(
                                             record.type
                                         )
                                     )}
+
                                 </span>
+
                             </td>
 
+
                             <td>
+
                                 <strong>
+
                                     ${escapeHtml(
                                         record.studentName ||
                                         ''
                                     )}
+
                                 </strong>
+
                             </td>
 
-                            <td>
-                                ${escapeHtml(
-                                    record.grade ||
-                                    ''
-                                )}
-                                /
-                                ${escapeHtml(
-                                    record.section ||
-                                    ''
-                                )}
-                            </td>
 
                             <td>
 
                                 ${escapeHtml(
-                                    record.time ||
-                                    ''
+                                    gradeSection
+                                )}
+
+                            </td>
+
+
+                            <td>
+
+                                ${escapeHtml(
+                                    time
                                 )}
 
                                 <br>
 
                                 <small>
+
                                     ${escapeHtml(
                                         details
                                     )}
+
                                 </small>
 
                             </td>
+
 
                             <td>
 
@@ -1798,9 +2006,7 @@ async function adminDeleteRecord(
         );
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             error
@@ -1888,6 +2094,19 @@ function printAdminReport() {
         ).length;
 
 
+    const absence =
+        records.filter(
+            function (r) {
+
+                return (
+                    r.type ===
+                    'absence'
+                );
+
+            }
+        ).length;
+
+
     const rows =
         records
             .map(
@@ -1904,7 +2123,25 @@ function printAdminReport() {
                             ? recordDateObject.toLocaleDateString(
                                 'ar-EG'
                             )
-                            : record.date || '';
+                            : record.date ||
+                              '';
+
+
+                    const grade =
+                        record.grade ||
+                        '';
+
+
+                    const section =
+                        record.section ||
+                        '';
+
+
+                    const gradeSection =
+                        grade ||
+                        section
+                            ? `${grade} / ${section}`
+                            : '--';
 
 
                     return `
@@ -1917,6 +2154,7 @@ function printAdminReport() {
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
                                     translateType(
@@ -1925,6 +2163,7 @@ function printAdminReport() {
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
                                     record.studentName ||
@@ -1932,17 +2171,13 @@ function printAdminReport() {
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
-                                    record.grade ||
-                                    ''
-                                )}
-                                /
-                                ${escapeHtml(
-                                    record.section ||
-                                    ''
+                                    gradeSection
                                 )}
                             </td>
+
 
                             <td>
                                 ${escapeHtml(
@@ -1950,6 +2185,7 @@ function printAdminReport() {
                                     ''
                                 )}
                             </td>
+
 
                             <td>
                                 ${escapeHtml(
@@ -1990,7 +2226,9 @@ function printAdminReport() {
 
         <!DOCTYPE html>
 
-        <html lang="ar" dir="rtl">
+        <html
+            lang="ar"
+            dir="rtl">
 
         <head>
 
@@ -2000,53 +2238,118 @@ function printAdminReport() {
                 ${escapeHtml(title)}
             </title>
 
+
             <style>
 
                 body {
-                    font-family: Arial, sans-serif;
-                    direction: rtl;
-                    padding: 30px;
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    direction:
+                        rtl;
+
+                    padding:
+                        30px;
+
                 }
+
 
                 h1,
                 h2 {
-                    text-align: center;
+
+                    text-align:
+                        center;
+
                 }
+
 
                 .period {
-                    text-align: center;
-                    margin-bottom: 25px;
-                    color: #555;
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        25px;
+
+                    color:
+                        #555;
+
                 }
+
 
                 .summary {
-                    display: flex;
-                    gap: 10px;
-                    margin-bottom: 25px;
+
+                    display:
+                        flex;
+
+                    gap:
+                        10px;
+
+                    margin-bottom:
+                        25px;
+
+                    flex-wrap:
+                        wrap;
+
                 }
+
 
                 .box {
-                    flex: 1;
-                    border: 1px solid #ddd;
-                    padding: 15px;
-                    text-align: center;
-                    border-radius: 8px;
+
+                    flex:
+                        1;
+
+                    min-width:
+                        130px;
+
+                    border:
+                        1px solid #ddd;
+
+                    padding:
+                        15px;
+
+                    text-align:
+                        center;
+
+                    border-radius:
+                        8px;
+
                 }
 
+
                 table {
-                    width: 100%;
-                    border-collapse: collapse;
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
                 }
+
 
                 th,
                 td {
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    text-align: center;
+
+                    border:
+                        1px solid #ccc;
+
+                    padding:
+                        10px;
+
+                    text-align:
+                        center;
+
                 }
 
+
                 th {
-                    background: #eeeeee;
+
+                    background:
+                        #eeeeee;
+
                 }
 
             </style>
@@ -2056,65 +2359,125 @@ function printAdminReport() {
 
         <body>
 
+
             <h1>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h1>
+
 
             <h2>
                 ${escapeHtml(title)}
             </h2>
 
+
             <div class="period">
+
                 ${escapeHtml(period)}
+
             </div>
 
 
             <div class="summary">
 
+
                 <div class="box">
-                    <strong>إجمالي الحالات</strong>
+
+                    <strong>
+                        إجمالي الحالات
+                    </strong>
+
                     <br>
+
                     ${total}
+
                 </div>
 
+
                 <div class="box">
-                    <strong>التأخير</strong>
+
+                    <strong>
+                        التأخير
+                    </strong>
+
                     <br>
+
                     ${lateness}
+
                 </div>
 
+
                 <div class="box">
-                    <strong>الزي المدرسي</strong>
+
+                    <strong>
+                        الزي المدرسي
+                    </strong>
+
                     <br>
+
                     ${uniform}
+
                 </div>
 
+
                 <div class="box">
-                    <strong>الهروب</strong>
+
+                    <strong>
+                        الهروب
+                    </strong>
+
                     <br>
+
                     ${escape}
+
                 </div>
+
+
+                <div class="box">
+
+                    <strong>
+                        الغياب
+                    </strong>
+
+                    <br>
+
+                    ${absence}
+
+                </div>
+
 
             </div>
 
 
             <table>
 
+
                 <thead>
 
                     <tr>
 
-                        <th>التاريخ</th>
+                        <th>
+                            التاريخ
+                        </th>
 
-                        <th>نوع الحالة</th>
+                        <th>
+                            نوع الحالة
+                        </th>
 
-                        <th>اسم الطالب</th>
+                        <th>
+                            اسم الطالب
+                        </th>
 
-                        <th>الصف / الشعبة</th>
+                        <th>
+                            الصف / الشعبة
+                        </th>
 
-                        <th>الوقت</th>
+                        <th>
+                            وقت التسجيل
+                        </th>
 
-                        <th>التفاصيل</th>
+                        <th>
+                            التفاصيل
+                        </th>
 
                     </tr>
 
@@ -2127,16 +2490,21 @@ function printAdminReport() {
 
                 </tbody>
 
+
             </table>
 
 
             <script>
 
-                window.onload = function () {
-                    window.print();
-                };
+                window.onload =
+                    function () {
+
+                        window.print();
+
+                    };
 
             <\/script>
+
 
         </body>
 
@@ -2151,7 +2519,7 @@ function printAdminReport() {
 
 
 /* ==================================================
-   OTHER REASONS
+   OTHER REASON
 ================================================== */
 
 function toggleOtherReason() {
@@ -2200,43 +2568,55 @@ function toggleOtherReason() {
 
 /* ==================================================
    ADD LATENESS
+   بدون إدخال وقت أو تاريخ يدوي
 ================================================== */
 
-async function addLateness(event) {
+async function addLateness(
+    event
+) {
 
     if (event) {
+
         event.preventDefault();
+
     }
+
 
     const student =
         getValue(
             'latenessStudent'
         );
 
+
     const grade =
         getValue(
             'latenessGrade'
         );
+
 
     const section =
         getValue(
             'latenessSection'
         );
 
+
     const reasonElement =
         document.getElementById(
             'latenessReason'
         );
+
 
     const reason =
         reasonElement
             ? reasonElement.value
             : '';
 
+
     const other =
         getValue(
             'otherReasonText'
         );
+
 
     const finalReason =
         reason === 'other'
@@ -2299,7 +2679,9 @@ async function addLateness(event) {
 
 
         if (form) {
+
             form.reset();
+
         }
 
 
@@ -2315,6 +2697,7 @@ async function addLateness(event) {
             error
         );
 
+
         alert(
             'حدث خطأ أثناء حفظ السجل'
         );
@@ -2323,29 +2706,40 @@ async function addLateness(event) {
 
 }
 
+
 /* ==================================================
    ADD UNIFORM
+   بدون إدخال وقت أو تاريخ يدوي
 ================================================== */
-async function addUniform(event) {
+
+async function addUniform(
+    event
+) {
 
     if (event) {
+
         event.preventDefault();
+
     }
+
 
     const student =
         getValue(
             'uniformStudent'
         );
 
+
     const grade =
         getValue(
             'uniformGrade'
         );
 
+
     const section =
         getValue(
             'uniformSection'
         );
+
 
     const status =
         getValue(
@@ -2408,7 +2802,9 @@ async function addUniform(event) {
 
 
         if (form) {
+
             form.reset();
+
         }
 
 
@@ -2421,6 +2817,7 @@ async function addUniform(event) {
             error
         );
 
+
         alert(
             'حدث خطأ أثناء حفظ السجل'
         );
@@ -2428,25 +2825,35 @@ async function addUniform(event) {
     }
 
 }
+
+
 /* ==================================================
    ADD ESCAPE
+   بدون إدخال وقت أو تاريخ يدوي
 ================================================== */
 
-async function addEscape(event) {
+async function addEscape(
+    event
+) {
 
     if (event) {
+
         event.preventDefault();
+
     }
+
 
     const student =
         getValue(
             'escapeStudent'
         );
 
+
     const grade =
         getValue(
             'escapeGrade'
         );
+
 
     const section =
         getValue(
@@ -2509,7 +2916,9 @@ async function addEscape(event) {
 
 
         if (form) {
+
             form.reset();
+
         }
 
 
@@ -2522,6 +2931,7 @@ async function addEscape(event) {
             error
         );
 
+
         alert(
             'حدث خطأ أثناء حفظ السجل'
         );
@@ -2529,6 +2939,120 @@ async function addEscape(event) {
     }
 
 }
+
+
+/* ==================================================
+   ADD ABSENCE
+================================================== */
+
+async function addAbsence(
+    event
+) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    const student =
+        getValue(
+            'absenceStudent'
+        );
+
+
+    const grade =
+        getValue(
+            'absenceGrade'
+        );
+
+
+    const section =
+        getValue(
+            'absenceSection'
+        );
+
+
+    if (!student) {
+
+        alert(
+            'يرجى إدخال اسم الطالب'
+        );
+
+        return;
+
+    }
+
+
+    const dateTime =
+        getAutomaticDateTime();
+
+
+    try {
+
+        await saveRecord({
+
+            type:
+                'absence',
+
+            studentName:
+                student,
+
+            grade:
+                grade,
+
+            section:
+                section,
+
+            date:
+                dateTime.date,
+
+            time:
+                dateTime.time,
+
+            details:
+                'غياب'
+
+        });
+
+
+        alert(
+            'تم تسجيل الغياب بنجاح'
+        );
+
+
+        const form =
+            document.getElementById(
+                'absenceForm'
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        await fetchRecordsFromCloud();
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        alert(
+            'حدث خطأ أثناء حفظ الغياب'
+        );
+
+    }
+
+}
+
 
 /* ==================================================
    SAVE RECORD
@@ -2576,10 +3100,10 @@ async function saveRecord(
                 errorData.message ||
                 message;
 
-        }
+        } catch (e) {
 
-        catch (e) {
             // ignore
+
         }
 
 
@@ -2595,94 +3119,6 @@ async function saveRecord(
 }
 
 
-
-async function addAbsence(event) {
-
-    if (event) {
-        event.preventDefault();
-    }
-
-    const student =
-        getValue(
-            'absenceStudent'
-        );
-
-
-    if (!student) {
-
-        alert(
-            'يرجى إدخال اسم الطالب'
-        );
-
-        return;
-
-    }
-
-
-    const dateTime =
-        getAutomaticDateTime();
-
-
-    try {
-
-        await saveRecord({
-
-            type:
-                'absence',
-
-            studentName:
-                student,
-
-            grade:
-                '',
-
-            section:
-                '',
-
-            date:
-                dateTime.date,
-
-            time:
-                dateTime.time,
-
-            details:
-                'غياب'
-
-        });
-
-
-        alert(
-            'تم تسجيل الغياب بنجاح'
-        );
-
-
-        const form =
-            document.getElementById(
-                'absenceForm'
-            );
-
-
-        if (form) {
-            form.reset();
-        }
-
-
-        await fetchRecordsFromCloud();
-
-
-    } catch (error) {
-
-        console.error(
-            error
-        );
-
-        alert(
-            'حدث خطأ أثناء حفظ الغياب'
-        );
-
-    }
-
-}
 /* ==================================================
    HELPERS
 ================================================== */
@@ -2737,7 +3173,9 @@ function searchStudentReport() {
 
 
     if (!input) {
+
         return;
+
     }
 
 
@@ -2791,6 +3229,23 @@ function searchStudentReport() {
             .map(
                 function (record) {
 
+                    const grade =
+                        record.grade ||
+                        '';
+
+
+                    const section =
+                        record.section ||
+                        '';
+
+
+                    const gradeSection =
+                        grade ||
+                        section
+                            ? `${grade} / ${section}`
+                            : '--';
+
+
                     return `
 
                         <tr>
@@ -2802,6 +3257,7 @@ function searchStudentReport() {
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
                                     translateType(
@@ -2810,6 +3266,7 @@ function searchStudentReport() {
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
                                     record.studentName ||
@@ -2817,17 +3274,13 @@ function searchStudentReport() {
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
-                                    record.grade ||
-                                    ''
-                                )}
-                                /
-                                ${escapeHtml(
-                                    record.section ||
-                                    ''
+                                    gradeSection
                                 )}
                             </td>
+
 
                             <td>
                                 ${escapeHtml(
@@ -2835,6 +3288,7 @@ function searchStudentReport() {
                                     ''
                                 )}
                             </td>
+
 
                             <td>
                                 ${escapeHtml(
@@ -2875,7 +3329,9 @@ function searchStudentReport() {
 
         <!DOCTYPE html>
 
-        <html lang="ar" dir="rtl">
+        <html
+            lang="ar"
+            dir="rtl">
 
         <head>
 
@@ -2885,76 +3341,139 @@ function searchStudentReport() {
                 تقرير الطالب
             </title>
 
+
             <style>
 
                 body {
-                    font-family: Arial, sans-serif;
-                    direction: rtl;
-                    padding: 30px;
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    direction:
+                        rtl;
+
+                    padding:
+                        30px;
+
                 }
+
 
                 h1,
                 h2 {
-                    text-align: center;
+
+                    text-align:
+                        center;
+
                 }
 
+
                 table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 25px;
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-top:
+                        25px;
+
                 }
+
 
                 th,
                 td {
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    text-align: center;
+
+                    border:
+                        1px solid #ccc;
+
+                    padding:
+                        10px;
+
+                    text-align:
+                        center;
+
                 }
 
+
                 th {
-                    background: #eee;
+
+                    background:
+                        #eee;
+
                 }
 
             </style>
 
         </head>
 
+
         <body>
+
 
             <h1>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h1>
 
+
             <h2>
                 تقرير الطالب
             </h2>
 
-            <p style="text-align:center;">
+
+            <p
+                style="text-align:center;">
+
                 اسم الطالب:
+
                 <strong>
+
                     ${escapeHtml(
                         found[0].studentName ||
                         ''
                     )}
+
                 </strong>
+
             </p>
 
+
             <table>
+
 
                 <thead>
 
                     <tr>
 
-                        <th>التاريخ</th>
-                        <th>النوع</th>
-                        <th>الطالب</th>
-                        <th>الصف / الشعبة</th>
-                        <th>الوقت</th>
-                        <th>التفاصيل</th>
+                        <th>
+                            التاريخ
+                        </th>
+
+                        <th>
+                            النوع
+                        </th>
+
+                        <th>
+                            الطالب
+                        </th>
+
+                        <th>
+                            الصف / الشعبة
+                        </th>
+
+                        <th>
+                            وقت التسجيل
+                        </th>
+
+                        <th>
+                            التفاصيل
+                        </th>
 
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
@@ -2962,7 +3481,9 @@ function searchStudentReport() {
 
                 </tbody>
 
+
             </table>
+
 
         </body>
 
@@ -3021,6 +3542,23 @@ function printCategoryReport(
             .map(
                 function (record) {
 
+                    const grade =
+                        record.grade ||
+                        '';
+
+
+                    const section =
+                        record.section ||
+                        '';
+
+
+                    const gradeSection =
+                        grade ||
+                        section
+                            ? `${grade} / ${section}`
+                            : '--';
+
+
                     return `
 
                         <tr>
@@ -3031,27 +3569,27 @@ function printCategoryReport(
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
                                     record.student
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
-                                    record.grade
-                                )}
-                                /
-                                ${escapeHtml(
-                                    record.section
+                                    gradeSection
                                 )}
                             </td>
+
 
                             <td>
                                 ${escapeHtml(
                                     record.time
                                 )}
                             </td>
+
 
                             <td>
                                 ${escapeHtml(
@@ -3093,7 +3631,9 @@ function printCategoryReport(
 
         <!DOCTYPE html>
 
-        <html lang="ar" dir="rtl">
+        <html
+            lang="ar"
+            dir="rtl">
 
         <head>
 
@@ -3103,64 +3643,118 @@ function printCategoryReport(
                 ${escapeHtml(title)}
             </title>
 
+
             <style>
 
                 body {
-                    font-family: Arial, sans-serif;
-                    direction: rtl;
-                    padding: 30px;
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    direction:
+                        rtl;
+
+                    padding:
+                        30px;
+
                 }
 
-                h1 {
-                    text-align: center;
+
+                h1,
+                h2 {
+
+                    text-align:
+                        center;
+
                 }
+
 
                 table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 25px;
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-top:
+                        25px;
+
                 }
+
 
                 th,
                 td {
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    text-align: center;
+
+                    border:
+                        1px solid #ccc;
+
+                    padding:
+                        10px;
+
+                    text-align:
+                        center;
+
                 }
 
+
                 th {
-                    background: #eee;
+
+                    background:
+                        #eee;
+
                 }
 
             </style>
 
         </head>
 
+
         <body>
+
 
             <h1>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h1>
 
-            <h2 style="text-align:center;">
+
+            <h2>
                 ${escapeHtml(title)}
             </h2>
 
+
             <table>
+
 
                 <thead>
 
                     <tr>
 
-                        <th>التاريخ</th>
-                        <th>الطالب</th>
-                        <th>الصف / الشعبة</th>
-                        <th>الوقت</th>
-                        <th>التفاصيل</th>
+                        <th>
+                            التاريخ
+                        </th>
+
+                        <th>
+                            الطالب
+                        </th>
+
+                        <th>
+                            الصف / الشعبة
+                        </th>
+
+                        <th>
+                            وقت التسجيل
+                        </th>
+
+                        <th>
+                            التفاصيل
+                        </th>
 
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
@@ -3168,7 +3762,9 @@ function printCategoryReport(
 
                 </tbody>
 
+
             </table>
+
 
         </body>
 
@@ -3230,7 +3826,9 @@ async function exportData() {
         }
 
 
-        if (!Array.isArray(records)) {
+        if (
+            !Array.isArray(records)
+        ) {
 
             throw new Error(
                 'Invalid records data'
@@ -3291,11 +3889,9 @@ async function exportData() {
             `نسخة-احتياطية-الانضباط-${getLocalDateInputValue()}.json`;
 
 
-        document
-            .body
-            .appendChild(
-                link
-            );
+        document.body.appendChild(
+            link
+        );
 
 
         link.click();
@@ -3314,9 +3910,7 @@ async function exportData() {
         );
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             'Export error:',
@@ -3350,7 +3944,9 @@ async function importData(
 
 
     if (!file) {
+
         return;
+
     }
 
 
@@ -3367,9 +3963,7 @@ async function importData(
 
 
         const records =
-            Array.isArray(
-                parsed
-            )
+            Array.isArray(parsed)
                 ? parsed
                 : parsed.records;
 
@@ -3473,9 +4067,7 @@ async function importData(
         );
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             'Import error:',
@@ -3509,3 +4101,4 @@ async function importData(
     }
 
 }
+```
