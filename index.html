@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -35,92 +34,158 @@
         ========================================= */
 
         #loginScreen {
+
             position: fixed;
+
             inset: 0;
+
             width: 100%;
+
             height: 100%;
+
             background: #f4f4f9;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             z-index: 9999;
+
         }
+
 
         .login-box {
+
             background: white;
+
             padding: 30px;
+
             text-align: center;
+
             border-radius: 12px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+
+            box-shadow:
+                0 10px 35px rgba(0,0,0,0.12);
+
             width: 90%;
+
             max-width: 400px;
+
         }
 
+
         .login-box h2 {
+
             margin-bottom: 10px;
+
         }
+
 
         .login-box input,
         .login-box button {
+
             padding: 12px;
+
             margin: 8px 0;
+
             font-size: 16px;
+
             width: 100%;
+
             box-sizing: border-box;
+
         }
+
 
         .login-box input {
+
             border: 1px solid #ddd;
+
             border-radius: 6px;
+
             text-align: center;
+
         }
+
 
         .login-box button {
+
             background-color: #007bff;
+
             color: white;
+
             border: none;
+
             border-radius: 6px;
+
             cursor: pointer;
+
         }
+
 
         .login-box button:hover {
+
             background-color: #0056b3;
+
         }
 
+
         .login-box button:disabled {
+
             opacity: 0.7;
+
             cursor: wait;
+
         }
 
 
         /* =========================================
-           بطاقات حالات الانضباط - صف واحد
+           CASES GRID
         ========================================= */
 
         .cases-grid {
+
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
             gap: 20px;
+
             align-items: start;
+
         }
 
+
         .cases-grid .card {
+
             width: 100%;
+
             box-sizing: border-box;
+
         }
+
 
         @media (max-width: 1200px) {
 
             .cases-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
             }
 
         }
 
+
         @media (max-width: 700px) {
 
             .cases-grid {
+
                 grid-template-columns: 1fr;
+
             }
 
         }
@@ -155,7 +220,6 @@
             placeholder="كلمة المرور"
             autocomplete="current-password">
 
-
         <button
             type="button"
             onclick="checkPassword()">
@@ -163,7 +227,6 @@
             دخول
 
         </button>
-
 
         <p
             id="errorMsg"
@@ -176,7 +239,6 @@
             كلمة المرور غير صحيحة!
 
         </p>
-
 
         <p
             style="
@@ -203,7 +265,6 @@
 </div>
 
 
-
 <!-- ==================================================
      MAIN CONTENT
 ================================================== -->
@@ -226,33 +287,27 @@
             </h1>
 
 
-<div class="manager-ticker">
+            <div class="manager-ticker">
 
-   <div class="manager-ticker">
+                <div class="manager-ticker-track">
 
-    <div class="manager-ticker-track">
+                    <span>
 
-        <span>
+                        📌 مدير المدرسة: أ. سمير مصلح
 
-            📌 مدير المدرسة: أ. سمير مصلح
+                        &nbsp;&nbsp; | &nbsp;&nbsp;
 
-            &nbsp;&nbsp; | &nbsp;&nbsp;
+                        🟢 المتصلون الآن:
 
-            🟢 المتصلون الآن:
+                        <strong id="onlineUsersCount">
+                            0
+                        </strong>
 
-            <strong id="onlineUsersCount">
-                0
-            </strong>
+                    </span>
 
-        </span>
+                </div>
 
-    </div>
-
-</div>
-
-</div>
-
-
+            </div>
 
 
             <div
@@ -294,7 +349,6 @@
             <!-- HEADER BUTTONS -->
 
             <div class="backup-btns">
-
 
                 <button
                     type="button"
@@ -356,7 +410,6 @@
         </div>
 
     </header>
-
 
 
     <!-- ==================================================
@@ -457,7 +510,6 @@
                     <h4>
                         السجلات الأخيرة للغياب:
                     </h4>
-
 
                     <div
                         id="absenceLogs"
@@ -565,11 +617,9 @@
 
                         <select id="uniformStatus">
 
-
                             <option value="غير ملتزم">
                                 غير ملتزم
                             </option>
-
 
                             <option value="ملتزم">
                                 ملتزم
@@ -596,7 +646,6 @@
                     <h4>
                         السجلات الأخيرة للزي:
                     </h4>
-
 
                     <div
                         id="uniformLogs"
@@ -706,26 +755,21 @@
                             id="latenessReason"
                             onchange="toggleOtherReason()">
 
-
                             <option value="أزمة طريق">
                                 أزمة طريق
                             </option>
-
 
                             <option value="عائلي">
                                 عائلي
                             </option>
 
-
                             <option value="النوم">
                                 النوم
                             </option>
 
-
                             <option value="بعد المسافة">
                                 بعد المسافة
                             </option>
-
 
                             <option value="other">
                                 أخرى
@@ -769,7 +813,6 @@
                     <h4>
                         السجلات الأخيرة للتأخير:
                     </h4>
-
 
                     <div
                         id="latenessLogs"
@@ -886,7 +929,6 @@
                         السجلات الأخيرة للهروب:
                     </h4>
 
-
                     <div
                         id="escapeLogs"
                         class="logs-list">
@@ -920,515 +962,609 @@
     <!-- ==================================================
          PRINT REPORT
     ================================================== -->
-    
-<div
-    id="printReport"
-    class="print-only">
 
-    <div class="report-header">
-
-        <h1>
-            مدرسة ذكور المستقبل الصالح الأساسية العليا
-        </h1>
-
-        <h2>
-            تقرير السلوك والانضباط المدرسي
-        </h2>
-
-        <p id="reportPrintDate"></p>
-
-        <hr>
-
-        <div class="student-title-wrap">
-            <p
-                id="reportStudentInfo"
-                class="student-title">
-            </p>
-        </div>
-
-    </div>
-
-    <div id="reportContent"></div>
-
-    <div class="report-signature">
-
-        <div>
-            مدير المدرسة: أ. سمير مصلح
-        </div>
-
-        <div class="signature-line">
-            التوقيع: __________________
-        </div>
-
-    </div>
-
-</div>
+    <div
+        id="printReport"
+        class="print-only">
 
 
+        <div class="report-header">
 
-<!-- ==================================================
-     ADMIN DASHBOARD
-================================================== -->
+            <h1>
+                مدرسة ذكور المستقبل الصالح الأساسية العليا
+            </h1>
 
-<div
-    id="adminModal"
-    class="admin-modal"
-    style="display:none;">
+            <h2>
+                تقرير السلوك والانضباط المدرسي
+            </h2>
 
+            <p id="reportPrintDate"></p>
 
-    <div class="admin-page">
-
-
-        <div class="admin-header">
+            <hr>
 
 
-            <div>
+            <div class="student-title-wrap">
 
-                <h2>
-                    📊 لوحة الإدارة والتقارير
-                </h2>
-
-
-                <p>
-                    مدرسة ذكور المستقبل الصالح الأساسية العليا
+                <p
+                    id="reportStudentInfo"
+                    class="student-title">
                 </p>
 
             </div>
 
-
-            <button
-                type="button"
-                class="admin-close-btn"
-                onclick="closeAdminDashboard()">
-
-                ✕ العودة للنظام
-
-            </button>
-
         </div>
 
 
-
-        <!-- TABS -->
-
-        <div class="admin-tabs">
+        <div id="reportContent"></div>
 
 
-            <button
-                type="button"
-                class="admin-tab active"
-                data-type="daily"
-                onclick="switchReportTab('daily')">
-
-                📅 التقرير اليومي
-
-            </button>
-
-
-            <button
-                type="button"
-                class="admin-tab"
-                data-type="weekly"
-                onclick="switchReportTab('weekly')">
-
-                📆 التقرير الأسبوعي
-
-            </button>
-
-
-            <button
-                type="button"
-                class="admin-tab"
-                data-type="monthly"
-                onclick="switchReportTab('monthly')">
-
-                🗓️ التقرير الشهري
-
-            </button>
-
-        </div>
-
-
-
-        <!-- CONTROLS -->
-
-        <div class="admin-controls">
-
+        <div class="report-signature">
 
             <div>
-
-                <label>
-                    اختر التاريخ المرجعي:
-                </label>
-
-
-                <input
-                    type="date"
-                    id="adminReferenceDate"
-                    onchange="changeAdminReportDate()">
-
+                مدير المدرسة: أ. سمير مصلح
             </div>
 
-
-            <div class="admin-period">
-
-
-                <strong id="adminReportTitle">
-                    التقرير اليومي
-                </strong>
-
-
-                <span id="adminPeriodLabel">
-                    -
-                </span>
-
+            <div class="signature-line">
+                التوقيع: __________________
             </div>
-
-
-            <button
-                type="button"
-                class="admin-refresh-btn"
-                onclick="loadAllRecordsForAdmin()">
-
-                🔄 تحديث
-
-            </button>
-
-
-            <button
-                type="button"
-                class="admin-print-btn"
-                onclick="printAdminReport()">
-
-                🖨️ طباعة التقرير
-
-            </button>
-
-        </div>
-
-
-
-        <!-- SUMMARY -->
-
-        <div class="admin-summary">
-
-
-            <div class="summary-card total">
-
-                <div class="summary-icon">
-                    📊
-                </div>
-
-
-                <div>
-
-                    <span>
-                        إجمالي الحالات
-                    </span>
-
-
-                    <strong id="adminTotalCount">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="summary-card lateness">
-
-                <div class="summary-icon">
-                    ⏰
-                </div>
-
-
-                <div>
-
-                    <span>
-                        التأخير الصباحي
-                    </span>
-
-
-                    <strong id="adminLatenessCount">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="summary-card uniform">
-
-                <div class="summary-icon">
-                    👕
-                </div>
-
-
-                <div>
-
-                    <span>
-                        الزي المدرسي
-                    </span>
-
-
-                    <strong id="adminUniformCount">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="summary-card escape">
-
-                <div class="summary-icon">
-                    🚪
-                </div>
-
-
-                <div>
-
-                    <span>
-                        الهروب
-                    </span>
-
-
-                    <strong id="adminEscapeCount">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="summary-card absence">
-
-                <div class="summary-icon">
-                    📅
-                </div>
-
-
-                <div>
-
-                    <span>
-                        الغياب
-                    </span>
-
-
-                    <strong id="adminAbsenceCount">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- TABLE -->
-
-        <div class="admin-table-container">
-
-
-            <table class="admin-table">
-
-
-                <thead>
-
-
-                    <tr>
-
-                        <th>
-                            التاريخ
-                        </th>
-
-
-                        <th>
-                            نوع الحالة
-                        </th>
-
-
-                        <th>
-                            اسم الطالب
-                        </th>
-
-
-                        <th>
-                            الصف / الشعبة
-                        </th>
-
-
-                        <th>
-                            الوقت / التفاصيل
-                        </th>
-
-
-                        <th>
-                            إجراء
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-
-                <tbody id="adminTableBody">
-
-
-                    <tr>
-
-                        <td
-                            colspan="6"
-                            class="no-data">
-
-                            جاري تحميل البيانات...
-
-                        </td>
-
-                    </tr>
-
-
-                </tbody>
-
-
-            </table>
 
         </div>
 
     </div>
 
-</div>
 
 
-async function checkPassword() {
+    <!-- ==================================================
+         ADMIN DASHBOARD
+    ================================================== -->
 
-    const inputElement =
-        document.getElementById(
-            "passInput"
-        );
-
-
-    const loginBtn =
-        document.querySelector(
-            '.login-box button'
-        );
+    <div
+        id="adminModal"
+        class="admin-modal"
+        style="display:none;">
 
 
-    const errorMsg =
-        document.getElementById(
-            "errorMsg"
-        );
+        <div class="admin-page">
 
 
-    if (
-        !inputElement ||
-        !loginBtn
-    ) {
+            <div class="admin-header">
 
-        return;
+                <div>
 
-    }
+                    <h2>
+                        📊 لوحة الإدارة والتقارير
+                    </h2>
 
+                    <p>
+                        مدرسة ذكور المستقبل الصالح الأساسية العليا
+                    </p>
 
-    const userInput =
-        inputElement.value;
-
-
-    const originalBtnText =
-        loginBtn.innerText;
+                </div>
 
 
-    loginBtn.disabled =
-        true;
+                <button
+                    type="button"
+                    class="admin-close-btn"
+                    onclick="closeAdminDashboard()">
+
+                    ✕ العودة للنظام
+
+                </button>
+
+            </div>
 
 
-    loginBtn.innerText =
-        "جاري التحقق...";
+
+            <!-- TABS -->
+
+            <div class="admin-tabs">
+
+                <button
+                    type="button"
+                    class="admin-tab active"
+                    data-type="daily"
+                    onclick="switchReportTab('daily')">
+
+                    📅 التقرير اليومي
+
+                </button>
 
 
-    if (errorMsg) {
+                <button
+                    type="button"
+                    class="admin-tab"
+                    data-type="weekly"
+                    onclick="switchReportTab('weekly')">
 
-        errorMsg.style.display =
-            "none";
+                    📆 التقرير الأسبوعي
 
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${AUTH_BASE_URL}/api/login`,
-                {
-
-                    method:
-                        'POST',
-
-                    headers: {
-
-                        'Content-Type':
-                            'application/json'
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            password:
-                                userInput
-
-                        })
-
-                }
-            );
+                </button>
 
 
-        const result =
-            await response.json();
+                <button
+                    type="button"
+                    class="admin-tab"
+                    data-type="monthly"
+                    onclick="switchReportTab('monthly')">
+
+                    🗓️ التقرير الشهري
+
+                </button>
+
+            </div>
 
 
-        if (
-            response.ok &&
-            result.success
-        ) {
 
-            /* حفظ حالة تسجيل الدخول */
+            <!-- CONTROLS -->
 
-            localStorage.setItem(
-                'schoolLoggedIn',
-                'true'
-            );
+            <div class="admin-controls">
+
+                <div>
+
+                    <label>
+                        اختر التاريخ المرجعي:
+                    </label>
+
+                    <input
+                        type="date"
+                        id="adminReferenceDate"
+                        onchange="changeAdminReportDate()">
+
+                </div>
 
 
-            /* إخفاء شاشة تسجيل الدخول */
+                <div class="admin-period">
 
-            const loginScreen =
+                    <strong id="adminReportTitle">
+                        التقرير اليومي
+                    </strong>
+
+                    <span id="adminPeriodLabel">
+                        -
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="admin-refresh-btn"
+                    onclick="loadAllRecordsForAdmin()">
+
+                    🔄 تحديث
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="admin-print-btn"
+                    onclick="printAdminReport()">
+
+                    🖨️ طباعة التقرير
+
+                </button>
+
+            </div>
+
+
+
+            <!-- SUMMARY -->
+
+            <div class="admin-summary">
+
+
+                <div class="summary-card total">
+
+                    <div class="summary-icon">
+                        📊
+                    </div>
+
+                    <div>
+
+                        <span>
+                            إجمالي الحالات
+                        </span>
+
+                        <strong id="adminTotalCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card lateness">
+
+                    <div class="summary-icon">
+                        ⏰
+                    </div>
+
+                    <div>
+
+                        <span>
+                            التأخير الصباحي
+                        </span>
+
+                        <strong id="adminLatenessCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card uniform">
+
+                    <div class="summary-icon">
+                        👕
+                    </div>
+
+                    <div>
+
+                        <span>
+                            الزي المدرسي
+                        </span>
+
+                        <strong id="adminUniformCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card escape">
+
+                    <div class="summary-icon">
+                        🚪
+                    </div>
+
+                    <div>
+
+                        <span>
+                            الهروب
+                        </span>
+
+                        <strong id="adminEscapeCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card absence">
+
+                    <div class="summary-icon">
+                        📅
+                    </div>
+
+                    <div>
+
+                        <span>
+                            الغياب
+                        </span>
+
+                        <strong id="adminAbsenceCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- TABLE -->
+
+            <div class="admin-table-container">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                التاريخ
+                            </th>
+
+                            <th>
+                                نوع الحالة
+                            </th>
+
+                            <th>
+                                اسم الطالب
+                            </th>
+
+                            <th>
+                                الصف / الشعبة
+                            </th>
+
+                            <th>
+                                الوقت / التفاصيل
+                            </th>
+
+                            <th>
+                                إجراء
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="adminTableBody">
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="no-data">
+
+                                جاري تحميل البيانات...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         AUTH / LOGIN
+    ================================================== -->
+
+    <script>
+
+        const AUTH_BASE_URL =
+            'https://almustqbal.onrender.com';
+
+
+        async function checkPassword() {
+
+            const inputElement =
                 document.getElementById(
-                    "loginScreen"
+                    "passInput"
                 );
 
 
-            if (loginScreen) {
+            const loginBtn =
+                document.querySelector(
+                    '.login-box button'
+                );
 
-                loginScreen.style.display =
+
+            const errorMsg =
+                document.getElementById(
+                    "errorMsg"
+                );
+
+
+            if (
+                !inputElement ||
+                !loginBtn
+            ) {
+
+                return;
+
+            }
+
+
+            const userInput =
+                inputElement.value;
+
+
+            const originalBtnText =
+                loginBtn.innerText;
+
+
+            loginBtn.disabled =
+                true;
+
+
+            loginBtn.innerText =
+                "جاري التحقق...";
+
+
+            if (errorMsg) {
+
+                errorMsg.style.display =
                     "none";
 
             }
 
 
-            /* إظهار النظام */
+            try {
+
+                const response =
+                    await fetch(
+                        `${AUTH_BASE_URL}/api/login`,
+                        {
+
+                            method:
+                                'POST',
+
+                            headers: {
+
+                                'Content-Type':
+                                    'application/json'
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    password:
+                                        userInput
+
+                                })
+
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                /* ================================
+                   تسجيل الدخول الصحيح
+                ================================= */
+
+                if (
+                    response.ok &&
+                    result.success
+                ) {
+
+                    localStorage.setItem(
+                        'schoolLoggedIn',
+                        'true'
+                    );
+
+
+                    const loginScreen =
+                        document.getElementById(
+                            "loginScreen"
+                        );
+
+
+                    const mainContent =
+                        document.getElementById(
+                            "mainContent"
+                        );
+
+
+                    if (loginScreen) {
+
+                        loginScreen.style.display =
+                            "none";
+
+                    }
+
+
+                    if (mainContent) {
+
+                        mainContent.style.display =
+                            "block";
+
+                    }
+
+
+                    /* بدء عداد المتصلين */
+
+                    if (
+                        typeof startPresenceMonitoring ===
+                        'function'
+                    ) {
+
+                        startPresenceMonitoring();
+
+                    }
+
+
+                } else {
+
+                    if (errorMsg) {
+
+                        errorMsg.textContent =
+                            result.message ||
+                            "كلمة المرور غير صحيحة";
+
+
+                        errorMsg.style.display =
+                            "block";
+
+                    }
+
+                }
+
+
+            } catch (err) {
+
+                console.error(
+                    "LOGIN ERROR:",
+                    err
+                );
+
+
+                if (errorMsg) {
+
+                    errorMsg.textContent =
+                        "تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.";
+
+
+                    errorMsg.style.display =
+                        "block";
+
+                }
+
+            } finally {
+
+                loginBtn.disabled =
+                    false;
+
+
+                loginBtn.innerText =
+                    originalBtnText;
+
+            }
+
+        }
+
+
+
+        /* =========================================
+           LOGOUT
+        ========================================= */
+
+        function logout() {
+
+            /* إخراج المستخدم من قائمة المتصلين */
+
+            if (
+                typeof notifyPresenceLogout ===
+                'function'
+            ) {
+
+                notifyPresenceLogout();
+
+            }
+
+
+            if (
+                typeof stopPresenceMonitoring ===
+                'function'
+            ) {
+
+                stopPresenceMonitoring();
+
+            }
+
+
+            /* إلغاء حالة الدخول */
+
+            localStorage.removeItem(
+                'schoolLoggedIn'
+            );
+
 
             const mainContent =
                 document.getElementById(
@@ -1436,123 +1572,34 @@ async function checkPassword() {
                 );
 
 
+            const adminModal =
+                document.getElementById(
+                    "adminModal"
+                );
+
+
+            const loginScreen =
+                document.getElementById(
+                    "loginScreen"
+                );
+
+
+            const passInput =
+                document.getElementById(
+                    "passInput"
+                );
+
+
+            const errorMsg =
+                document.getElementById(
+                    "errorMsg"
+                );
+
+
             if (mainContent) {
 
                 mainContent.style.display =
-                    "block";
-
-            }
-
-
-            /* بدء عداد المتصلين */
-
-            if (
-                typeof startPresenceMonitoring ===
-                'function'
-            ) {
-
-                startPresenceMonitoring();
-
-            }
-
-
-        } else {
-
-            if (errorMsg) {
-
-                errorMsg.textContent =
-                    result.message ||
-                    "كلمة المرور غير صحيحة";
-
-
-                errorMsg.style.display =
-                    "block";
-
-            }
-
-        }
-
-
-    } catch (err) {
-
-        console.error(
-            "LOGIN ERROR:",
-            err
-        );
-
-
-        if (errorMsg) {
-
-            errorMsg.textContent =
-                "تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.";
-
-
-            errorMsg.style.display =
-                "block";
-
-        }
-
-    } finally {
-
-        loginBtn.disabled =
-            false;
-
-
-        loginBtn.innerText =
-            originalBtnText;
-
-    }
-
-}
-
-/* ==================================================
-   RESTORE LOGIN AFTER REFRESH
-================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        const loggedIn =
-            localStorage.getItem(
-                'schoolLoggedIn'
-            );
-
-
-        const loginScreen =
-            document.getElementById(
-                "loginScreen"
-            );
-
-
-        const mainContent =
-            document.getElementById(
-                "mainContent"
-            );
-
-
-        const adminModal =
-            document.getElementById(
-                "adminModal"
-            );
-
-
-        if (
-            loggedIn === 'true'
-        ) {
-
-            if (loginScreen) {
-
-                loginScreen.style.display =
                     "none";
-
-            }
-
-
-            if (mainContent) {
-
-                mainContent.style.display =
-                    "block";
 
             }
 
@@ -1564,131 +1611,263 @@ document.addEventListener(
 
             }
 
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    "flex";
+
+            }
+
+
+            if (passInput) {
+
+                passInput.value =
+                    "";
+
+            }
+
+
+            if (errorMsg) {
+
+                errorMsg.style.display =
+                    "none";
+
+            }
+
         }
 
-    }
-
-);
-
-</script>
-<!-- ==================================================
-     MAIN JAVASCRIPT
-================================================== -->
-
-<script src="script.js"></script>
 
 
+        /* =========================================
+           ENTER لتسجيل الدخول
+        ========================================= */
 
-<!-- ==================================================
-     FORGOT PASSWORD MODAL
-================================================== -->
+        const loginInput =
+            document.getElementById(
+                "passInput"
+            );
 
-<div
-    id="forgotPasswordModal"
-    style="
-        display:none;
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,0.55);
-        z-index:10000;
-        justify-content:center;
-        align-items:center;
-    ">
 
+        if (loginInput) {
+
+            loginInput.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key ===
+                        "Enter"
+                    ) {
+
+                        event.preventDefault();
+
+                        checkPassword();
+
+                    }
+
+                }
+            );
+
+        }
+
+    </script>
+
+
+
+    <!-- ==================================================
+         RESTORE LOGIN AFTER REFRESH
+    ================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const loggedIn =
+                    localStorage.getItem(
+                        'schoolLoggedIn'
+                    );
+
+
+                const loginScreen =
+                    document.getElementById(
+                        "loginScreen"
+                    );
+
+
+                const mainContent =
+                    document.getElementById(
+                        "mainContent"
+                    );
+
+
+                const adminModal =
+                    document.getElementById(
+                        "adminModal"
+                    );
+
+
+                if (
+                    loggedIn ===
+                    'true'
+                ) {
+
+                    if (loginScreen) {
+
+                        loginScreen.style.display =
+                            "none";
+
+                    }
+
+
+                    if (mainContent) {
+
+                        mainContent.style.display =
+                            "block";
+
+                    }
+
+
+                    if (adminModal) {
+
+                        adminModal.style.display =
+                            "none";
+
+                    }
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+
+    <!-- ==================================================
+         MAIN JAVASCRIPT
+    ================================================== -->
+
+    <script src="script.js"></script>
+
+
+
+    <!-- ==================================================
+         FORGOT PASSWORD MODAL
+    ================================================== -->
 
     <div
+        id="forgotPasswordModal"
         style="
-            background:white;
-            width:90%;
-            max-width:400px;
-            padding:30px;
-            border-radius:12px;
-            box-shadow:0 10px 35px rgba(0,0,0,0.2);
-            text-align:center;
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.55);
+            z-index:10000;
+            justify-content:center;
+            align-items:center;
         ">
 
 
-        <h2>
-            استعادة كلمة المرور
-        </h2>
-
-
-        <p>
-            ما هو رقمك المفضل؟
-        </p>
-
-
-        <input
-            type="number"
-            id="favoriteNumberInput"
-            placeholder="أدخل رقمك المفضل"
-            autocomplete="off"
+        <div
             style="
-                width:100%;
-                box-sizing:border-box;
-                padding:12px;
-                margin:10px 0;
-                font-size:16px;
+                background:white;
+                width:90%;
+                max-width:400px;
+                padding:30px;
+                border-radius:12px;
+                box-shadow:0 10px 35px rgba(0,0,0,0.2);
                 text-align:center;
-                border:1px solid #ddd;
-                border-radius:6px;
             ">
 
 
-        <button
-            type="button"
-            id="forgotSubmitBtn"
-            onclick="submitForgotPassword()"
-            style="
-                width:100%;
-                padding:12px;
-                margin-top:8px;
-                background:#007bff;
-                color:white;
-                border:none;
-                border-radius:6px;
-                font-size:16px;
-                cursor:pointer;
-            ">
-
-            متابعة
-
-        </button>
+            <h2>
+                استعادة كلمة المرور
+            </h2>
 
 
-        <button
-            type="button"
-            onclick="closeForgotPassword()"
-            style="
-                width:100%;
-                padding:10px;
-                margin-top:8px;
-                background:#6c757d;
-                color:white;
-                border:none;
-                border-radius:6px;
-                cursor:pointer;
-            ">
-
-            إلغاء
-
-        </button>
+            <p>
+                ما هو رقمك المفضل؟
+            </p>
 
 
-        <p
-            id="forgotErrorMsg"
-            style="
-                color:red;
-                display:none;
-                margin-top:12px;
-            ">
+            <input
+                type="number"
+                id="favoriteNumberInput"
+                placeholder="أدخل رقمك المفضل"
+                autocomplete="off"
+                style="
+                    width:100%;
+                    box-sizing:border-box;
+                    padding:12px;
+                    margin:10px 0;
+                    font-size:16px;
+                    text-align:center;
+                    border:1px solid #ddd;
+                    border-radius:6px;
+                ">
 
-        </p>
+
+            <button
+                type="button"
+                id="forgotSubmitBtn"
+                onclick="submitForgotPassword()"
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin-top:8px;
+                    background:#007bff;
+                    color:white;
+                    border:none;
+                    border-radius:6px;
+                    font-size:16px;
+                    cursor:pointer;
+                ">
+
+                متابعة
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="closeForgotPassword()"
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-top:8px;
+                    background:#6c757d;
+                    color:white;
+                    border:none;
+                    border-radius:6px;
+                    cursor:pointer;
+                ">
+
+                إلغاء
+
+            </button>
+
+
+            <p
+                id="forgotErrorMsg"
+                style="
+                    color:red;
+                    display:none;
+                    margin-top:12px;
+                ">
+
+            </p>
+
+        </div>
 
     </div>
+
 
 </div>
 
 
 </body>
+
 </html>
