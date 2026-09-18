@@ -1,190 +1,13 @@
+```javascript
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
 
-
-/* ==================================================
-   LIVE ONLINE USERS
-================================================== */
-
-const onlineUsers = new Map();
-
-const ONLINE_TIMEOUT = 60 * 1000; // دقيقة واحدة
-
-
-function cleanupOnlineUsers() {
-
-    const now = Date.now();
-
-    for (const [clientId, lastSeen] of onlineUsers.entries()) {
-
-        if (now - lastSeen > ONLINE_TIMEOUT) {
-            onlineUsers.delete(clientId);
-        }
-
-    }
-
-}
-
-
-function getOnlineUsersCount() {
-
-    cleanupOnlineUsers();
-
-    return onlineUsers.size;
-
-}
-
-
-/* تنظيف المستخدمين غير النشطين كل 15 ثانية */
-
-setInterval(
-    cleanupOnlineUsers,
-    15 * 1000
-);
-
-
-/* تسجيل المستخدم كمتصل */
-
-app.post(
-    '/api/presence/heartbeat',
-    (req, res) => {
-
-        try {
-
-            const clientId =
-                String(
-                    req.body.clientId || ''
-                ).trim();
-
-
-            if (!clientId) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: 'clientId مطلوب'
-                });
-
-            }
-
-
-            onlineUsers.set(
-                clientId,
-                Date.now()
-            );
-
-
-            return res.json({
-
-                success: true,
-
-                count:
-                    getOnlineUsersCount()
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                'Presence heartbeat error:',
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    'تعذر تحديث حالة الاتصال'
-
-            });
-
-        }
-
-    }
-);
-
-
-/* تسجيل خروج المستخدم */
-
-app.post(
-    '/api/presence/logout',
-    (req, res) => {
-
-        try {
-
-            const clientId =
-                String(
-                    req.body.clientId || ''
-                ).trim();
-
-
-            if (clientId) {
-
-                onlineUsers.delete(
-                    clientId
-                );
-
-            }
-
-
-            return res.json({
-
-                success: true,
-
-                count:
-                    getOnlineUsersCount()
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                'Presence logout error:',
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    'تعذر تسجيل الخروج'
-
-            });
-
-        }
-
-    }
-);
-
-
-/* الحصول على العدد الحالي */
-
-app.get(
-    '/api/presence/count',
-    (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            count:
-                getOnlineUsersCount()
-
-        });
-
-    }
-);
-
-
-/* =========================
+/* =========================================================
    CORS
-========================= */
+========================================================= */
 
 app.use(cors({
     origin: '*',
@@ -196,16 +19,17 @@ app.options('*', cors());
 
 app.use(express.json());
 
-/* ==================================================
+
+/* =========================================================
    LIVE ONLINE USERS
-================================================== */
+========================================================= */
 
 const onlineUsers = new Map();
 
 const ONLINE_TIMEOUT = 60 * 1000;
 
 
-/* تنظيف المستخدمين المنتهية جلساتهم */
+/* إزالة المستخدمين غير النشطين */
 
 function cleanupOnlineUsers() {
 
@@ -214,9 +38,7 @@ function cleanupOnlineUsers() {
     for (const [clientId, lastSeen] of onlineUsers.entries()) {
 
         if (now - lastSeen > ONLINE_TIMEOUT) {
-
             onlineUsers.delete(clientId);
-
         }
 
     }
@@ -224,7 +46,7 @@ function cleanupOnlineUsers() {
 }
 
 
-/* الحصول على عدد المتصلين */
+/* عدد المتصلين الحالي */
 
 function getOnlineUsersCount() {
 
@@ -235,7 +57,7 @@ function getOnlineUsersCount() {
 }
 
 
-/* تنظيف تلقائي كل 15 ثانية */
+/* تنظيف دوري */
 
 setInterval(
     cleanupOnlineUsers,
@@ -243,9 +65,9 @@ setInterval(
 );
 
 
-/* ==================================================
+/* =========================================================
    HEARTBEAT
-================================================== */
+========================================================= */
 
 app.post(
     '/api/presence/heartbeat',
@@ -311,9 +133,9 @@ app.post(
 );
 
 
-/* ==================================================
-   LOGOUT PRESENCE
-================================================== */
+/* =========================================================
+   PRESENCE LOGOUT
+========================================================= */
 
 app.post(
     '/api/presence/logout',
@@ -358,7 +180,7 @@ app.post(
                 success: false,
 
                 message:
-                    'تعذر تسجيل الخروج'
+                    'تعذر تحديث حالة الخروج'
 
             });
 
@@ -368,9 +190,9 @@ app.post(
 );
 
 
-/* ==================================================
+/* =========================================================
    GET ONLINE COUNT
-================================================== */
+========================================================= */
 
 app.get(
     '/api/presence/count',
@@ -387,11 +209,15 @@ app.get(
 
     }
 );
-/* =========================
-   MongoDB
-========================= */
 
-const MONGO_URI = process.env.MONGO_URI;
+
+/* =========================================================
+   MongoDB
+========================================================= */
+
+const MONGO_URI =
+    process.env.MONGO_URI;
+
 
 if (!MONGO_URI) {
 
@@ -401,7 +227,8 @@ if (!MONGO_URI) {
 
 } else {
 
-    mongoose.connect(MONGO_URI)
+    mongoose
+        .connect(MONGO_URI)
         .then(() => {
 
             console.log(
@@ -421,236 +248,267 @@ if (!MONGO_URI) {
 }
 
 
-/* =========================
-   الصفحة الرئيسية
-========================= */
+/* =========================================================
+   HOME
+========================================================= */
 
-app.get('/', (req, res) => {
+app.get(
+    '/',
+    (req, res) => {
 
-    res.json({
+        res.json({
 
-        status: 'ok',
+            status: 'ok',
 
-        message: 'السيرفر شغال بنجاح'
+            message:
+                'السيرفر شغال بنجاح'
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   RECORD SCHEMA
+========================================================= */
+
+const recordSchema =
+    new mongoose.Schema({
+
+        type: {
+            type: String,
+            required: true
+        },
+
+        studentName: {
+            type: String,
+            required: true
+        },
+
+        grade: {
+            type: String,
+            default: ''
+        },
+
+        section: {
+            type: String,
+            default: ''
+        },
+
+        time: {
+            type: String,
+            default: ''
+        },
+
+        date: {
+            type: String,
+            default: ''
+        },
+
+        details: {
+            type: String,
+            default: ''
+        },
+
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
 
     });
 
-});
-
-
-/* ==================================================
-   RECORDS SCHEMA
-================================================== */
-
-const recordSchema = new mongoose.Schema({
-
-    type: {
-        type: String,
-        required: true
-    },
-
-    studentName: {
-        type: String,
-        required: true
-    },
-
-    grade: {
-        type: String,
-        default: ''
-    },
-
-    section: {
-        type: String,
-        default: ''
-    },
-
-    time: {
-        type: String,
-        default: ''
-    },
-
-    date: {
-        type: String,
-        default: ''
-    },
-
-    details: {
-        type: String,
-        default: ''
-    },
-
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-
-});
-
 
 const Record =
-    mongoose.model('Record', recordSchema);
+    mongoose.model(
+        'Record',
+        recordSchema
+    );
 
 
-/* ==================================================
+/* =========================================================
    GET RECORDS
-================================================== */
+========================================================= */
 
-app.get('/api/records', async (req, res) => {
+app.get(
+    '/api/records',
+    async (req, res) => {
 
-    try {
+        try {
 
-        const records =
-            await Record
-                .find()
-                .sort({
-                    createdAt: -1
-                });
-
-        res.json(records);
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                'حدث خطأ أثناء جلب السجلات'
-
-        });
-
-    }
-
-});
+            const records =
+                await Record
+                    .find()
+                    .sort({
+                        createdAt: -1
+                    });
 
 
-/* ==================================================
-   ADD RECORD
-================================================== */
+            res.json(
+                records
+            );
 
-app.post('/api/records', async (req, res) => {
+        } catch (error) {
 
-    try {
-
-        const record =
-            new Record({
-
-                type: req.body.type,
-
-                studentName:
-                    req.body.studentName,
-
-                grade:
-                    req.body.grade,
-
-                section:
-                    req.body.section,
-
-                time:
-                    req.body.time,
-
-                date:
-                    req.body.date,
-
-                details:
-                    req.body.details,
-
-                createdAt:
-                    new Date()
-
-            });
-
-
-        const savedRecord =
-            await record.save();
-
-
-        res.status(201).json({
-
-            success: true,
-
-            record: savedRecord
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                'حدث خطأ أثناء حفظ السجل'
-
-        });
-
-    }
-
-});
-
-
-/* ==================================================
-   DELETE RECORD
-================================================== */
-
-app.delete('/api/records/:id', async (req, res) => {
-
-    try {
-
-        const deleted =
-            await Record.findByIdAndDelete(
-                req.params.id
+            console.error(
+                error
             );
 
 
-        if (!deleted) {
-
-            return res.status(404).json({
+            res.status(500).json({
 
                 success: false,
 
                 message:
-                    'السجل غير موجود'
+                    'حدث خطأ أثناء جلب السجلات'
 
             });
 
         }
 
+    }
+);
 
-        res.json({
 
-            success: true,
+/* =========================================================
+   ADD RECORD
+========================================================= */
 
-            message:
-                'تم حذف السجل'
+app.post(
+    '/api/records',
+    async (req, res) => {
 
-        });
+        try {
 
-    } catch (error) {
+            const record =
+                new Record({
 
-        console.error(error);
+                    type:
+                        req.body.type,
 
-        res.status(500).json({
+                    studentName:
+                        req.body.studentName,
 
-            success: false,
+                    grade:
+                        req.body.grade,
 
-            message:
-                'حدث خطأ أثناء حذف السجل'
+                    section:
+                        req.body.section,
 
-        });
+                    time:
+                        req.body.time,
+
+                    date:
+                        req.body.date,
+
+                    details:
+                        req.body.details,
+
+                    createdAt:
+                        new Date()
+
+                });
+
+
+            const savedRecord =
+                await record.save();
+
+
+            res.status(201).json({
+
+                success: true,
+
+                record:
+                    savedRecord
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                message:
+                    'حدث خطأ أثناء حفظ السجل'
+
+            });
+
+        }
 
     }
+);
 
-});
+
+/* =========================================================
+   DELETE RECORD
+========================================================= */
+
+app.delete(
+    '/api/records/:id',
+    async (req, res) => {
+
+        try {
+
+            const deleted =
+                await Record.findByIdAndDelete(
+                    req.params.id
+                );
 
 
-/* ==================================================
+            if (!deleted) {
+
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        'السجل غير موجود'
+
+                });
+
+            }
+
+
+            res.json({
+
+                success: true,
+
+                message:
+                    'تم حذف السجل'
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                message:
+                    'حدث خطأ أثناء حذف السجل'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
    SETTINGS
-================================================== */
+========================================================= */
 
 const settingSchema =
     new mongoose.Schema({
@@ -670,26 +528,27 @@ const settingSchema =
 
 
 const Setting =
-    mongoose.model('Setting', settingSchema);
+    mongoose.model(
+        'Setting',
+        settingSchema
+    );
 
 
-/* ==================================================
-   PASSWORD SETTINGS
-================================================== */
+/* =========================================================
+   PASSWORD
+========================================================= */
 
-const DEFAULT_PASSWORD = '1234';
+const DEFAULT_PASSWORD =
+    '1234';
 
-
-/* ==================================================
-   GET CURRENT PASSWORD
-================================================== */
 
 async function getCurrentPassword() {
 
     let setting =
         await Setting.findOne({
 
-            key: 'loginPassword'
+            key:
+                'loginPassword'
 
         });
 
@@ -699,7 +558,8 @@ async function getCurrentPassword() {
         setting =
             await Setting.create({
 
-                key: 'loginPassword',
+                key:
+                    'loginPassword',
 
                 value:
                     DEFAULT_PASSWORD
@@ -714,10 +574,6 @@ async function getCurrentPassword() {
 }
 
 
-/* ==================================================
-   SET NEW PASSWORD
-================================================== */
-
 async function setCurrentPassword(
     newPassword
 ) {
@@ -725,21 +581,24 @@ async function setCurrentPassword(
     await Setting.findOneAndUpdate(
 
         {
-            key: 'loginPassword'
+            key:
+                'loginPassword'
         },
 
         {
-            key: 'loginPassword',
+            key:
+                'loginPassword',
 
             value:
                 newPassword
-
         },
 
         {
-            upsert: true,
+            upsert:
+                true,
 
-            new: true
+            new:
+                true
         }
 
     );
@@ -747,79 +606,90 @@ async function setCurrentPassword(
 }
 
 
-/* ==================================================
+/* =========================================================
    LOGIN
-================================================== */
+========================================================= */
 
-app.post('/api/login', async (req, res) => {
+app.post(
+    '/api/login',
+    async (req, res) => {
 
-    try {
+        try {
 
-        const password =
-            String(
-                req.body.password || ''
-            ).trim();
-
-
-        const currentPassword =
-            await getCurrentPassword();
+            const password =
+                String(
+                    req.body.password || ''
+                ).trim();
 
 
-        if (
-            password &&
-            password === currentPassword
-        ) {
+            const currentPassword =
+                await getCurrentPassword();
 
-            return res.json({
 
-                success: true,
+            if (
+                password &&
+                password ===
+                    currentPassword
+            ) {
+
+                return res.json({
+
+                    success:
+                        true,
+
+                    message:
+                        'تم تسجيل الدخول بنجاح'
+
+                });
+
+            }
+
+
+            return res.status(401).json({
+
+                success:
+                    false,
 
                 message:
-                    'تم تسجيل الدخول بنجاح'
+                    'كلمة السر غير صحيحة'
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    'حدث خطأ أثناء تسجيل الدخول'
 
             });
 
         }
 
-
-        return res.status(401).json({
-
-            success: false,
-
-            message:
-                'كلمة السر غير صحيحة'
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                'حدث خطأ أثناء تسجيل الدخول'
-
-        });
-
     }
+);
 
-});
 
-
-/* ==================================================
+/* =========================================================
    SECURITY QUESTION
-================================================== */
+========================================================= */
 
 const FAVORITE_NUMBER =
-    process.env.FAVORITE_NUMBER || '7';
+    process.env.FAVORITE_NUMBER ||
+    '7';
 
 
-/* ==================================================
+/* =========================================================
    FORGOT PASSWORD
-================================================== */
+========================================================= */
 
 app.post(
     '/api/forgot-password',
@@ -837,7 +707,8 @@ app.post(
 
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     message:
                         'يرجى إدخال الإجابة'
@@ -847,18 +718,17 @@ app.post(
             }
 
 
-            /* =========================================
-               التحقق من الإجابة
-            ========================================= */
-
             if (
                 answer !==
-                String(FAVORITE_NUMBER).trim()
+                String(
+                    FAVORITE_NUMBER
+                ).trim()
             ) {
 
                 return res.status(401).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     message:
                         'الإجابة غير صحيحة'
@@ -868,14 +738,11 @@ app.post(
             }
 
 
-            /* =========================================
-               إنشاء كلمة مرور جديدة
-            ========================================= */
-
             const newPassword =
                 Math.floor(
                     1000 +
-                    Math.random() * 9000
+                    Math.random() *
+                    9000
                 ).toString();
 
 
@@ -889,20 +756,15 @@ app.post(
             );
 
 
-            /* =========================================
-               إرسال كلمة المرور للواجهة
-               حتى يتم إرسالها عبر EmailJS
-            ========================================= */
-
             return res.json({
 
-                success: true,
+                success:
+                    true,
 
                 password:
                     newPassword
 
             });
-
 
         } catch (error) {
 
@@ -914,7 +776,8 @@ app.post(
 
             return res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     'تعذر معالجة طلب استعادة كلمة المرور'
@@ -926,18 +789,24 @@ app.post(
     }
 );
 
-/* ==================================================
+
+/* =========================================================
    SERVER
-================================================== */
+========================================================= */
 
 const PORT =
-    process.env.PORT || 3000;
+    process.env.PORT ||
+    3000;
 
 
-app.listen(PORT, () => {
+app.listen(
+    PORT,
+    () => {
 
-    console.log(
-        `Server running on port ${PORT}`
-    );
+        console.log(
+            `Server running on port ${PORT}`
+        );
 
-});
+    }
+);
+```
