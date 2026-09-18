@@ -1566,67 +1566,90 @@ select:focus {
     color: #ffffff !important;
 }
 
-```css
 /* =========================================================
-   حالات الانضباط - أربعة بطاقات في صف واحد
+   
+حالات الانضباط - أربعة بطاقات في صف واحد
 ========================================================= */
 
+/* الحاوية الرئيسية */
+.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 25px !important;
+    display: block !important;
+}
+
+
+/* شبكة البطاقات */
 .cases-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 22px;
-    align-items: stretch;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 22px !important;
+    align-items: stretch !important;
 }
 
-.cases-grid .card {
-    width: 100%;
-    min-width: 0;
-    margin: 0;
+
+/* البطاقات */
+.cases-grid > .card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
 }
 
+
+/* الحقول */
 .cases-grid input,
 .cases-grid select,
 .cases-grid button {
-    width: 100%;
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
+
+/* الصف والشعبة */
 .cases-grid .form-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
 }
 
 
-/* شاشة متوسطة */
+/* =========================================================
+   شاشة متوسطة
+========================================================= */
+
 @media (max-width: 1200px) {
 
     .cases-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 
 }
 
 
-/* الهاتف */
+/* =========================================================
+   الهاتف
+========================================================= */
+
 @media (max-width: 700px) {
 
     .container {
-        padding: 14px;
+        padding: 14px !important;
     }
 
     .cases-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
     }
 
     .cases-grid .form-row {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr !important;
     }
 
 }
-```
 
 
 
