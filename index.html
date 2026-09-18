@@ -1535,7 +1535,9 @@
            LOGOUT
         ========================================= */
 
-      function logout() {
+  async function logout() {
+
+    /* إرسال الخروج للسيرفر */
 
     if (
         typeof notifyPresenceLogout ===
@@ -1546,6 +1548,9 @@
 
     }
 
+
+    /* إيقاف Heartbeat */
+
     if (
         typeof stopPresenceMonitoring ===
         'function'
@@ -1555,11 +1560,94 @@
 
     }
 
+
+    /* حذف جلسة الدخول */
+
     localStorage.removeItem(
         'schoolLoggedIn'
     );
 
-    ...
+
+    /* إخفاء النظام */
+
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
+
+
+    if (mainContent) {
+
+        mainContent.style.display =
+            'none';
+
+    }
+
+
+    /* إغلاق لوحة الإدارة */
+
+    const adminModal =
+        document.getElementById(
+            'adminModal'
+        );
+
+
+    if (adminModal) {
+
+        adminModal.style.display =
+            'none';
+
+    }
+
+
+    /* إظهار تسجيل الدخول */
+
+    const loginScreen =
+        document.getElementById(
+            'loginScreen'
+        );
+
+
+    if (loginScreen) {
+
+        loginScreen.style.display =
+            'flex';
+
+    }
+
+
+    /* تنظيف كلمة المرور */
+
+    const passInput =
+        document.getElementById(
+            'passInput'
+        );
+
+
+    if (passInput) {
+
+        passInput.value =
+            '';
+
+    }
+
+
+    const errorMsg =
+        document.getElementById(
+            'errorMsg'
+        );
+
+
+    if (errorMsg) {
+
+        errorMsg.textContent =
+            '';
+
+        errorMsg.style.display =
+            'none';
+
+    }
+
 }
         /* =========================================
            ENTER لتسجيل الدخول
