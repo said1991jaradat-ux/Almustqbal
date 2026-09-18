@@ -1573,24 +1573,34 @@
 }
 
 
-const sectionSelection =
-    document.getElementById(
-        'sectionSelection'
-    );
+function continueStudents() {
+
+    const sectionSelection =
+        document.getElementById(
+            'sectionSelection'
+        );
 
 
-if (sectionSelection) {
-
-    sectionSelection.style.display =
-        'flex';
-
-}
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
 
 
-if (mainContent) {
+    if (sectionSelection) {
 
-    mainContent.style.display =
-        'none';
+        sectionSelection.style.display =
+            'none';
+
+    }
+
+
+    if (mainContent) {
+
+        mainContent.style.display =
+            'block';
+
+    }
 
 }
 
