@@ -196,7 +196,197 @@ app.options('*', cors());
 
 app.use(express.json());
 
+/* ==================================================
+   LIVE ONLINE USERS
+================================================== */
 
+const onlineUsers = new Map();
+
+const ONLINE_TIMEOUT = 60 * 1000;
+
+
+/* تنظيف المستخدمين المنتهية جلساتهم */
+
+function cleanupOnlineUsers() {
+
+    const now = Date.now();
+
+    for (const [clientId, lastSeen] of onlineUsers.entries()) {
+
+        if (now - lastSeen > ONLINE_TIMEOUT) {
+
+            onlineUsers.delete(clientId);
+
+        }
+
+    }
+
+}
+
+
+/* الحصول على عدد المتصلين */
+
+function getOnlineUsersCount() {
+
+    cleanupOnlineUsers();
+
+    return onlineUsers.size;
+
+}
+
+
+/* تنظيف تلقائي كل 15 ثانية */
+
+setInterval(
+    cleanupOnlineUsers,
+    15 * 1000
+);
+
+
+/* ==================================================
+   HEARTBEAT
+================================================== */
+
+app.post(
+    '/api/presence/heartbeat',
+    (req, res) => {
+
+        try {
+
+            const clientId =
+                String(
+                    req.body.clientId || ''
+                ).trim();
+
+
+            if (!clientId) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        'clientId مطلوب'
+
+                });
+
+            }
+
+
+            onlineUsers.set(
+                clientId,
+                Date.now()
+            );
+
+
+            return res.json({
+
+                success: true,
+
+                count:
+                    getOnlineUsersCount()
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Presence heartbeat error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'تعذر تحديث حالة الاتصال'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* ==================================================
+   LOGOUT PRESENCE
+================================================== */
+
+app.post(
+    '/api/presence/logout',
+    (req, res) => {
+
+        try {
+
+            const clientId =
+                String(
+                    req.body.clientId || ''
+                ).trim();
+
+
+            if (clientId) {
+
+                onlineUsers.delete(
+                    clientId
+                );
+
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                count:
+                    getOnlineUsersCount()
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Presence logout error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'تعذر تسجيل الخروج'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* ==================================================
+   GET ONLINE COUNT
+================================================== */
+
+app.get(
+    '/api/presence/count',
+    (req, res) => {
+
+        return res.json({
+
+            success: true,
+
+            count:
+                getOnlineUsersCount()
+
+        });
+
+    }
+);
 /* =========================
    MongoDB
 ========================= */
