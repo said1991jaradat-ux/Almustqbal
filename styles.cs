@@ -1903,7 +1903,24 @@ select:focus {
 
 
 
+/* =========================================================
+   خلفية صفحة تسجيل الدخول بشعار المدرسة
+========================================================= */
 
+#loginScreen {
+    background-color: #0b1d3a !important;
+
+    background-image:
+        linear-gradient(
+            rgba(11, 29, 58, 0.78),
+            rgba(22, 44, 80, 0.78)
+        ),
+        url("https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/343115378_3491540304501523_4825229709260791039_n.jpg") !important;
+
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: 500px auto !important;
+}
 
 
 
