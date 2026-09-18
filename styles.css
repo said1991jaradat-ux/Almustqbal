@@ -1728,16 +1728,49 @@ select:focus {
 }
 
 
-/* حركة شريط الأخبار */
-@keyframes managerTicker {
+```css id="v4n8qs"
+/* =========================================================
+   شريط مدير المدرسة - مثل شريط الأخبار
+========================================================= */
 
-    0% {
-        transform: translateX(100%);
-    }
+.manager-ticker {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 
-    100% {
-        transform: translateX(-100%);
-    }
+    margin-top: 8px;
 
+    background: rgba(255, 255, 255, 0.10);
+
+    border-right: 4px solid var(--gold);
+
+    border-radius: 6px;
+
+    padding: 5px 0;
+
+    direction: rtl;
 }
+
+.manager-ticker-track {
+    display: flex;
+    width: max-content;
+
+    animation: managerTicker 12s linear infinite;
+}
+
+.manager-ticker-track span {
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    white-space: nowrap;
+
+    padding: 0 30px;
+}
+
+
+/* ========================================================= شريط مدير المدرسة - مثل شريط الأخبار ========================================================= */ .manager-ticker { width: 100%; max-width: 100%; overflow: hidden; margin-top: 8px; background: rgba(255, 255, 255, 0.10); border-right: 4px solid var(--gold); border-radius: 6px; padding: 5px 0; direction: rtl; } .manager-ticker-track { display: flex; width: max-content; animation: managerTicker 12s linear infinite; } .manager-ticker-track span { color: #ffffff; font-size: 14px; font-weight: bold; white-space: nowrap; padding: 0 30px; } /* حركة شريط الأخبار */ @keyframes managerTicker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
 
