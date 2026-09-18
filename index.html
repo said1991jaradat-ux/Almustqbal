@@ -92,45 +92,82 @@
             cursor: wait;
         }
 
+```css
+/* =========================================
+   بطاقات حالات الانضباط
+   4 بطاقات في صف واحد
+   وتناسب عرض الشاشة بالكامل
+========================================= */
 
-        /* =========================================
-           بطاقات حالات الانضباط - صف واحد
-        ========================================= */
+.container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-left: 20px;
+    padding-right: 20px;
+}
 
-        .cases-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 20px;
-            align-items: start;
-        }
+.cases-grid {
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    box-sizing: border-box;
+    align-items: stretch;
+}
 
-        .cases-grid .card {
-            width: 100%;
-            box-sizing: border-box;
-        }
+.cases-grid .card {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    box-sizing: border-box;
+    margin: 0;
+}
 
-        @media (max-width: 1200px) {
+/* منع الحقول من تجاوز البطاقة */
 
-            .cases-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
+.cases-grid input,
+.cases-grid select,
+.cases-grid button {
+    max-width: 100%;
+    box-sizing: border-box;
+}
 
-        }
+/* جعل صف الصف + الشعبة مناسبًا للعرض */
 
-        @media (max-width: 700px) {
+.cases-grid .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
 
-            .cases-grid {
-                grid-template-columns: 1fr;
-            }
+/* شاشة متوسطة */
 
-        }
+@media (max-width: 1250px) {
 
-    </style>
+    .cases-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-</head>
+}
 
+/* شاشة الهاتف */
 
-<body>
+@media (max-width: 700px) {
+
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .cases-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+}
+```
 
 
 <!-- ==================================================
