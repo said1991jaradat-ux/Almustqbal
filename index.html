@@ -35,108 +35,93 @@
         ========================================= */
 
         #loginScreen {
-
             position: fixed;
-
             inset: 0;
-
             width: 100%;
             height: 100%;
-
             background: #f4f4f9;
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             z-index: 9999;
-
         }
-
 
         .login-box {
-
             background: white;
-
             padding: 30px;
-
             text-align: center;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 10px 35px rgba(0,0,0,0.12);
-
+            box-shadow: 0 10px 35px rgba(0,0,0,0.12);
             width: 90%;
-
             max-width: 400px;
-
         }
-
 
         .login-box h2 {
-
             margin-bottom: 10px;
-
         }
-
 
         .login-box input,
         .login-box button {
-
             padding: 12px;
-
             margin: 8px 0;
-
             font-size: 16px;
-
             width: 100%;
-
             box-sizing: border-box;
-
         }
-
 
         .login-box input {
-
             border: 1px solid #ddd;
-
             border-radius: 6px;
-
             text-align: center;
-
         }
-
 
         .login-box button {
-
             background-color: #007bff;
-
             color: white;
-
             border: none;
-
             border-radius: 6px;
-
             cursor: pointer;
-
         }
-
 
         .login-box button:hover {
-
             background-color: #0056b3;
+        }
 
+        .login-box button:disabled {
+            opacity: 0.7;
+            cursor: wait;
         }
 
 
-        .login-box button:disabled {
+        /* =========================================
+           بطاقات حالات الانضباط - صف واحد
+        ========================================= */
 
-            opacity: 0.7;
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
 
-            cursor: wait;
+        .cases-grid .card {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 1200px) {
+
+            .cases-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .cases-grid {
+                grid-template-columns: 1fr;
+            }
 
         }
 
@@ -350,488 +335,198 @@
 
     <!-- ==================================================
          MAIN FORMS
-================================================== -->
+    ================================================== -->
 
     <main class="container">
 
-
-        <!-- =========================================
-             1. LATENESS
-        ========================================== -->
-
-        <section class="card">
-
-            <h3>
-                1. تسجيل التأخير الصباحي
-            </h3>
+        <div class="cases-grid">
 
 
-            <form
-                id="latenessForm"
-                onsubmit="addLateness(event)">
+            <!-- =========================================
+                 1. ABSENCE
+            ========================================== -->
+
+            <section class="card">
+
+                <h3>
+                    1. تسجيل الغياب
+                </h3>
 
 
-                <div class="form-group">
-
-                    <label>
-                        اسم الطالب:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="latenessStudent"
-                        required
-                        placeholder="الاسم الرباعي">
-
-                </div>
-
-
-                <div class="form-row">
+                <form
+                    id="absenceForm"
+                    onsubmit="addAbsence(event)">
 
 
                     <div class="form-group">
 
                         <label>
-                            الصف:
+                            اسم الطالب:
                         </label>
 
-                        <select id="latenessGrade">
-
-                            <option>الخامس</option>
-                            <option>السادس</option>
-                            <option>السابع</option>
-                            <option>الثامن</option>
-                            <option>التاسع</option>
-
-                        </select>
+                        <input
+                            type="text"
+                            id="absenceStudent"
+                            required
+                            placeholder="الاسم الرباعي">
 
                     </div>
 
 
-                    <div class="form-group">
-
-                        <label>
-                            الشعبة:
-                        </label>
-
-                        <select id="latenessSection">
-
-                            <option>أ</option>
-                            <option>ب</option>
-                            <option>ج</option>
-                            <option>د</option>
-
-                        </select>
-
-                    </div>
-
-                </div>
+                    <div class="form-row">
 
 
-                <div class="form-group">
+                        <div class="form-group">
 
-                    <label>
-                        سبب التأخير:
-                    </label>
+                            <label>
+                                الصف:
+                            </label>
 
-                    <select
-                        id="latenessReason"
-                        onchange="toggleOtherReason()">
+                            <select id="absenceGrade">
 
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
 
-                        <option value="أزمة طريق">
-                            أزمة طريق
-                        </option>
+                            </select>
 
-
-                        <option value="عائلي">
-                            عائلي
-                        </option>
+                        </div>
 
 
-                        <option value="النوم">
-                            النوم
-                        </option>
+                        <div class="form-group">
 
+                            <label>
+                                الشعبة:
+                            </label>
 
-                        <option value="بعد المسافة">
-                            بعد المسافة
-                        </option>
+                            <select id="absenceSection">
 
+                                <option>أ</option>
+                                <option>ب</option>
+                                <option>ج</option>
+                                <option>د</option>
 
-                        <option value="other">
-                            أخرى
-                        </option>
+                            </select>
 
-                    </select>
-
-                </div>
-
-
-                <div
-                    class="form-group"
-                    id="otherReasonGroup"
-                    style="display:none;">
-
-                    <label>
-                        اذكر السبب:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="otherReasonText"
-                        placeholder="اكتب السبب هنا">
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn">
-
-                    تسجيل التأخير
-
-                </button>
-
-            </form>
-
-
-            <div class="logs-section">
-
-                <h4>
-                    السجلات الأخيرة للتأخير:
-                </h4>
-
-
-                <div
-                    id="latenessLogs"
-                    class="logs-list">
-                </div>
-
-            </div>
-
-
-            <button
-                type="button"
-                onclick="printCategoryReport('lateness')"
-                class="btn"
-                style="
-                    margin-top:15px;
-                    background-color:#6c757d;
-                ">
-
-                طباعة تقرير التأخير الشامل
-
-            </button>
-
-        </section>
-
-
-
-        <!-- =========================================
-             2. UNIFORM
-        ========================================== -->
-
-        <section class="card">
-
-            <h3>
-                2. الالتزام بالزي المدرسي
-            </h3>
-
-
-            <form
-                id="uniformForm"
-                onsubmit="addUniform(event)">
-
-
-                <div class="form-group">
-
-                    <label>
-                        اسم الطالب:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="uniformStudent"
-                        required
-                        placeholder="الاسم الرباعي">
-
-                </div>
-
-
-                <div class="form-row">
-
-
-                    <div class="form-group">
-
-                        <label>
-                            الصف:
-                        </label>
-
-                        <select id="uniformGrade">
-
-                            <option>الخامس</option>
-                            <option>السادس</option>
-                            <option>السابع</option>
-                            <option>الثامن</option>
-                            <option>التاسع</option>
-
-                        </select>
+                        </div>
 
                     </div>
 
 
-                    <div class="form-group">
+                    <button
+                        type="submit"
+                        class="btn">
 
-                        <label>
-                            الشعبة:
-                        </label>
+                        تسجيل الغياب
 
-                        <select id="uniformSection">
+                    </button>
 
-                            <option>أ</option>
-                            <option>ب</option>
-                            <option>ج</option>
-                            <option>د</option>
-
-                        </select>
-
-                    </div>
-
-                </div>
+                </form>
 
 
-                <div class="form-group">
+                <div class="logs-section">
 
-                    <label>
-                        مدى الالتزام:
-                    </label>
-
-                    <select id="uniformStatus">
+                    <h4>
+                        السجلات الأخيرة للغياب:
+                    </h4>
 
 
-                        <option value="غير ملتزم">
-                            غير ملتزم
-                        </option>
-
-
-                        <option value="ملتزم">
-                            ملتزم
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn">
-
-                    تسجيل حالة الزي
-
-                </button>
-
-            </form>
-
-
-            <div class="logs-section">
-
-                <h4>
-                    السجلات الأخيرة للزي:
-                </h4>
-
-
-                <div
-                    id="uniformLogs"
-                    class="logs-list">
-                </div>
-
-            </div>
-
-
-            <button
-                type="button"
-                onclick="printCategoryReport('uniform')"
-                class="btn"
-                style="
-                    margin-top:15px;
-                    background-color:#6c757d;
-                ">
-
-                طباعة تقرير الزي الشامل
-
-            </button>
-
-        </section>
-
-
-
-        <!-- =========================================
-             3. ESCAPE
-        ========================================== -->
-
-        <section class="card">
-
-            <h3>
-                3. تسجيل حالة الهروب
-            </h3>
-
-
-            <form
-                id="escapeForm"
-                onsubmit="addEscape(event)">
-
-
-                <div class="form-group">
-
-                    <label>
-                        اسم الطالب:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="escapeStudent"
-                        required
-                        placeholder="الاسم الرباعي">
-
-                </div>
-
-
-                <div class="form-row">
-
-
-                    <div class="form-group">
-
-                        <label>
-                            الصف:
-                        </label>
-
-                        <select id="escapeGrade">
-
-                            <option>الخامس</option>
-                            <option>السادس</option>
-                            <option>السابع</option>
-                            <option>الثامن</option>
-                            <option>التاسع</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            الشعبة:
-                        </label>
-
-                        <select id="escapeSection">
-
-                            <option>أ</option>
-                            <option>ب</option>
-                            <option>ج</option>
-                            <option>د</option>
-
-                        </select>
-
+                    <div
+                        id="absenceLogs"
+                        class="logs-list">
                     </div>
 
                 </div>
 
 
                 <button
-                    type="submit"
-                    class="btn btn-danger">
+                    type="button"
+                    onclick="printCategoryReport('absence')"
+                    class="btn"
+                    style="
+                        margin-top:15px;
+                        background-color:#6c757d;
+                    ">
 
-                    تسجيل الهروب
+                    طباعة تقرير الغياب الشامل
 
                 </button>
 
-            </form>
-
-
-            <div class="logs-section">
-
-                <h4>
-                    السجلات الأخيرة للهروب:
-                </h4>
-
-
-                <div
-                    id="escapeLogs"
-                    class="logs-list">
-                </div>
-
-            </div>
-
-
-            <button
-                type="button"
-                onclick="printCategoryReport('escape')"
-                class="btn"
-                style="
-                    margin-top:15px;
-                    background-color:#6c757d;
-                ">
-
-                طباعة تقرير الهروب الشامل
-
-            </button>
-
-        </section>
+            </section>
 
 
 
-        <!-- =========================================
-             4. ABSENCE
-        ========================================== -->
+            <!-- =========================================
+                 2. UNIFORM
+            ========================================== -->
 
-        <section class="card">
+            <section class="card">
 
-            <h3>
-                4. تسجيل الغياب
-            </h3>
-
-
-            <form
-                id="absenceForm"
-                onsubmit="addAbsence(event)">
+                <h3>
+                    2. الالتزام بالزي المدرسي
+                </h3>
 
 
-                <div class="form-group">
-
-                    <label>
-                        اسم الطالب:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="absenceStudent"
-                        required
-                        placeholder="الاسم الرباعي">
-
-                </div>
-
-
-                <div class="form-row">
+                <form
+                    id="uniformForm"
+                    onsubmit="addUniform(event)">
 
 
                     <div class="form-group">
 
                         <label>
-                            الصف:
+                            اسم الطالب:
                         </label>
 
-                        <select id="absenceGrade">
+                        <input
+                            type="text"
+                            id="uniformStudent"
+                            required
+                            placeholder="الاسم الرباعي">
 
-                            <option>الخامس</option>
-                            <option>السادس</option>
-                            <option>السابع</option>
-                            <option>الثامن</option>
-                            <option>التاسع</option>
+                    </div>
 
-                        </select>
+
+                    <div class="form-row">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                الصف:
+                            </label>
+
+                            <select id="uniformGrade">
+
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                الشعبة:
+                            </label>
+
+                            <select id="uniformSection">
+
+                                <option>أ</option>
+                                <option>ب</option>
+                                <option>ج</option>
+                                <option>د</option>
+
+                            </select>
+
+                        </div>
 
                     </div>
 
@@ -839,64 +534,358 @@
                     <div class="form-group">
 
                         <label>
-                            الشعبة:
+                            مدى الالتزام:
                         </label>
 
-                        <select id="absenceSection">
+                        <select id="uniformStatus">
 
-                            <option>أ</option>
-                            <option>ب</option>
-                            <option>ج</option>
-                            <option>د</option>
+
+                            <option value="غير ملتزم">
+                                غير ملتزم
+                            </option>
+
+
+                            <option value="ملتزم">
+                                ملتزم
+                            </option>
 
                         </select>
 
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn">
+
+                        تسجيل حالة الزي
+
+                    </button>
+
+                </form>
+
+
+                <div class="logs-section">
+
+                    <h4>
+                        السجلات الأخيرة للزي:
+                    </h4>
+
+
+                    <div
+                        id="uniformLogs"
+                        class="logs-list">
                     </div>
 
                 </div>
 
 
                 <button
-                    type="submit"
-                    class="btn">
+                    type="button"
+                    onclick="printCategoryReport('uniform')"
+                    class="btn"
+                    style="
+                        margin-top:15px;
+                        background-color:#6c757d;
+                    ">
 
-                    تسجيل الغياب
+                    طباعة تقرير الزي الشامل
 
                 </button>
 
-            </form>
+            </section>
 
 
-            <div class="logs-section">
 
-                <h4>
-                    السجلات الأخيرة للغياب:
-                </h4>
+            <!-- =========================================
+                 3. LATENESS
+            ========================================== -->
+
+            <section class="card">
+
+                <h3>
+                    3. تسجيل التأخير الصباحي
+                </h3>
 
 
-                <div
-                    id="absenceLogs"
-                    class="logs-list">
+                <form
+                    id="latenessForm"
+                    onsubmit="addLateness(event)">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            اسم الطالب:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="latenessStudent"
+                            required
+                            placeholder="الاسم الرباعي">
+
+                    </div>
+
+
+                    <div class="form-row">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                الصف:
+                            </label>
+
+                            <select id="latenessGrade">
+
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                الشعبة:
+                            </label>
+
+                            <select id="latenessSection">
+
+                                <option>أ</option>
+                                <option>ب</option>
+                                <option>ج</option>
+                                <option>د</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            سبب التأخير:
+                        </label>
+
+                        <select
+                            id="latenessReason"
+                            onchange="toggleOtherReason()">
+
+
+                            <option value="أزمة طريق">
+                                أزمة طريق
+                            </option>
+
+
+                            <option value="عائلي">
+                                عائلي
+                            </option>
+
+
+                            <option value="النوم">
+                                النوم
+                            </option>
+
+
+                            <option value="بعد المسافة">
+                                بعد المسافة
+                            </option>
+
+
+                            <option value="other">
+                                أخرى
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div
+                        class="form-group"
+                        id="otherReasonGroup"
+                        style="display:none;">
+
+                        <label>
+                            اذكر السبب:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="otherReasonText"
+                            placeholder="اكتب السبب هنا">
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn">
+
+                        تسجيل التأخير
+
+                    </button>
+
+                </form>
+
+
+                <div class="logs-section">
+
+                    <h4>
+                        السجلات الأخيرة للتأخير:
+                    </h4>
+
+
+                    <div
+                        id="latenessLogs"
+                        class="logs-list">
+                    </div>
+
                 </div>
 
-            </div>
+
+                <button
+                    type="button"
+                    onclick="printCategoryReport('lateness')"
+                    class="btn"
+                    style="
+                        margin-top:15px;
+                        background-color:#6c757d;
+                    ">
+
+                    طباعة تقرير التأخير الشامل
+
+                </button>
+
+            </section>
 
 
-            <button
-                type="button"
-                onclick="printCategoryReport('absence')"
-                class="btn"
-                style="
-                    margin-top:15px;
-                    background-color:#6c757d;
-                ">
 
-                طباعة تقرير الغياب الشامل
+            <!-- =========================================
+                 4. ESCAPE
+            ========================================== -->
 
-            </button>
+            <section class="card">
 
-        </section>
+                <h3>
+                    4. تسجيل حالة الهروب
+                </h3>
 
+
+                <form
+                    id="escapeForm"
+                    onsubmit="addEscape(event)">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            اسم الطالب:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="escapeStudent"
+                            required
+                            placeholder="الاسم الرباعي">
+
+                    </div>
+
+
+                    <div class="form-row">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                الصف:
+                            </label>
+
+                            <select id="escapeGrade">
+
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                الشعبة:
+                            </label>
+
+                            <select id="escapeSection">
+
+                                <option>أ</option>
+                                <option>ب</option>
+                                <option>ج</option>
+                                <option>د</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        تسجيل الهروب
+
+                    </button>
+
+                </form>
+
+
+                <div class="logs-section">
+
+                    <h4>
+                        السجلات الأخيرة للهروب:
+                    </h4>
+
+
+                    <div
+                        id="escapeLogs"
+                        class="logs-list">
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    onclick="printCategoryReport('escape')"
+                    class="btn"
+                    style="
+                        margin-top:15px;
+                        background-color:#6c757d;
+                    ">
+
+                    طباعة تقرير الهروب الشامل
+
+                </button>
+
+            </section>
+
+
+        </div>
 
     </main>
 
@@ -1706,4 +1695,3 @@
 
 </body>
 </html>
-
