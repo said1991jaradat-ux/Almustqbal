@@ -6,6 +6,7 @@ const API_URL =
     'https://almustqbal.onrender.com/api/records';
 
 
+
 /* ==================================================
    DATA
 ================================================== */
@@ -16,7 +17,9 @@ let dbData = {
 
     uniform: [],
 
-    escape: []
+    escape: [],
+
+    absence: []
 
 };
 
@@ -598,6 +601,16 @@ async function fetchRecordsFromCloud() {
                     );
 
                 }
+               else if (
+    record.type ===
+    'absence'
+) {
+
+    dbData.absence.push(
+        mapped
+    );
+
+}
 
             }
         );
@@ -637,7 +650,6 @@ async function fetchRecordsFromCloud() {
 /* ==================================================
    RENDER LOGS
 ================================================== */
-
 function renderLogs() {
 
     renderCategoryLogs(
@@ -645,95 +657,22 @@ function renderLogs() {
         'latenessLogs'
     );
 
-
     renderCategoryLogs(
         'uniform',
         'uniformLogs'
     );
-
 
     renderCategoryLogs(
         'escape',
         'escapeLogs'
     );
 
-}
-
-
-function renderCategoryLogs(
-    category,
-    elementId
-) {
-
-    const container =
-        document.getElementById(
-            elementId
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const records =
-        dbData[category] || [];
-
-
-    if (!records.length) {
-
-        container.innerHTML =
-            '<div class="empty-log">لا توجد سجلات</div>';
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        records
-            .slice(0, 5)
-            .map(
-                function (record) {
-
-                    return `
-
-                        <div class="log-item">
-
-                            <div>
-
-                                <strong>
-                                    ${escapeHtml(
-                                        record.student
-                                    )}
-                                </strong>
-
-                                <div>
-                                    ${escapeHtml(
-                                        record.date
-                                    )}
-                                </div>
-
-                            </div>
-
-                            <button
-                                onclick="deleteRecord('${record.id}')"
-                                class="delete-btn">
-
-                                حذف
-
-                            </button>
-
-                        </div>
-
-                    `;
-
-                }
-            )
-            .join('');
+    renderCategoryLogs(
+        'absence',
+        'absenceLogs'
+    );
 
 }
-
 
 /* ==================================================
    ESCAPE HTML
@@ -917,35 +856,30 @@ function closeAdminDashboard() {
    LOCAL DATE
 ================================================== */
 
-function getLocalDateInputValue() {
+function getAutomaticDateTime() {
 
-    const now =
-        new Date();
+    const now = new Date();
 
+    return {
 
-    const year =
-        now.getFullYear();
+        date:
+            now.toLocaleDateString(
+                'ar-EG'
+            ),
 
+        time:
+            now.toLocaleTimeString(
+                'ar-EG',
+                {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }
+            ),
 
-    const month =
-        String(
-            now.getMonth() + 1
-        ).padStart(
-            2,
-            '0'
-        );
+        createdAt:
+            now.toISOString()
 
-
-    const day =
-        String(
-            now.getDate()
-        ).padStart(
-            2,
-            '0'
-        );
-
-
-    return `${year}-${month}-${day}`;
+    };
 
 }
 
@@ -1067,6 +1001,7 @@ function switchReportTab(type) {
     currentAdminReportType =
         type;
 
+   
 
     updateAdminTabs();
 
@@ -1544,6 +1479,23 @@ function renderAdminReport() {
         records
     );
 
+   const absence =
+    records.filter(
+        function (r) {
+
+            return (
+                r.type ===
+                'absence'
+            );
+
+        }
+    ).length;
+   
+setText(
+    'adminAbsenceCount',
+    absence
+);
+   
 }
 
 
@@ -1576,9 +1528,7 @@ function setText(
    TRANSLATE TYPE
 ================================================== */
 
-function translateType(
-    type
-) {
+function translateType(type) {
 
     if (
         type ===
@@ -1589,7 +1539,6 @@ function translateType(
 
     }
 
-
     if (
         type ===
         'uniform'
@@ -1598,7 +1547,6 @@ function translateType(
         return 'الزي المدرسي';
 
     }
-
 
     if (
         type ===
@@ -1609,11 +1557,18 @@ function translateType(
 
     }
 
+    if (
+        type ===
+        'absence'
+    ) {
+
+        return 'الغياب';
+
+    }
 
     return type || '';
 
 }
-
 
 /* ==================================================
    ADMIN TABLE
@@ -2247,70 +2202,46 @@ function toggleOtherReason() {
    ADD LATENESS
 ================================================== */
 
-async function addLateness(
-    event
-) {
+async function addLateness(event) {
 
     if (event) {
-
         event.preventDefault();
-
     }
-
 
     const student =
         getValue(
             'latenessStudent'
         );
 
-
     const grade =
         getValue(
             'latenessGrade'
         );
-
 
     const section =
         getValue(
             'latenessSection'
         );
 
-
     const reasonElement =
         document.getElementById(
             'latenessReason'
         );
-
 
     const reason =
         reasonElement
             ? reasonElement.value
             : '';
 
-
     const other =
         getValue(
             'otherReasonText'
         );
 
-
     const finalReason =
         reason === 'other'
             ? other
             : reason;
-
-
-    const time =
-        getValue(
-            'latenessTime'
-        );
-
-
-    const date =
-        getValue(
-            'latenessDate'
-        ) ||
-        getLocalDateInputValue();
 
 
     if (!student) {
@@ -2322,6 +2253,10 @@ async function addLateness(
         return;
 
     }
+
+
+    const dateTime =
+        getAutomaticDateTime();
 
 
     try {
@@ -2340,11 +2275,11 @@ async function addLateness(
             section:
                 section,
 
-            time:
-                time,
-
             date:
-                date,
+                dateTime.date,
+
+            time:
+                dateTime.time,
 
             details:
                 finalReason
@@ -2364,15 +2299,8 @@ async function addLateness(
 
 
         if (form) {
-
             form.reset();
-
         }
-
-
-        setAutoDate(
-            'latenessDate'
-        );
 
 
         toggleOtherReason();
@@ -2381,14 +2309,11 @@ async function addLateness(
         await fetchRecordsFromCloud();
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             error
         );
-
 
         alert(
             'حدث خطأ أثناء حفظ السجل'
@@ -2398,51 +2323,34 @@ async function addLateness(
 
 }
 
-
 /* ==================================================
    ADD UNIFORM
 ================================================== */
-
-async function addUniform(
-    event
-) {
+async function addUniform(event) {
 
     if (event) {
-
         event.preventDefault();
-
     }
-
 
     const student =
         getValue(
             'uniformStudent'
         );
 
-
     const grade =
         getValue(
             'uniformGrade'
         );
-
 
     const section =
         getValue(
             'uniformSection'
         );
 
-
     const status =
         getValue(
             'uniformStatus'
         );
-
-
-    const date =
-        getValue(
-            'uniformDate'
-        ) ||
-        getLocalDateInputValue();
 
 
     if (!student) {
@@ -2454,6 +2362,10 @@ async function addUniform(
         return;
 
     }
+
+
+    const dateTime =
+        getAutomaticDateTime();
 
 
     try {
@@ -2472,11 +2384,11 @@ async function addUniform(
             section:
                 section,
 
-            time:
-                '',
-
             date:
-                date,
+                dateTime.date,
+
+            time:
+                dateTime.time,
 
             details:
                 status
@@ -2485,7 +2397,7 @@ async function addUniform(
 
 
         alert(
-            'تم تسجيل الحالة بنجاح'
+            'تم تسجيل حالة الزي بنجاح'
         );
 
 
@@ -2496,28 +2408,18 @@ async function addUniform(
 
 
         if (form) {
-
             form.reset();
-
         }
-
-
-        setAutoDate(
-            'uniformDate'
-        );
 
 
         await fetchRecordsFromCloud();
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             error
         );
-
 
         alert(
             'حدث خطأ أثناء حفظ السجل'
@@ -2526,52 +2428,30 @@ async function addUniform(
     }
 
 }
-
-
 /* ==================================================
    ADD ESCAPE
 ================================================== */
 
-async function addEscape(
-    event
-) {
+async function addEscape(event) {
 
     if (event) {
-
         event.preventDefault();
-
     }
-
 
     const student =
         getValue(
             'escapeStudent'
         );
 
-
     const grade =
         getValue(
             'escapeGrade'
         );
 
-
     const section =
         getValue(
             'escapeSection'
         );
-
-
-    const time =
-        getValue(
-            'escapeTime'
-        );
-
-
-    const date =
-        getValue(
-            'escapeDate'
-        ) ||
-        getLocalDateInputValue();
 
 
     if (!student) {
@@ -2583,6 +2463,10 @@ async function addEscape(
         return;
 
     }
+
+
+    const dateTime =
+        getAutomaticDateTime();
 
 
     try {
@@ -2601,11 +2485,11 @@ async function addEscape(
             section:
                 section,
 
-            time:
-                time,
-
             date:
-                date,
+                dateTime.date,
+
+            time:
+                dateTime.time,
 
             details:
                 'هروب'
@@ -2625,28 +2509,18 @@ async function addEscape(
 
 
         if (form) {
-
             form.reset();
-
         }
-
-
-        setAutoDate(
-            'escapeDate'
-        );
 
 
         await fetchRecordsFromCloud();
 
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             error
         );
-
 
         alert(
             'حدث خطأ أثناء حفظ السجل'
@@ -2655,7 +2529,6 @@ async function addEscape(
     }
 
 }
-
 
 /* ==================================================
    SAVE RECORD
@@ -2722,6 +2595,94 @@ async function saveRecord(
 }
 
 
+
+async function addAbsence(event) {
+
+    if (event) {
+        event.preventDefault();
+    }
+
+    const student =
+        getValue(
+            'absenceStudent'
+        );
+
+
+    if (!student) {
+
+        alert(
+            'يرجى إدخال اسم الطالب'
+        );
+
+        return;
+
+    }
+
+
+    const dateTime =
+        getAutomaticDateTime();
+
+
+    try {
+
+        await saveRecord({
+
+            type:
+                'absence',
+
+            studentName:
+                student,
+
+            grade:
+                '',
+
+            section:
+                '',
+
+            date:
+                dateTime.date,
+
+            time:
+                dateTime.time,
+
+            details:
+                'غياب'
+
+        });
+
+
+        alert(
+            'تم تسجيل الغياب بنجاح'
+        );
+
+
+        const form =
+            document.getElementById(
+                'absenceForm'
+            );
+
+
+        if (form) {
+            form.reset();
+        }
+
+
+        await fetchRecordsFromCloud();
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        alert(
+            'حدث خطأ أثناء حفظ الغياب'
+        );
+
+    }
+
+}
 /* ==================================================
    HELPERS
 ================================================== */
