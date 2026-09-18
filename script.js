@@ -318,50 +318,29 @@ function stopPresenceMonitoring() {
 async function notifyPresenceLogout() {
 
     if (!presenceClientId) {
-
         return false;
-
     }
 
-
-    const payload =
-        JSON.stringify({
-
-            clientId:
-                presenceClientId
-
-        });
-
+    const payload = JSON.stringify({
+        clientId: presenceClientId
+    });
 
     try {
 
-        const response =
-            await fetch(
+        const response = await fetch(
+            `${PRESENCE_BASE_URL}/api/presence/logout`,
+            {
+                method: 'POST',
 
-                `${API_BASE_URL}/api/presence/logout`,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
 
-                {
+                body: payload,
 
-                    method:
-                        'POST',
-
-                    headers: {
-
-                        'Content-Type':
-                            'application/json'
-
-                    },
-
-                    body:
-                        payload,
-
-                    keepalive:
-                        true
-
-                }
-
-            );
-
+                keepalive: true
+            }
+        );
 
         if (!response.ok) {
 
@@ -371,13 +350,9 @@ async function notifyPresenceLogout() {
             );
 
             return false;
-
         }
 
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (
             data &&
@@ -389,9 +364,7 @@ async function notifyPresenceLogout() {
             );
 
             return true;
-
         }
-
 
     } catch (error) {
 
@@ -402,9 +375,7 @@ async function notifyPresenceLogout() {
 
     }
 
-
     return false;
-
 }
 
 
