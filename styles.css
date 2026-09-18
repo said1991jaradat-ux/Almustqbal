@@ -1903,25 +1903,7 @@ select:focus {
 
 
 
-
-/* =========================================================
-   صورة المدرسة طبيعية بدون خفتان
-========================================================= */
-
-#loginScreen {
-    background-color: #0b1d3a !important;
-
-    background-image: url("https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/343115378_3491540304501523_4825229709260791039_n.jpg") !important;
-
-    background-position: center center !important;
-
-    background-repeat: no-repeat !important;
-
-    background-size: 500px auto !important;
-}
-
-
-
+/* ========================================================= شعار المدرسة فوق مربع تسجيل الدخول ========================================================= */ .login-area { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; } .school-login-logo { width: 180px; height: 180px; object-fit: contain; margin-bottom: 18px; border-radius: 12px; display: block; }
 
 
 
