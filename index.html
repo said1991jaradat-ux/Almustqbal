@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -34,62 +35,109 @@
         ========================================= */
 
         #loginScreen {
+
             position: fixed;
+
             inset: 0;
+
             width: 100%;
             height: 100%;
+
             background: #f4f4f9;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             z-index: 9999;
+
         }
+
 
         .login-box {
+
             background: white;
+
             padding: 30px;
+
             text-align: center;
+
             border-radius: 12px;
+
             box-shadow:
                 0 10px 35px rgba(0,0,0,0.12);
+
             width: 90%;
+
             max-width: 400px;
+
         }
 
+
         .login-box h2 {
+
             margin-bottom: 10px;
+
         }
+
 
         .login-box input,
         .login-box button {
+
             padding: 12px;
+
             margin: 8px 0;
+
             font-size: 16px;
+
             width: 100%;
+
             box-sizing: border-box;
+
         }
+
 
         .login-box input {
+
             border: 1px solid #ddd;
+
             border-radius: 6px;
+
             text-align: center;
+
         }
+
 
         .login-box button {
+
             background-color: #007bff;
+
             color: white;
+
             border: none;
+
             border-radius: 6px;
+
             cursor: pointer;
+
         }
+
 
         .login-box button:hover {
+
             background-color: #0056b3;
+
         }
 
+
         .login-box button:disabled {
+
             opacity: 0.7;
+
             cursor: wait;
+
         }
 
     </style>
@@ -122,6 +170,7 @@
             placeholder="كلمة المرور"
             autocomplete="current-password">
 
+
         <button
             type="button"
             onclick="checkPassword()">
@@ -129,6 +178,7 @@
             دخول
 
         </button>
+
 
         <p
             id="errorMsg"
@@ -141,6 +191,7 @@
             كلمة المرور غير صحيحة!
 
         </p>
+
 
         <p
             style="
@@ -216,6 +267,7 @@
                     id="searchStudent"
                     placeholder="ابحث باسم الطالب للتقرير...">
 
+
                 <button
                     type="button"
                     onclick="searchStudentReport()"
@@ -231,6 +283,7 @@
             <!-- HEADER BUTTONS -->
 
             <div class="backup-btns">
+
 
                 <button
                     type="button"
@@ -297,13 +350,13 @@
 
     <!-- ==================================================
          MAIN FORMS
-    ================================================== -->
+================================================== -->
 
     <main class="container">
 
 
         <!-- =========================================
-             LATENESS
+             1. LATENESS
         ========================================== -->
 
         <section class="card">
@@ -316,7 +369,6 @@
             <form
                 id="latenessForm"
                 onsubmit="addLateness(event)">
-
 
 
                 <div class="form-group">
@@ -335,6 +387,7 @@
 
 
                 <div class="form-row">
+
 
                     <div class="form-group">
 
@@ -385,21 +438,26 @@
                         id="latenessReason"
                         onchange="toggleOtherReason()">
 
+
                         <option value="أزمة طريق">
                             أزمة طريق
                         </option>
+
 
                         <option value="عائلي">
                             عائلي
                         </option>
 
+
                         <option value="النوم">
                             النوم
                         </option>
 
+
                         <option value="بعد المسافة">
                             بعد المسافة
                         </option>
+
 
                         <option value="other">
                             أخرى
@@ -444,6 +502,7 @@
                     السجلات الأخيرة للتأخير:
                 </h4>
 
+
                 <div
                     id="latenessLogs"
                     class="logs-list">
@@ -470,7 +529,7 @@
 
 
         <!-- =========================================
-             UNIFORM
+             2. UNIFORM
         ========================================== -->
 
         <section class="card">
@@ -483,8 +542,6 @@
             <form
                 id="uniformForm"
                 onsubmit="addUniform(event)">
-
-
 
 
                 <div class="form-group">
@@ -503,6 +560,7 @@
 
 
                 <div class="form-row">
+
 
                     <div class="form-group">
 
@@ -551,9 +609,11 @@
 
                     <select id="uniformStatus">
 
+
                         <option value="غير ملتزم">
                             غير ملتزم
                         </option>
+
 
                         <option value="ملتزم">
                             ملتزم
@@ -581,6 +641,7 @@
                     السجلات الأخيرة للزي:
                 </h4>
 
+
                 <div
                     id="uniformLogs"
                     class="logs-list">
@@ -607,7 +668,7 @@
 
 
         <!-- =========================================
-             ESCAPE
+             3. ESCAPE
         ========================================== -->
 
         <section class="card">
@@ -620,9 +681,6 @@
             <form
                 id="escapeForm"
                 onsubmit="addEscape(event)">
-
-
-                </div>
 
 
                 <div class="form-group">
@@ -641,6 +699,7 @@
 
 
                 <div class="form-row">
+
 
                     <div class="form-group">
 
@@ -698,6 +757,7 @@
                     السجلات الأخيرة للهروب:
                 </h4>
 
+
                 <div
                     id="escapeLogs"
                     class="logs-list">
@@ -722,6 +782,122 @@
         </section>
 
 
+
+        <!-- =========================================
+             4. ABSENCE
+        ========================================== -->
+
+        <section class="card">
+
+            <h3>
+                4. تسجيل الغياب
+            </h3>
+
+
+            <form
+                id="absenceForm"
+                onsubmit="addAbsence(event)">
+
+
+                <div class="form-group">
+
+                    <label>
+                        اسم الطالب:
+                    </label>
+
+                    <input
+                        type="text"
+                        id="absenceStudent"
+                        required
+                        placeholder="الاسم الرباعي">
+
+                </div>
+
+
+                <div class="form-row">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            الصف:
+                        </label>
+
+                        <select id="absenceGrade">
+
+                            <option>الخامس</option>
+                            <option>السادس</option>
+                            <option>السابع</option>
+                            <option>الثامن</option>
+                            <option>التاسع</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            الشعبة:
+                        </label>
+
+                        <select id="absenceSection">
+
+                            <option>أ</option>
+                            <option>ب</option>
+                            <option>ج</option>
+                            <option>د</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn">
+
+                    تسجيل الغياب
+
+                </button>
+
+            </form>
+
+
+            <div class="logs-section">
+
+                <h4>
+                    السجلات الأخيرة للغياب:
+                </h4>
+
+
+                <div
+                    id="absenceLogs"
+                    class="logs-list">
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                onclick="printCategoryReport('absence')"
+                class="btn"
+                style="
+                    margin-top:15px;
+                    background-color:#6c757d;
+                ">
+
+                طباعة تقرير الغياب الشامل
+
+            </button>
+
+        </section>
+
+
     </main>
 
 
@@ -734,26 +910,35 @@
         id="printReport"
         class="print-only">
 
+
         <div class="report-header">
 
             <h2>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h2>
 
+
             <h3>
                 تقرير السلوك والانضباط المدرسي
             </h3>
 
+
             <p>
+
                 <strong>
                     مدير المدرسة:
                 </strong>
+
                 أ. سمير مصلح
+
             </p>
+
 
             <p id="reportPrintDate"></p>
 
+
             <hr>
+
 
             <div class="student-title-wrap">
 
@@ -775,6 +960,7 @@
             <div>
                 توقيع مدير المدرسة: __________________
             </div>
+
 
             <div>
                 خاتم المدرسة
@@ -803,11 +989,13 @@
 
         <div class="admin-header">
 
+
             <div>
 
                 <h2>
                     📊 لوحة الإدارة والتقارير
                 </h2>
+
 
                 <p>
                     مدرسة ذكور المستقبل الصالح الأساسية العليا
@@ -832,6 +1020,7 @@
         <!-- TABS -->
 
         <div class="admin-tabs">
+
 
             <button
                 type="button"
@@ -873,25 +1062,29 @@
 
         <div class="admin-controls">
 
+
             <div>
 
                 <label>
                     اختر التاريخ المرجعي:
                 </label>
 
+
                 <input
                     type="date"
                     id="adminReferenceDate"
-                    onchange="changeAdminReportDate">
+                    onchange="changeAdminReportDate()">
 
             </div>
 
 
             <div class="admin-period">
 
+
                 <strong id="adminReportTitle">
                     التقرير اليومي
                 </strong>
+
 
                 <span id="adminPeriodLabel">
                     -
@@ -934,11 +1127,13 @@
                     📊
                 </div>
 
+
                 <div>
 
                     <span>
                         إجمالي الحالات
                     </span>
+
 
                     <strong id="adminTotalCount">
                         0
@@ -949,17 +1144,20 @@
             </div>
 
 
+
             <div class="summary-card lateness">
 
                 <div class="summary-icon">
                     ⏰
                 </div>
 
+
                 <div>
 
                     <span>
                         التأخير الصباحي
                     </span>
+
 
                     <strong id="adminLatenessCount">
                         0
@@ -970,17 +1168,20 @@
             </div>
 
 
+
             <div class="summary-card uniform">
 
                 <div class="summary-icon">
                     👕
                 </div>
 
+
                 <div>
 
                     <span>
                         الزي المدرسي
                     </span>
+
 
                     <strong id="adminUniformCount">
                         0
@@ -991,17 +1192,20 @@
             </div>
 
 
+
             <div class="summary-card escape">
 
                 <div class="summary-icon">
                     🚪
                 </div>
 
+
                 <div>
 
                     <span>
                         الهروب
                     </span>
+
 
                     <strong id="adminEscapeCount">
                         0
@@ -1011,6 +1215,31 @@
 
             </div>
 
+
+
+            <div class="summary-card absence">
+
+                <div class="summary-icon">
+                    📅
+                </div>
+
+
+                <div>
+
+                    <span>
+                        الغياب
+                    </span>
+
+
+                    <strong id="adminAbsenceCount">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
         </div>
 
 
@@ -1019,9 +1248,12 @@
 
         <div class="admin-table-container">
 
+
             <table class="admin-table">
 
+
                 <thead>
+
 
                     <tr>
 
@@ -1029,21 +1261,26 @@
                             التاريخ
                         </th>
 
+
                         <th>
                             نوع الحالة
                         </th>
+
 
                         <th>
                             اسم الطالب
                         </th>
 
+
                         <th>
                             الصف / الشعبة
                         </th>
 
+
                         <th>
                             الوقت / التفاصيل
                         </th>
+
 
                         <th>
                             إجراء
@@ -1054,7 +1291,9 @@
                 </thead>
 
 
+
                 <tbody id="adminTableBody">
+
 
                     <tr>
 
@@ -1068,7 +1307,9 @@
 
                     </tr>
 
+
                 </tbody>
+
 
             </table>
 
@@ -1086,8 +1327,10 @@
 
 <script>
 
+
     const AUTH_BASE_URL =
         'https://almustqbal.onrender.com';
+
 
 
     async function checkPassword() {
@@ -1097,34 +1340,52 @@
                 "passInput"
             );
 
+
         const loginBtn =
             document.querySelector(
                 '.login-box button'
             );
+
 
         const errorMsg =
             document.getElementById(
                 "errorMsg"
             );
 
-        if (!inputElement || !loginBtn) {
+
+        if (
+            !inputElement ||
+            !loginBtn
+        ) {
+
             return;
+
         }
+
 
         const userInput =
             inputElement.value;
 
+
         const originalBtnText =
             loginBtn.innerText;
 
-        loginBtn.disabled = true;
+
+        loginBtn.disabled =
+            true;
+
 
         loginBtn.innerText =
             "جاري التحقق...";
 
+
         if (errorMsg) {
-            errorMsg.style.display = "none";
+
+            errorMsg.style.display =
+                "none";
+
         }
+
 
         try {
 
@@ -1132,18 +1393,25 @@
                 await fetch(
                     `${AUTH_BASE_URL}/api/login`,
                     {
-                        method: 'POST',
+
+                        method:
+                            'POST',
 
                         headers: {
+
                             'Content-Type':
                                 'application/json'
+
                         },
 
                         body:
                             JSON.stringify({
+
                                 password:
                                     userInput
+
                             })
+
                     }
                 );
 
@@ -1152,28 +1420,36 @@
                 await response.json();
 
 
-            if (response.ok &&
-                result.success) {
+            if (
+                response.ok &&
+                result.success
+            ) {
+
 
                 document
                     .getElementById(
                         "loginScreen"
                     )
-                    .style.display = "none";
+                    .style.display =
+                        "none";
 
 
                 document
                     .getElementById(
                         "mainContent"
                     )
-                    .style.display = "block";
+                    .style.display =
+                        "block";
 
 
             } else {
 
+
                 if (errorMsg) {
+
                     errorMsg.style.display =
                         "block";
+
                 }
 
             }
@@ -1181,7 +1457,10 @@
 
         } catch (err) {
 
-            console.error(err);
+            console.error(
+                err
+            );
+
 
             alert(
                 "تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا."
@@ -1189,9 +1468,12 @@
 
         }
 
+
         finally {
 
-            loginBtn.disabled = false;
+            loginBtn.disabled =
+                false;
+
 
             loginBtn.innerText =
                 originalBtnText;
@@ -1201,6 +1483,7 @@
     }
 
 
+
     function logout() {
 
         const mainContent =
@@ -1208,20 +1491,24 @@
                 "mainContent"
             );
 
+
         const adminModal =
             document.getElementById(
                 "adminModal"
             );
+
 
         const loginScreen =
             document.getElementById(
                 "loginScreen"
             );
 
+
         const passInput =
             document.getElementById(
                 "passInput"
             );
+
 
         const errorMsg =
             document.getElementById(
@@ -1230,41 +1517,62 @@
 
 
         if (mainContent) {
+
             mainContent.style.display =
                 "none";
+
         }
+
 
         if (adminModal) {
+
             adminModal.style.display =
                 "none";
+
         }
+
 
         if (loginScreen) {
+
             loginScreen.style.display =
                 "flex";
+
         }
+
 
         if (passInput) {
-            passInput.value = "";
+
+            passInput.value =
+                "";
+
         }
 
+
         if (errorMsg) {
+
             errorMsg.style.display =
                 "none";
+
         }
 
     }
 
 
+
     /* Enter لتسجيل الدخول */
 
     document
-        .getElementById("passInput")
+        .getElementById(
+            "passInput"
+        )
         .addEventListener(
             "keydown",
-            function(event) {
+            function (event) {
 
-                if (event.key === "Enter") {
+                if (
+                    event.key ===
+                    "Enter"
+                ) {
 
                     checkPassword();
 
@@ -1301,6 +1609,7 @@
         align-items:center;
     ">
 
+
     <div
         style="
             background:white;
@@ -1312,13 +1621,16 @@
             text-align:center;
         ">
 
+
         <h2>
             استعادة كلمة المرور
         </h2>
 
+
         <p>
             ما هو رقمك المفضل؟
         </p>
+
 
         <input
             type="number"
@@ -1384,6 +1696,7 @@
                 display:none;
                 margin-top:12px;
             ">
+
         </p>
 
     </div>
@@ -1393,3 +1706,4 @@
 
 </body>
 </html>
+
