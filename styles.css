@@ -1868,7 +1868,36 @@ select:focus {
 }
 
 
+/* =========================================================
+   توقيع مدير المدرسة في التقارير المطبوعة فقط
+========================================================= */
 
+.report-signature {
+    display: none;
+}
+
+@media print {
+
+    .report-signature {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+
+        margin-top: 50px;
+        padding-top: 20px;
+
+        font-size: 16px;
+        font-weight: bold;
+
+        border-top: 1px solid #ddd;
+    }
+
+    .signature-line {
+        min-width: 220px;
+        text-align: center;
+    }
+
+}
 
 
 
