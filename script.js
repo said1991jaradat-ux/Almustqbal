@@ -1,4 +1,3 @@
-
 /* ==================================================
    API
 ================================================== */
@@ -14,13 +13,9 @@ const API_URL =
 const PRESENCE_BASE_URL =
     'https://almustqbal.onrender.com';
 
+let presenceInterval = null;
 
-let presenceInterval =
-    null;
-
-
-let presenceStarted =
-    false;
+let presenceStarted = false;
 
 
 /* معرف ثابت لهذا المتصفح */
@@ -51,7 +46,6 @@ if (!presenceClientId) {
                 .substring(2);
 
     }
-
 
     localStorage.setItem(
         'schoolPresenceClientId',
@@ -207,8 +201,10 @@ async function sendPresenceHeartbeat() {
 
         const response =
             await fetch(
+
                 PRESENCE_BASE_URL +
                 '/api/presence/heartbeat',
+
                 {
 
                     method:
@@ -230,6 +226,7 @@ async function sendPresenceHeartbeat() {
                         })
 
                 }
+
             );
 
 
@@ -3641,7 +3638,9 @@ function searchStudentReport() {
 
         <!DOCTYPE html>
 
-        <html lang="ar" dir="rtl">
+        <html
+            lang="ar"
+            dir="rtl">
 
         <head>
 
@@ -3654,8 +3653,13 @@ function searchStudentReport() {
             <style>
 
                 @page {
-                    size: A4;
-                    margin: 15mm;
+
+                    size:
+                        A4;
+
+                    margin:
+                        15mm;
+
                 }
 
                 body {
@@ -4016,7 +4020,9 @@ function printCategoryReport(
 
         <!DOCTYPE html>
 
-        <html lang="ar" dir="rtl">
+        <html
+            lang="ar"
+            dir="rtl">
 
         <head>
 
@@ -4029,8 +4035,13 @@ function printCategoryReport(
             <style>
 
                 @page {
-                    size: A4;
-                    margin: 15mm;
+
+                    size:
+                        A4;
+
+                    margin:
+                        15mm;
+
                 }
 
                 body {
@@ -4569,4 +4580,3 @@ async function importData(
     }
 
 }
-
