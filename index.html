@@ -1888,24 +1888,48 @@ function continueStudents() {
 
 
                 if (
-                    loggedIn ===
-                    'true'
-                ) {
+    loggedIn ===
+    'true'
+) {
 
-                    if (loginScreen) {
+    if (loginScreen) {
 
-                        loginScreen.style.display =
-                            "none";
+        loginScreen.style.display =
+            "none";
 
-                    }
+    }
 
 
-                    if (mainContent) {
+    if (mainContent) {
 
-                        mainContent.style.display =
-                            "block";
+        mainContent.style.display =
+            "none";
 
-                    }
+    }
+
+
+    const sectionSelection =
+        document.getElementById(
+            "sectionSelection"
+        );
+
+
+    if (sectionSelection) {
+
+        sectionSelection.style.display =
+            "flex";
+
+    }
+
+
+    if (adminModal) {
+
+        adminModal.style.display =
+            "none";
+
+    }
+
+}
 
 
                     if (adminModal) {
