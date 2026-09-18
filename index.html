@@ -1597,10 +1597,24 @@ function continueStudents() {
 
     if (mainContent) {
 
-        mainContent.style.display =
-            'block';
+    mainContent.style.display =
+        "none";
 
-    }
+}
+
+
+const sectionSelection =
+    document.getElementById(
+        "sectionSelection"
+    );
+
+
+if (sectionSelection) {
+
+    sectionSelection.style.display =
+        "flex";
+
+}
 
 }
                     function continueTeachers() {
