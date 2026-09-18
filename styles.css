@@ -1905,49 +1905,20 @@ select:focus {
 
 
 /* =========================================================
-   شعار المدرسة كخلفية شفافة داخل مربع تسجيل الدخول
+   صورة المدرسة طبيعية بدون خفتان
 ========================================================= */
 
-#loginScreen .login-box {
-    position: relative;
-    overflow: hidden;
+#loginScreen {
+    background-color: #0b1d3a !important;
 
-    background: #ffffff;
+    background-image: url("https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/343115378_3491540304501523_4825229709260791039_n.jpg") !important;
+
+    background-position: center center !important;
+
+    background-repeat: no-repeat !important;
+
+    background-size: 500px auto !important;
 }
-
-
-/* الشعار كخلفية مائية */
-#loginScreen .login-box::before {
-    content: "";
-
-    position: absolute;
-
-    inset: 0;
-
-    background-image: url("https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/343115378_3491540304501523_4825229709260791039_n.jpg");
-
-    background-repeat: no-repeat;
-
-    background-position: center center;
-
-    background-size: 260px auto;
-
-    opacity: 0.70;
-
-    z-index: 0;
-
-    pointer-events: none;
-}
-
-
-/* إبقاء محتوى تسجيل الدخول فوق الشعار */
-#loginScreen .login-box > * {
-    position: relative;
-
-    z-index: 1;
-}
-
-
 
 
 
