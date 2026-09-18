@@ -1412,28 +1412,45 @@
                 await response.json();
 
 
-            if (
-                response.ok &&
-                result.success
-            ) {
+           if (
+    response.ok &&
+    result.success
+) {
+
+    /* حفظ حالة تسجيل الدخول */
+    localStorage.setItem(
+        'schoolLoggedIn',
+        'true'
+    );
 
 
-                document
-                    .getElementById(
-                        "loginScreen"
-                    )
-                    .style.display =
-                        "none";
+    document
+        .getElementById(
+            "loginScreen"
+        )
+        .style.display =
+            "none";
 
 
-                document
-                    .getElementById(
-                        "mainContent"
-                    )
-                    .style.display =
-                        "block";
+    document
+        .getElementById(
+            "mainContent"
+        )
+        .style.display =
+            "block";
 
-startPresenceMonitoring();
+
+    /* بدء عداد المتصلين */
+    if (
+        typeof startPresenceMonitoring ===
+        'function'
+    ) {
+
+        startPresenceMonitoring();
+
+    }
+
+}
             } else {
 
 
@@ -1476,79 +1493,105 @@ startPresenceMonitoring();
 
 
 
-    function logout() {
-notifyPresenceLogout();
-stopPresenceMonitoring();
-        const mainContent =
-            document.getElementById(
-                "mainContent"
-            );
+function logout() {
 
+    /* إخراج المستخدم من قائمة المتصلين */
+    if (
+        typeof notifyPresenceLogout ===
+        'function'
+    ) {
 
-        const adminModal =
-            document.getElementById(
-                "adminModal"
-            );
-
-
-        const loginScreen =
-            document.getElementById(
-                "loginScreen"
-            );
-
-
-        const passInput =
-            document.getElementById(
-                "passInput"
-            );
-
-
-        const errorMsg =
-            document.getElementById(
-                "errorMsg"
-            );
-
-
-        if (mainContent) {
-
-            mainContent.style.display =
-                "none";
-
-        }
-
-
-        if (adminModal) {
-
-            adminModal.style.display =
-                "none";
-
-        }
-
-
-        if (loginScreen) {
-
-            loginScreen.style.display =
-                "flex";
-
-        }
-
-
-        if (passInput) {
-
-            passInput.value =
-                "";
-
-        }
-
-
-        if (errorMsg) {
-
-            errorMsg.style.display =
-                "none";
-
-        }
+        notifyPresenceLogout();
 
     }
+
+
+    if (
+        typeof stopPresenceMonitoring ===
+        'function'
+    ) {
+
+        stopPresenceMonitoring();
+
+    }
+
+
+    /* إلغاء حالة الدخول */
+    localStorage.removeItem(
+        'schoolLoggedIn'
+    );
+
+
+    const mainContent =
+        document.getElementById(
+            "mainContent"
+        );
+
+
+    const adminModal =
+        document.getElementById(
+            "adminModal"
+        );
+
+
+    const loginScreen =
+        document.getElementById(
+            "loginScreen"
+        );
+
+
+    const passInput =
+        document.getElementById(
+            "passInput"
+        );
+
+
+    const errorMsg =
+        document.getElementById(
+            "errorMsg"
+        );
+
+
+    if (mainContent) {
+
+        mainContent.style.display =
+            "none";
+
+    }
+
+
+    if (adminModal) {
+
+        adminModal.style.display =
+            "none";
+
+    }
+
+
+    if (loginScreen) {
+
+        loginScreen.style.display =
+            "flex";
+
+    }
+
+
+    if (passInput) {
+
+        passInput.value =
+            "";
+
+    }
+
+
+    if (errorMsg) {
+
+        errorMsg.style.display =
+            "none";
+
+    }
+
+}
 
 
 
@@ -1577,7 +1620,74 @@ stopPresenceMonitoring();
 </script>
 
 
+<script>
 
+/* ==================================================
+   RESTORE LOGIN AFTER REFRESH
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const loggedIn =
+            localStorage.getItem(
+                'schoolLoggedIn'
+            );
+
+
+        const loginScreen =
+            document.getElementById(
+                "loginScreen"
+            );
+
+
+        const mainContent =
+            document.getElementById(
+                "mainContent"
+            );
+
+
+        const adminModal =
+            document.getElementById(
+                "adminModal"
+            );
+
+
+        if (
+            loggedIn === 'true'
+        ) {
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    "none";
+
+            }
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    "block";
+
+            }
+
+
+            if (adminModal) {
+
+                adminModal.style.display =
+                    "none";
+
+            }
+
+        }
+
+    }
+
+);
+
+</script>
 <!-- ==================================================
      MAIN JAVASCRIPT
 ================================================== -->
