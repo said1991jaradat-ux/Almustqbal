@@ -1580,3 +1580,161 @@ select:focus {
     background: #163d63 !important;
     color: #ffffff !important;
 }
+```css id="x2r8kp"
+/* ==================================================
+   FINAL FIX - حالات الانضباط
+================================================== */
+
+/* منع أي مسافات أو عرض قديم */
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+/* الحاوية الرئيسية */
+main.container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 20px !important;
+}
+
+
+/* شبكة الحالات */
+.cases-grid {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr)) !important;
+
+    gap: 20px !important;
+
+    align-items: stretch !important;
+}
+
+
+/* البطاقات */
+.cases-grid > .card {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    flex: none !important;
+
+    overflow: hidden;
+}
+
+
+/* كل عناصر الإدخال داخل البطاقة */
+.cases-grid .form-group,
+.cases-grid .form-row {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+
+/* الصف والشعبة */
+.cases-grid .form-row {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr)) !important;
+
+    gap: 10px !important;
+}
+
+
+/* الحقول */
+.cases-grid input,
+.cases-grid select,
+.cases-grid textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+
+/* الأزرار */
+.cases-grid button {
+    width: 100%;
+    max-width: 100%;
+}
+
+
+/* ==================================================
+   شاشات الكمبيوتر
+================================================== */
+
+@media (min-width: 1251px) {
+
+    main.container {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+    .cases-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr)) !important;
+    }
+
+}
+
+
+/* ==================================================
+   شاشة متوسطة
+================================================== */
+
+@media (max-width: 1250px) {
+
+    .cases-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+    }
+
+}
+
+
+/* ==================================================
+   الهاتف
+================================================== */
+
+@media (max-width: 700px) {
+
+    main.container {
+        padding: 10px !important;
+    }
+
+    .cases-grid {
+        grid-template-columns:
+            1fr !important;
+
+        gap: 15px !important;
+    }
+
+    .cases-grid .form-row {
+        grid-template-columns:
+            1fr 1fr !important;
+    }
+
+}
+```
