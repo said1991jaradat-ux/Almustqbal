@@ -1565,7 +1565,9 @@
                         );
 
 
-                   if (loginScreen) {
+/* إخفاء شاشة تسجيل الدخول */
+
+if (loginScreen) {
 
     loginScreen.style.display =
         'none';
@@ -1573,58 +1575,30 @@
 }
 
 
-function continueStudents() {
-
-    const sectionSelection =
-        document.getElementById(
-            'sectionSelection'
-        );
-
-
-    const mainContent =
-        document.getElementById(
-            'mainContent'
-        );
-
-
-    if (sectionSelection) {
-
-        sectionSelection.style.display =
-            'none';
-
-    }
-
-
-    if (mainContent) {
-
-    mainContent.style.display =
-        "none";
-
-}
-
+/* إظهار شاشة اختيار القسم */
 
 const sectionSelection =
     document.getElementById(
-        "sectionSelection"
+        'sectionSelection'
     );
 
 
 if (sectionSelection) {
 
     sectionSelection.style.display =
-        "flex";
+        'flex';
 
 }
 
+
+/* إبقاء الصفحة الرئيسية مخفية */
+
+if (mainContent) {
+
+    mainContent.style.display =
+        'none';
+
 }
-                    function continueTeachers() {
-
-    alert(
-        'قسم متابعة المعلمين سيتم برمجته لاحقًا.'
-    );
-
-}
-
 
                     /* بدء عداد المتصلين */
 
@@ -1687,7 +1661,43 @@ if (sectionSelection) {
 
         }
 
+function continueStudents() {
 
+    const sectionSelection =
+        document.getElementById(
+            'sectionSelection'
+        );
+
+
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
+
+
+    if (sectionSelection) {
+
+        sectionSelection.style.display =
+            'none';
+
+    }
+
+
+    if (mainContent) {
+
+        mainContent.style.display =
+            'block';
+
+    }
+
+}
+        function continueTeachers() {
+
+    alert(
+        'قسم متابعة المعلمين سيتم برمجته لاحقًا.'
+    );
+
+}
 
         /* =========================================
            LOGOUT
