@@ -6,16 +6,21 @@
 const API_URL =
     'https://almustqbal.onrender.com/api/records';
 
+
 /* ==================================================
-   ONLINE PRESENCE
+   PRESENCE
 ================================================== */
 
-const AUTH_BASE_URL =
+const PRESENCE_BASE_URL =
     'https://almustqbal.onrender.com';
 
-let presenceInterval = null;
 
-let presenceStarted = false;
+let presenceInterval =
+    null;
+
+
+let presenceStarted =
+    false;
 
 
 /* معرف ثابت لهذا المتصفح */
@@ -61,15 +66,28 @@ if (!presenceClientId) {
 ================================================== */
 
 let dbData = {
+
     lateness: [],
+
     uniform: [],
+
     escape: [],
+
     absence: []
+
 };
 
-let currentAllRecords = [];
-let currentAdminReportType = 'daily';
-let currentFormattedDate = '';
+
+let currentAllRecords =
+    [];
+
+
+let currentAdminReportType =
+    'daily';
+
+
+let currentFormattedDate =
+    '';
 
 
 /* ==================================================
@@ -78,10 +96,13 @@ let currentFormattedDate = '';
 
 function getLocalDateInputValue() {
 
-    const now = new Date();
+    const now =
+        new Date();
+
 
     const year =
         now.getFullYear();
+
 
     const month =
         String(
@@ -91,6 +112,7 @@ function getLocalDateInputValue() {
             '0'
         );
 
+
     const day =
         String(
             now.getDate()
@@ -99,18 +121,27 @@ function getLocalDateInputValue() {
             '0'
         );
 
-    return `${year}-${month}-${day}`;
+
+    return (
+        year +
+        '-' +
+        month +
+        '-' +
+        day
+    );
+
 }
 
 
 /* ==================================================
    AUTOMATIC DATE + TIME
-   يتم أخذها لحظة الضغط على زر التسجيل
 ================================================== */
 
 function getAutomaticDateTime() {
 
-    const now = new Date();
+    const now =
+        new Date();
+
 
     return {
 
@@ -123,8 +154,11 @@ function getAutomaticDateTime() {
             now.toLocaleTimeString(
                 'ar-EG',
                 {
-                    hour: '2-digit',
-                    minute: '2-digit'
+                    hour:
+                        '2-digit',
+
+                    minute:
+                        '2-digit'
                 }
             ),
 
@@ -132,88 +166,13 @@ function getAutomaticDateTime() {
             now.toISOString()
 
     };
+
 }
 
 
 /* ==================================================
-   INITIALIZE
+   ONLINE USERS
 ================================================== */
-
-document.addEventListener(
-    'DOMContentLoaded',
-    function () {
-
-        const now = new Date();
-
-        currentFormattedDate =
-            now.toLocaleDateString(
-                'ar-EG',
-                {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                }
-            );
-
-
-        const currentDateElement =
-            document.getElementById(
-                'currentDate'
-            );
-
-
-        if (currentDateElement) {
-
-            currentDateElement.textContent =
-                currentFormattedDate;
-
-        }
-
-
-        /*
-         * هذا يبقى فقط للحفاظ على
-         * أي عناصر .auto-date موجودة
-         * في الصفحة.
-         */
-
-        document
-            .querySelectorAll('.auto-date')
-            .forEach(
-                function (element) {
-
-                    element.value =
-                        getLocalDateInputValue();
-
-                }
-            );
-
-
-       fetchRecordsFromCloud();
-
-setupForgotPasswordEnter();
-
-
-/* إذا كان المستخدم مسجل دخول بالفعل */
-if (
-    localStorage.getItem(
-        'schoolLoggedIn'
-    ) === 'true'
-) {
-
-    startPresenceMonitoring();
-
-}
-
-    }
-);
-
-/* ==================================================
-   ONLINE PRESENCE FUNCTIONS
-================================================== */
-
-
-/* تحديث الرقم على الشاشة */
 
 function updateOnlineUsersCount(
     count
@@ -235,8 +194,6 @@ function updateOnlineUsersCount(
 }
 
 
-/* إرسال heartbeat */
-
 async function sendPresenceHeartbeat() {
 
     if (!presenceStarted) {
@@ -250,7 +207,8 @@ async function sendPresenceHeartbeat() {
 
         const response =
             await fetch(
-                `${AUTH_BASE_URL}/api/presence/heartbeat`,
+                PRESENCE_BASE_URL +
+                '/api/presence/heartbeat',
                 {
 
                     method:
@@ -309,8 +267,6 @@ async function sendPresenceHeartbeat() {
 }
 
 
-/* بدء مراقبة المستخدم */
-
 function startPresenceMonitoring() {
 
     if (presenceStarted) {
@@ -336,8 +292,6 @@ function startPresenceMonitoring() {
 }
 
 
-/* إيقاف المراقبة */
-
 function stopPresenceMonitoring() {
 
     presenceStarted =
@@ -349,6 +303,7 @@ function stopPresenceMonitoring() {
         clearInterval(
             presenceInterval
         );
+
 
         presenceInterval =
             null;
@@ -363,8 +318,6 @@ function stopPresenceMonitoring() {
 }
 
 
-/* إزالة المستخدم من القائمة */
-
 function notifyPresenceLogout() {
 
     if (!presenceClientId) {
@@ -374,39 +327,77 @@ function notifyPresenceLogout() {
     }
 
 
+    const payload =
+        JSON.stringify({
+
+            clientId:
+                presenceClientId
+
+        });
+
+
     try {
 
-        fetch(
-            `${AUTH_BASE_URL}/api/presence/logout`,
-            {
+        if (
+            navigator.sendBeacon
+        ) {
 
-                method:
-                    'POST',
+            const blob =
+                new Blob(
 
-                headers: {
+                    [
+                        payload
+                    ],
 
-                    'Content-Type':
-                        'application/json'
+                    {
+                        type:
+                            'application/json'
+                    }
 
-                },
+                );
 
-                body:
-                    JSON.stringify({
 
-                        clientId:
-                            presenceClientId
+            navigator.sendBeacon(
 
-                    }),
+                PRESENCE_BASE_URL +
+                '/api/presence/logout',
 
-                keepalive:
-                    true
+                blob
 
-            }
-        ).catch(
-            function () {
-                /* تجاهل الخطأ أثناء إغلاق الصفحة */
-            }
-        );
+            );
+
+        } else {
+
+            fetch(
+
+                PRESENCE_BASE_URL +
+                '/api/presence/logout',
+
+                {
+
+                    method:
+                        'POST',
+
+                    headers: {
+
+                        'Content-Type':
+                            'application/json'
+
+                    },
+
+                    body:
+                        payload,
+
+                    keepalive:
+                        true
+
+                }
+
+            ).catch(
+                function () {}
+            );
+
+        }
 
     } catch (error) {
 
@@ -419,8 +410,6 @@ function notifyPresenceLogout() {
 
 }
 
-
-/* عند إغلاق الصفحة */
 
 window.addEventListener(
     'pagehide',
@@ -435,200 +424,83 @@ window.addEventListener(
     }
 );
 
+
 /* ==================================================
-   ONLINE PRESENCE FUNCTIONS
+   INITIALIZE
 ================================================== */
 
-function updateOnlineUsersCount(
-    count
-) {
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
 
-    const element =
-        document.getElementById(
-            'onlineUsersCount'
-        );
+        const now =
+            new Date();
 
 
-    if (element) {
-
-        element.textContent =
-            Number(count) || 0;
-
-    }
-
-}
-
-
-/* إرسال نبضة للسيرفر */
-
-async function sendPresenceHeartbeat() {
-
-    if (!presenceStarted) {
-        return;
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${AUTH_BASE_URL}/api/presence/heartbeat`,
+        currentFormattedDate =
+            now.toLocaleDateString(
+                'ar-EG',
                 {
-                    method: 'POST',
 
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
+                    weekday:
+                        'long',
 
-                    body:
-                        JSON.stringify({
-                            clientId:
-                                presenceClientId
-                        })
+                    year:
+                        'numeric',
+
+                    month:
+                        'long',
+
+                    day:
+                        'numeric'
+
                 }
             );
 
 
-        if (!response.ok) {
-            return;
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            data &&
-            data.success
-        ) {
-
-            updateOnlineUsersCount(
-                data.count
+        const currentDateElement =
+            document.getElementById(
+                'currentDate'
             );
 
+
+        if (currentDateElement) {
+
+            currentDateElement.textContent =
+                currentFormattedDate;
+
         }
 
-    } catch (error) {
 
-        console.error(
-            'Presence heartbeat error:',
-            error
-        );
+        document
+            .querySelectorAll(
+                '.auto-date'
+            )
+            .forEach(
+                function (element) {
 
-    }
+                    element.value =
+                        getLocalDateInputValue();
 
-}
-
-
-/* بدء مراقبة الاتصال */
-
-function startPresenceMonitoring() {
-
-    if (presenceStarted) {
-        return;
-    }
-
-
-    presenceStarted = true;
-
-
-    sendPresenceHeartbeat();
-
-
-    presenceInterval =
-        setInterval(
-            sendPresenceHeartbeat,
-            20 * 1000
-        );
-
-}
-
-
-/* إيقاف مراقبة الاتصال */
-
-function stopPresenceMonitoring() {
-
-    presenceStarted = false;
-
-
-    if (presenceInterval) {
-
-        clearInterval(
-            presenceInterval
-        );
-
-        presenceInterval = null;
-
-    }
-
-
-    updateOnlineUsersCount(0);
-
-}
-
-
-/* تسجيل الخروج من نظام المتصلين */
-
-function notifyPresenceLogout() {
-
-    if (!presenceClientId) {
-        return;
-    }
-
-
-    const payload =
-        JSON.stringify({
-            clientId:
-                presenceClientId
-        });
-
-
-    try {
-
-        if (
-            navigator.sendBeacon
-        ) {
-
-            const blob =
-                new Blob(
-                    [payload],
-                    {
-                        type:
-                            'application/json'
-                    }
-                );
-
-
-            navigator.sendBeacon(
-                `${AUTH_BASE_URL}/api/presence/logout`,
-                blob
+                }
             );
 
-        }
 
-    } catch (error) {
-
-        console.error(
-            'Presence logout error:',
-            error
-        );
-
-    }
-
-}
+        fetchRecordsFromCloud();
 
 
-/* عند إغلاق الصفحة */
+        setupForgotPasswordEnter();
 
-window.addEventListener(
-    'beforeunload',
-    function () {
 
-        if (presenceStarted) {
+        /* استعادة جلسة الدخول */
 
-            notifyPresenceLogout();
+        if (
+            localStorage.getItem(
+                'schoolLoggedIn'
+            ) === 'true'
+        ) {
+
+            startPresenceMonitoring();
 
         }
 
@@ -647,10 +519,12 @@ function forgotPassword() {
             'forgotPasswordModal'
         );
 
+
     const input =
         document.getElementById(
             'favoriteNumberInput'
         );
+
 
     const errorMsg =
         document.getElementById(
@@ -675,7 +549,9 @@ function forgotPassword() {
 
     if (input) {
 
-        input.value = '';
+        input.value =
+            '';
+
 
         setTimeout(
             function () {
@@ -694,6 +570,7 @@ function forgotPassword() {
         errorMsg.textContent =
             '';
 
+
         errorMsg.style.display =
             'none';
 
@@ -701,10 +578,6 @@ function forgotPassword() {
 
 }
 
-
-/* ==================================================
-   CLOSE FORGOT PASSWORD
-================================================== */
 
 function closeForgotPassword() {
 
@@ -724,10 +597,6 @@ function closeForgotPassword() {
 }
 
 
-/* ==================================================
-   SUBMIT FORGOT PASSWORD
-================================================== */
-
 async function submitForgotPassword() {
 
     const input =
@@ -735,10 +604,12 @@ async function submitForgotPassword() {
             'favoriteNumberInput'
         );
 
+
     const errorMsg =
         document.getElementById(
             'forgotErrorMsg'
         );
+
 
     const submitBtn =
         document.getElementById(
@@ -757,6 +628,7 @@ async function submitForgotPassword() {
         errorMsg.textContent =
             '';
 
+
         errorMsg.style.display =
             'none';
 
@@ -769,6 +641,7 @@ async function submitForgotPassword() {
 
             errorMsg.textContent =
                 'يرجى إدخال رقمك المفضل';
+
 
             errorMsg.style.display =
                 'block';
@@ -785,6 +658,7 @@ async function submitForgotPassword() {
         submitBtn.disabled =
             true;
 
+
         submitBtn.innerText =
             'جاري التحقق...';
 
@@ -795,32 +669,37 @@ async function submitForgotPassword() {
 
         const response =
             await fetch(
-                'https://almustqbal.onrender.com/api/forgot-password',
+
+                PRESENCE_BASE_URL +
+                '/api/forgot-password',
+
                 {
-                    method: 'POST',
+
+                    method:
+                        'POST',
 
                     headers: {
+
                         'Content-Type':
                             'application/json'
+
                     },
 
                     body:
                         JSON.stringify({
+
                             answer:
                                 answer
+
                         })
+
                 }
+
             );
 
 
         const data =
             await response.json();
-
-
-        console.log(
-            'Forgot password response:',
-            data
-        );
 
 
         if (
@@ -833,6 +712,7 @@ async function submitForgotPassword() {
                 errorMsg.textContent =
                     data.message ||
                     'الإجابة غير صحيحة';
+
 
                 errorMsg.style.display =
                     'block';
@@ -859,20 +739,17 @@ async function submitForgotPassword() {
 
         try {
 
-            const emailResult =
-                await emailjs.send(
-                    'service_uh9k24u',
-                    'template_r4tlcdl',
-                    {
-                        password:
-                            newPassword
-                    }
-                );
+            await emailjs.send(
 
+                'service_uh9k24u',
 
-            console.log(
-                'EMAILJS SUCCESS:',
-                emailResult
+                'template_r4tlcdl',
+
+                {
+                    password:
+                        newPassword
+                }
+
             );
 
 
@@ -893,19 +770,24 @@ async function submitForgotPassword() {
 
 
             alert(
+
                 'تم إنشاء كلمة المرور الجديدة، لكن حدث خطأ أثناء إرسال البريد.\n\n' +
+
                 'EmailJS Status: ' +
+
                 (
                     emailError.status ||
                     'غير معروف'
                 ) +
-                '\n\n' +
-                'EmailJS Text: ' +
+
+                '\n\nEmailJS Text: ' +
+
                 (
                     emailError.text ||
                     emailError.message ||
                     'غير معروف'
                 )
+
             );
 
         }
@@ -925,6 +807,7 @@ async function submitForgotPassword() {
                 error.message ||
                 'تعذر الاتصال بالسيرفر، حاول مرة أخرى.';
 
+
             errorMsg.style.display =
                 'block';
 
@@ -937,6 +820,7 @@ async function submitForgotPassword() {
             submitBtn.disabled =
                 false;
 
+
             submitBtn.innerText =
                 'متابعة';
 
@@ -946,10 +830,6 @@ async function submitForgotPassword() {
 
 }
 
-
-/* ==================================================
-   ENTER IN SECURITY INPUT
-================================================== */
 
 function setupForgotPasswordEnter() {
 
@@ -1021,7 +901,9 @@ async function fetchRecordsFromCloud() {
             await response.json();
 
 
-        if (!Array.isArray(records)) {
+        if (
+            !Array.isArray(records)
+        ) {
 
             throw new Error(
                 'Invalid records response'
@@ -1036,13 +918,17 @@ async function fetchRecordsFromCloud() {
 
         dbData = {
 
-            lateness: [],
+            lateness:
+                [],
 
-            uniform: [],
+            uniform:
+                [],
 
-            escape: [],
+            escape:
+                [],
 
-            absence: []
+            absence:
+                []
 
         };
 
@@ -1101,7 +987,6 @@ async function fetchRecordsFromCloud() {
 
                 }
 
-
                 else if (
                     record.type ===
                     'uniform'
@@ -1113,7 +998,6 @@ async function fetchRecordsFromCloud() {
 
                 }
 
-
                 else if (
                     record.type ===
                     'escape'
@@ -1124,7 +1008,6 @@ async function fetchRecordsFromCloud() {
                     );
 
                 }
-
 
                 else if (
                     record.type ===
@@ -1270,7 +1153,8 @@ function renderCategoryLogs(
                     }
 
 
-                    return dateB - dateA;
+                    return dateB -
+                        dateA;
 
                 }
             )
@@ -1287,7 +1171,10 @@ function renderCategoryLogs(
 
                     const timeText =
                         record.time
-                            ? ` - ${escapeHtml(record.time)}`
+                            ? ' - ' +
+                              escapeHtml(
+                                  record.time
+                              )
                             : '';
 
 
@@ -1401,7 +1288,9 @@ async function deleteRecord(
 
         const response =
             await fetch(
-                `${API_URL}/${id}`,
+                API_URL +
+                '/' +
+                id,
                 {
                     method:
                         'DELETE'
@@ -1566,7 +1455,9 @@ async function loadAllRecordsForAdmin() {
             await response.json();
 
 
-        if (!Array.isArray(records)) {
+        if (
+            !Array.isArray(records)
+        ) {
 
             throw new Error(
                 'Invalid response'
@@ -1637,10 +1528,6 @@ function switchReportTab(
 
 }
 
-
-/* ==================================================
-   UPDATE TABS
-================================================== */
 
 function updateAdminTabs() {
 
@@ -1725,7 +1612,6 @@ function getAdminDateRange(
 
     }
 
-
     else if (
         type ===
         'weekly'
@@ -1750,7 +1636,8 @@ function getAdminDateRange(
 
 
         start.setDate(
-            start.getDate() - day
+            start.getDate() -
+            day
         );
 
 
@@ -1765,7 +1652,6 @@ function getAdminDateRange(
         );
 
     }
-
 
     else {
 
@@ -1820,29 +1706,6 @@ function getRecordDateObject(
         ) {
 
             return created;
-
-        }
-
-    }
-
-
-    if (
-        record.date
-    ) {
-
-        const localDate =
-            new Date(
-                `${record.date}T00:00:00`
-            );
-
-
-        if (
-            !isNaN(
-                localDate.getTime()
-            )
-        ) {
-
-            return localDate;
 
         }
 
@@ -1972,8 +1835,10 @@ function getAdminPeriodLabel() {
             {
                 year:
                     'numeric',
+
                 month:
                     'long',
+
                 day:
                     'numeric'
             }
@@ -2007,21 +1872,27 @@ function getAdminPeriodLabel() {
             {
                 year:
                     'numeric',
+
                 month:
                     'long',
+
                 day:
                     'numeric'
             }
         );
 
 
-    return `${startText} — ${endText}`;
+    return (
+        startText +
+        ' — ' +
+        endText
+    );
 
 }
 
 
 /* ==================================================
-   RENDER ADMIN REPORT
+   ADMIN REPORT
 ================================================== */
 
 function renderAdminReport() {
@@ -2030,32 +1901,16 @@ function renderAdminReport() {
         getFilteredAdminRecords();
 
 
-    const titleElement =
-        document.getElementById(
-            'adminReportTitle'
-        );
+    setText(
+        'adminReportTitle',
+        getAdminReportTitle()
+    );
 
 
-    const periodElement =
-        document.getElementById(
-            'adminPeriodLabel'
-        );
-
-
-    if (titleElement) {
-
-        titleElement.textContent =
-            getAdminReportTitle();
-
-    }
-
-
-    if (periodElement) {
-
-        periodElement.textContent =
-            getAdminPeriodLabel();
-
-    }
+    setText(
+        'adminPeriodLabel',
+        getAdminPeriodLabel()
+    );
 
 
     const total =
@@ -2064,53 +1919,33 @@ function renderAdminReport() {
 
     const lateness =
         records.filter(
-            function (r) {
-
-                return (
-                    r.type ===
-                    'lateness'
-                );
-
-            }
+            r =>
+                r.type ===
+                'lateness'
         ).length;
 
 
     const uniform =
         records.filter(
-            function (r) {
-
-                return (
-                    r.type ===
-                    'uniform'
-                );
-
-            }
+            r =>
+                r.type ===
+                'uniform'
         ).length;
 
 
     const escape =
         records.filter(
-            function (r) {
-
-                return (
-                    r.type ===
-                    'escape'
-                );
-
-            }
+            r =>
+                r.type ===
+                'escape'
         ).length;
 
 
     const absence =
         records.filter(
-            function (r) {
-
-                return (
-                    r.type ===
-                    'absence'
-                );
-
-            }
+            r =>
+                r.type ===
+                'absence'
         ).length;
 
 
@@ -2151,10 +1986,6 @@ function renderAdminReport() {
 }
 
 
-/* ==================================================
-   SET TEXT
-================================================== */
-
 function setText(
     id,
     value
@@ -2177,7 +2008,7 @@ function setText(
 
 
 /* ==================================================
-   TRANSLATE TYPE
+   TRANSLATE
 ================================================== */
 
 function translateType(
@@ -2299,7 +2130,8 @@ function renderAdminTable(
                 }
 
 
-                return dateB - dateA;
+                return dateB -
+                    dateA;
 
             }
         );
@@ -2310,39 +2142,26 @@ function renderAdminTable(
             .map(
                 function (record) {
 
-                    const recordDateObject =
+                    const dateObject =
                         getRecordDateObject(
                             record
                         );
 
 
                     const recordDate =
-                        recordDateObject
-                            ? recordDateObject.toLocaleDateString(
+                        dateObject
+                            ? dateObject.toLocaleDateString(
                                 'ar-EG'
                             )
-                            : record.date ||
-                              '';
-
-
-                    const details =
-                        record.details ||
-                        '';
-
-
-                    const time =
-                        record.time ||
-                        '';
+                            : record.date || '';
 
 
                     const grade =
-                        record.grade ||
-                        '';
+                        record.grade || '';
 
 
                     const section =
-                        record.section ||
-                        '';
+                        record.section || '';
 
 
                     const gradeSection =
@@ -2362,7 +2181,6 @@ function renderAdminTable(
                                 )}
                             </td>
 
-
                             <td>
 
                                 <span class="report-type">
@@ -2377,7 +2195,6 @@ function renderAdminTable(
 
                             </td>
 
-
                             <td>
 
                                 <strong>
@@ -2391,7 +2208,6 @@ function renderAdminTable(
 
                             </td>
 
-
                             <td>
 
                                 ${escapeHtml(
@@ -2400,11 +2216,10 @@ function renderAdminTable(
 
                             </td>
 
-
                             <td>
 
                                 ${escapeHtml(
-                                    time
+                                    record.time || ''
                                 )}
 
                                 <br>
@@ -2412,13 +2227,13 @@ function renderAdminTable(
                                 <small>
 
                                     ${escapeHtml(
-                                        details
+                                        record.details ||
+                                        ''
                                     )}
 
                                 </small>
 
                             </td>
-
 
                             <td>
 
@@ -2466,7 +2281,9 @@ async function adminDeleteRecord(
 
         const response =
             await fetch(
-                `${API_URL}/${id}`,
+                API_URL +
+                '/' +
+                id,
                 {
                     method:
                         'DELETE'
@@ -2484,7 +2301,6 @@ async function adminDeleteRecord(
 
 
         await fetchRecordsFromCloud();
-
 
         await loadAllRecordsForAdmin();
 
@@ -2525,47 +2341,53 @@ function changeAdminReportDate() {
    PRINT ADMIN REPORT
 ================================================== */
 
-
 function printAdminReport() {
 
     const records =
         getFilteredAdminRecords();
 
+
     const title =
         getAdminReportTitle();
+
 
     const period =
         getAdminPeriodLabel();
 
+
     const total =
         records.length;
 
+
     const lateness =
         records.filter(
-            function (r) {
-                return r.type === 'lateness';
-            }
+            r =>
+                r.type ===
+                'lateness'
         ).length;
+
 
     const uniform =
         records.filter(
-            function (r) {
-                return r.type === 'uniform';
-            }
+            r =>
+                r.type ===
+                'uniform'
         ).length;
+
 
     const escape =
         records.filter(
-            function (r) {
-                return r.type === 'escape';
-            }
+            r =>
+                r.type ===
+                'escape'
         ).length;
+
 
     const absence =
         records.filter(
-            function (r) {
-                return r.type === 'absence';
-            }
+            r =>
+                r.type ===
+                'absence'
         ).length;
 
 
@@ -2574,61 +2396,82 @@ function printAdminReport() {
             .map(
                 function (record) {
 
-                    const recordDateObject =
-                        getRecordDateObject(record);
+                    const dateObject =
+                        getRecordDateObject(
+                            record
+                        );
+
 
                     const recordDate =
-                        recordDateObject
-                            ? recordDateObject.toLocaleDateString('ar-EG')
+                        dateObject
+                            ? dateObject.toLocaleDateString(
+                                'ar-EG'
+                            )
                             : record.date || '';
+
 
                     const grade =
                         record.grade || '';
 
+
                     const section =
                         record.section || '';
 
+
                     const gradeSection =
-                        grade || section
+                        grade ||
+                        section
                             ? `${grade} / ${section}`
                             : '--';
 
+
                     return `
+
                         <tr>
 
                             <td>
-                                ${escapeHtml(recordDate)}
-                            </td>
-
-                            <td>
                                 ${escapeHtml(
-                                    translateType(record.type)
+                                    recordDate
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    record.studentName || ''
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(gradeSection)}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    record.time || ''
+                                    translateType(
+                                        record.type
+                                    )
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    record.details || ''
+                                    record.studentName ||
+                                    ''
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    gradeSection
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.time ||
+                                    ''
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.details ||
+                                    ''
                                 )}
                             </td>
 
                         </tr>
+
                     `;
 
                 }
@@ -2651,6 +2494,7 @@ function printAdminReport() {
         );
 
         return;
+
     }
 
 
@@ -2658,7 +2502,9 @@ function printAdminReport() {
 
         <!DOCTYPE html>
 
-        <html lang="ar" dir="rtl">
+        <html
+            lang="ar"
+            dir="rtl">
 
         <head>
 
@@ -2671,92 +2517,188 @@ function printAdminReport() {
             <style>
 
                 @page {
-                    size: A4;
-                    margin: 15mm;
+
+                    size:
+                        A4;
+
+                    margin:
+                        15mm;
+
                 }
 
                 body {
-                    font-family: Arial, sans-serif;
-                    direction: rtl;
-                    padding: 20px;
-                    color: #000;
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    direction:
+                        rtl;
+
+                    padding:
+                        20px;
+
                 }
 
                 h1,
                 h2 {
-                    text-align: center;
-                    margin: 5px 0;
+
+                    text-align:
+                        center;
+
+                    margin:
+                        5px 0;
+
                 }
 
                 h1 {
-                    font-size: 24px;
+
+                    font-size:
+                        24px;
+
                 }
 
                 h2 {
-                    font-size: 20px;
+
+                    font-size:
+                        20px;
+
                 }
 
                 .manager {
-                    text-align: center;
-                    font-size: 16px;
-                    margin: 8px 0 15px;
-                    font-weight: bold;
+
+                    text-align:
+                        center;
+
+                    font-size:
+                        16px;
+
+                    font-weight:
+                        bold;
+
+                    margin:
+                        8px 0 15px;
+
                 }
 
                 .period {
-                    text-align: center;
-                    margin-bottom: 25px;
-                    color: #555;
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        25px;
+
+                    color:
+                        #555;
+
                 }
 
                 .summary {
-                    display: flex;
-                    gap: 10px;
-                    margin-bottom: 25px;
-                    flex-wrap: wrap;
+
+                    display:
+                        flex;
+
+                    gap:
+                        10px;
+
+                    margin-bottom:
+                        25px;
+
+                    flex-wrap:
+                        wrap;
+
                 }
 
                 .box {
-                    flex: 1;
-                    min-width: 130px;
-                    border: 1px solid #ddd;
-                    padding: 15px;
-                    text-align: center;
-                    border-radius: 8px;
+
+                    flex:
+                        1;
+
+                    min-width:
+                        130px;
+
+                    border:
+                        1px solid #ddd;
+
+                    padding:
+                        15px;
+
+                    text-align:
+                        center;
+
+                    border-radius:
+                        8px;
+
                 }
 
                 table {
-                    width: 100%;
-                    border-collapse: collapse;
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
                 }
 
                 th,
                 td {
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    text-align: center;
+
+                    border:
+                        1px solid #ccc;
+
+                    padding:
+                        10px;
+
+                    text-align:
+                        center;
+
                 }
 
                 th {
-                    background: #eeeeee;
+
+                    background:
+                        #eeeeee;
+
                 }
 
                 .print-signature {
-                    margin-top: 70px;
-                    padding-top: 20px;
-                    border-top: 1px solid #ccc;
 
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-end;
+                    margin-top:
+                        70px;
 
-                    font-size: 16px;
-                    font-weight: bold;
+                    padding-top:
+                        20px;
+
+                    border-top:
+                        1px solid #ccc;
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    align-items:
+                        flex-end;
+
+                    font-size:
+                        16px;
+
+                    font-weight:
+                        bold;
+
                 }
 
                 .signature-line {
-                    min-width: 240px;
-                    text-align: center;
+
+                    min-width:
+                        240px;
+
+                    text-align:
+                        center;
+
                 }
 
             </style>
@@ -2784,32 +2726,52 @@ function printAdminReport() {
             <div class="summary">
 
                 <div class="box">
-                    <strong>إجمالي الحالات</strong>
+                    <strong>
+                        إجمالي الحالات
+                    </strong>
+
                     <br>
+
                     ${total}
                 </div>
 
                 <div class="box">
-                    <strong>التأخير</strong>
+                    <strong>
+                        التأخير
+                    </strong>
+
                     <br>
+
                     ${lateness}
                 </div>
 
                 <div class="box">
-                    <strong>الزي المدرسي</strong>
+                    <strong>
+                        الزي المدرسي
+                    </strong>
+
                     <br>
+
                     ${uniform}
                 </div>
 
                 <div class="box">
-                    <strong>الهروب</strong>
+                    <strong>
+                        الهروب
+                    </strong>
+
                     <br>
+
                     ${escape}
                 </div>
 
                 <div class="box">
-                    <strong>الغياب</strong>
+                    <strong>
+                        الغياب
+                    </strong>
+
                     <br>
+
                     ${absence}
                 </div>
 
@@ -2820,12 +2782,14 @@ function printAdminReport() {
                 <thead>
 
                     <tr>
+
                         <th>التاريخ</th>
                         <th>نوع الحالة</th>
                         <th>اسم الطالب</th>
                         <th>الصف / الشعبة</th>
                         <th>وقت التسجيل</th>
                         <th>التفاصيل</th>
+
                     </tr>
 
                 </thead>
@@ -2852,19 +2816,26 @@ function printAdminReport() {
 
             <script>
 
-                window.onload = function () {
-                    window.print();
-                };
+                window.onload =
+                    function () {
+
+                        window.print();
+
+                    };
 
             <\/script>
 
         </body>
 
         </html>
+
     `);
 
+
     printWindow.document.close();
+
 }
+
 
 /* ==================================================
    OTHER REASON
@@ -2902,9 +2873,7 @@ function toggleOtherReason() {
         otherGroup.style.display =
             'block';
 
-    }
-
-    else {
+    } else {
 
         otherGroup.style.display =
             'none';
@@ -2916,7 +2885,6 @@ function toggleOtherReason() {
 
 /* ==================================================
    ADD LATENESS
-   بدون إدخال وقت أو تاريخ يدوي
 ================================================== */
 
 async function addLateness(
@@ -2967,7 +2935,8 @@ async function addLateness(
 
 
     const finalReason =
-        reason === 'other'
+        reason ===
+            'other'
             ? other
             : reason;
 
@@ -3057,7 +3026,6 @@ async function addLateness(
 
 /* ==================================================
    ADD UNIFORM
-   بدون إدخال وقت أو تاريخ يدوي
 ================================================== */
 
 async function addUniform(
@@ -3177,7 +3145,6 @@ async function addUniform(
 
 /* ==================================================
    ADD ESCAPE
-   بدون إدخال وقت أو تاريخ يدوي
 ================================================== */
 
 async function addEscape(
@@ -3419,8 +3386,10 @@ async function saveRecord(
                     'POST',
 
                 headers: {
+
                     'Content-Type':
                         'application/json'
+
                 },
 
                 body:
@@ -3450,7 +3419,7 @@ async function saveRecord(
 
         } catch (e) {
 
-            // ignore
+            /* تجاهل */
 
         }
 
@@ -3509,20 +3478,29 @@ function setAutoDate(
 
 
 /* ==================================================
-   SEARCH STUDENT
+   SEARCH STUDENT REPORT
 ================================================== */
 
 function searchStudentReport() {
 
     const input =
-        document.getElementById('searchStudent');
+        document.getElementById(
+            'searchStudent'
+        );
+
 
     if (!input) {
+
         return;
+
     }
 
+
     const search =
-        input.value.trim().toLowerCase();
+        input.value
+            .trim()
+            .toLowerCase();
+
 
     if (!search) {
 
@@ -3531,14 +3509,18 @@ function searchStudentReport() {
         );
 
         return;
+
     }
+
 
     const found =
         currentAllRecords.filter(
             function (record) {
 
                 const name =
-                    record.studentName || '';
+                    record.studentName ||
+                    '';
+
 
                 return name
                     .toLowerCase()
@@ -3555,6 +3537,7 @@ function searchStudentReport() {
         );
 
         return;
+
     }
 
 
@@ -3564,34 +3547,45 @@ function searchStudentReport() {
                 function (record) {
 
                     const grade =
-                        record.grade || '';
+                        record.grade ||
+                        '';
+
 
                     const section =
-                        record.section || '';
+                        record.section ||
+                        '';
+
 
                     const gradeSection =
-                        grade || section
+                        grade ||
+                        section
                             ? `${grade} / ${section}`
                             : '--';
 
+
                     return `
+
                         <tr>
 
                             <td>
                                 ${escapeHtml(
-                                    record.date || ''
+                                    record.date ||
+                                    ''
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    translateType(record.type)
+                                    translateType(
+                                        record.type
+                                    )
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    record.studentName || ''
+                                    record.studentName ||
+                                    ''
                                 )}
                             </td>
 
@@ -3603,17 +3597,20 @@ function searchStudentReport() {
 
                             <td>
                                 ${escapeHtml(
-                                    record.time || ''
+                                    record.time ||
+                                    ''
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    record.details || ''
+                                    record.details ||
+                                    ''
                                 )}
                             </td>
 
                         </tr>
+
                     `;
 
                 }
@@ -3636,6 +3633,7 @@ function searchStudentReport() {
         );
 
         return;
+
     }
 
 
@@ -3661,71 +3659,146 @@ function searchStudentReport() {
                 }
 
                 body {
-                    font-family: Arial, sans-serif;
-                    direction: rtl;
-                    padding: 20px;
-                    color: #000;
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    direction:
+                        rtl;
+
+                    padding:
+                        20px;
+
+                    color:
+                        #000;
+
                 }
 
                 h1,
                 h2 {
-                    text-align: center;
+
+                    text-align:
+                        center;
+
+                    margin:
+                        5px 0;
+
                 }
 
                 h1 {
-                    font-size: 24px;
+
+                    font-size:
+                        24px;
+
                 }
 
                 h2 {
-                    font-size: 20px;
+
+                    font-size:
+                        20px;
+
                 }
 
                 .manager {
-                    text-align: center;
-                    font-size: 16px;
-                    font-weight: bold;
-                    margin-bottom: 20px;
+
+                    text-align:
+                        center;
+
+                    font-size:
+                        16px;
+
+                    font-weight:
+                        bold;
+
+                    margin-bottom:
+                        20px;
+
                 }
 
                 .student-name {
-                    text-align: center;
-                    margin-bottom: 20px;
-                    font-size: 17px;
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        20px;
+
+                    font-size:
+                        17px;
+
                 }
 
                 table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 25px;
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-top:
+                        25px;
+
                 }
 
                 th,
                 td {
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    text-align: center;
+
+                    border:
+                        1px solid #ccc;
+
+                    padding:
+                        10px;
+
+                    text-align:
+                        center;
+
                 }
 
                 th {
-                    background: #eee;
+
+                    background:
+                        #eee;
+
                 }
 
                 .print-signature {
-                    margin-top: 70px;
-                    padding-top: 20px;
-                    border-top: 1px solid #ccc;
 
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-end;
+                    margin-top:
+                        70px;
 
-                    font-size: 16px;
-                    font-weight: bold;
+                    padding-top:
+                        20px;
+
+                    border-top:
+                        1px solid #ccc;
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    align-items:
+                        flex-end;
+
+                    font-size:
+                        16px;
+
+                    font-weight:
+                        bold;
+
                 }
 
                 .signature-line {
-                    min-width: 240px;
-                    text-align: center;
+
+                    min-width:
+                        240px;
+
+                    text-align:
+                        center;
+
                 }
 
             </style>
@@ -3749,10 +3822,14 @@ function searchStudentReport() {
             <div class="student-name">
 
                 اسم الطالب:
+
                 <strong>
+
                     ${escapeHtml(
-                        found[0].studentName || ''
+                        found[0].studentName ||
+                        ''
                     )}
+
                 </strong>
 
             </div>
@@ -3806,7 +3883,9 @@ function searchStudentReport() {
 
     setTimeout(
         function () {
+
             win.print();
+
         },
         300
     );
@@ -3818,10 +3897,13 @@ function searchStudentReport() {
    CATEGORY REPORT
 ================================================== */
 
-function printCategoryReport(category) {
+function printCategoryReport(
+    category
+) {
 
     const records =
-        dbData[category] || [];
+        dbData[category] ||
+        [];
 
 
     if (!records.length) {
@@ -3831,11 +3913,14 @@ function printCategoryReport(category) {
         );
 
         return;
+
     }
 
 
     const title =
-        translateType(category);
+        translateType(
+            category
+        );
 
 
     const rows =
@@ -3844,28 +3929,37 @@ function printCategoryReport(category) {
                 function (record) {
 
                     const grade =
-                        record.grade || '';
+                        record.grade ||
+                        '';
+
 
                     const section =
-                        record.section || '';
+                        record.section ||
+                        '';
+
 
                     const gradeSection =
-                        grade || section
+                        grade ||
+                        section
                             ? `${grade} / ${section}`
                             : '--';
 
+
                     return `
+
                         <tr>
 
                             <td>
                                 ${escapeHtml(
-                                    record.date || ''
+                                    record.date ||
+                                    ''
                                 )}
                             </td>
 
                             <td>
                                 ${escapeHtml(
-                                    record.student || ''
+                                    record.student ||
+                                    ''
                                 )}
                             </td>
 
@@ -3877,7 +3971,8 @@ function printCategoryReport(category) {
 
                             <td>
                                 ${escapeHtml(
-                                    record.time || ''
+                                    record.time ||
+                                    ''
                                 )}
                             </td>
 
@@ -3890,6 +3985,7 @@ function printCategoryReport(category) {
                             </td>
 
                         </tr>
+
                     `;
 
                 }
@@ -3912,6 +4008,7 @@ function printCategoryReport(category) {
         );
 
         return;
+
     }
 
 
@@ -3937,66 +4034,136 @@ function printCategoryReport(category) {
                 }
 
                 body {
-                    font-family: Arial, sans-serif;
-                    direction: rtl;
-                    padding: 20px;
-                    color: #000;
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    direction:
+                        rtl;
+
+                    padding:
+                        20px;
+
+                    color:
+                        #000;
+
                 }
 
                 h1,
                 h2 {
-                    text-align: center;
+
+                    text-align:
+                        center;
+
+                    margin:
+                        5px 0;
+
                 }
 
                 h1 {
-                    font-size: 24px;
+
+                    font-size:
+                        24px;
+
                 }
 
                 h2 {
-                    font-size: 20px;
-                    margin-bottom: 8px;
+
+                    font-size:
+                        20px;
+
+                    margin-bottom:
+                        8px;
+
                 }
 
                 .manager {
-                    text-align: center;
-                    font-size: 16px;
-                    font-weight: bold;
-                    margin-bottom: 20px;
+
+                    text-align:
+                        center;
+
+                    font-size:
+                        16px;
+
+                    font-weight:
+                        bold;
+
+                    margin-bottom:
+                        20px;
+
                 }
 
                 table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 25px;
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-top:
+                        25px;
+
                 }
 
                 th,
                 td {
-                    border: 1px solid #ccc;
-                    padding: 10px;
-                    text-align: center;
+
+                    border:
+                        1px solid #ccc;
+
+                    padding:
+                        10px;
+
+                    text-align:
+                        center;
+
                 }
 
                 th {
-                    background: #eee;
+
+                    background:
+                        #eee;
+
                 }
 
                 .print-signature {
-                    margin-top: 70px;
-                    padding-top: 20px;
-                    border-top: 1px solid #ccc;
 
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-end;
+                    margin-top:
+                        70px;
 
-                    font-size: 16px;
-                    font-weight: bold;
+                    padding-top:
+                        20px;
+
+                    border-top:
+                        1px solid #ccc;
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    align-items:
+                        flex-end;
+
+                    font-size:
+                        16px;
+
+                    font-weight:
+                        bold;
+
                 }
 
                 .signature-line {
-                    min-width: 240px;
-                    text-align: center;
+
+                    min-width:
+                        240px;
+
+                    text-align:
+                        center;
+
                 }
 
             </style>
@@ -4055,9 +4222,12 @@ function printCategoryReport(category) {
 
             <script>
 
-                window.onload = function () {
-                    window.print();
-                };
+                window.onload =
+                    function () {
+
+                        window.print();
+
+                    };
 
             <\/script>
 
@@ -4073,14 +4243,14 @@ function printCategoryReport(category) {
 
     setTimeout(
         function () {
+
             win.print();
+
         },
         300
     );
 
 }
-
-
 
 
 /* ==================================================
@@ -4276,7 +4446,9 @@ async function importData(
 
         const confirmed =
             confirm(
+
                 `سيتم استيراد ${records.length} سجل إلى قاعدة البيانات.\n\nهل تريد المتابعة؟`
+
             );
 
 
@@ -4371,17 +4543,18 @@ async function importData(
 
 
         alert(
+
             'حدث خطأ أثناء استرجاع النسخة الاحتياطية.\n\n' +
+
             (
                 error.message ||
                 'الملف غير صالح'
             )
+
         );
 
-    }
 
-
-    finally {
+    } finally {
 
         if (
             event &&
@@ -4396,3 +4569,4 @@ async function importData(
     }
 
 }
+
