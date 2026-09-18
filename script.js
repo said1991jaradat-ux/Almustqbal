@@ -315,11 +315,11 @@ function stopPresenceMonitoring() {
 }
 
 
-function notifyPresenceLogout() {
+async function notifyPresenceLogout() {
 
     if (!presenceClientId) {
 
-        return;
+        return false;
 
     }
 
@@ -335,40 +335,10 @@ function notifyPresenceLogout() {
 
     try {
 
-        if (
-            navigator.sendBeacon
-        ) {
+        const response =
+            await fetch(
 
-            const blob =
-                new Blob(
-
-                    [
-                        payload
-                    ],
-
-                    {
-                        type:
-                            'application/json'
-                    }
-
-                );
-
-
-            navigator.sendBeacon(
-
-                PRESENCE_BASE_URL +
-                '/api/presence/logout',
-
-                blob
-
-            );
-
-        } else {
-
-            fetch(
-
-                PRESENCE_BASE_URL +
-                '/api/presence/logout',
+                `${API_BASE_URL}/api/presence/logout`,
 
                 {
 
@@ -390,11 +360,38 @@ function notifyPresenceLogout() {
 
                 }
 
-            ).catch(
-                function () {}
             );
 
+
+        if (!response.ok) {
+
+            console.error(
+                'Presence logout failed:',
+                response.status
+            );
+
+            return false;
+
         }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            data &&
+            data.success
+        ) {
+
+            updateOnlineUsersCount(
+                data.count
+            );
+
+            return true;
+
+        }
+
 
     } catch (error) {
 
@@ -404,6 +401,9 @@ function notifyPresenceLogout() {
         );
 
     }
+
+
+    return false;
 
 }
 
