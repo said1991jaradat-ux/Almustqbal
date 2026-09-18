@@ -92,82 +92,8 @@
             cursor: wait;
         }
 
-```css
-/* =========================================
-   بطاقات حالات الانضباط
-   4 بطاقات في صف واحد
-   وتناسب عرض الشاشة بالكامل
-========================================= */
 
-.container {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding-left: 20px;
-    padding-right: 20px;
-}
 
-.cases-grid {
-    width: 100%;
-    max-width: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
-    box-sizing: border-box;
-    align-items: stretch;
-}
-
-.cases-grid .card {
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-    box-sizing: border-box;
-    margin: 0;
-}
-
-/* منع الحقول من تجاوز البطاقة */
-
-.cases-grid input,
-.cases-grid select,
-.cases-grid button {
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-/* جعل صف الصف + الشعبة مناسبًا للعرض */
-
-.cases-grid .form-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-}
-
-/* شاشة متوسطة */
-
-@media (max-width: 1250px) {
-
-    .cases-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
-
-/* شاشة الهاتف */
-
-@media (max-width: 700px) {
-
-    .container {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
-    .cases-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-}
-```
 
 
 <!-- ==================================================
