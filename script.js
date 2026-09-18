@@ -6,7 +6,6 @@
 const API_URL =
     'https://almustqbal.onrender.com/api/records';
 
-
 /* ==================================================
    ONLINE PRESENCE
 ================================================== */
@@ -19,7 +18,7 @@ let presenceInterval = null;
 let presenceStarted = false;
 
 
-/* معرف ثابت لهذا الجهاز/المتصفح */
+/* معرف ثابت لهذا المتصفح */
 
 let presenceClientId =
     localStorage.getItem(
@@ -29,15 +28,25 @@ let presenceClientId =
 
 if (!presenceClientId) {
 
-    presenceClientId =
-        (
-            crypto.randomUUID
-            ? crypto.randomUUID()
-            : (
-                Date.now().toString(36) +
-                Math.random().toString(36).substring(2)
-            )
-        );
+    if (
+        typeof crypto !== 'undefined' &&
+        typeof crypto.randomUUID === 'function'
+    ) {
+
+        presenceClientId =
+            crypto.randomUUID();
+
+    } else {
+
+        presenceClientId =
+            Date.now().toString(36) +
+            '-' +
+            Math.random()
+                .toString(36)
+                .substring(2);
+
+    }
+
 
     localStorage.setItem(
         'schoolPresenceClientId',
@@ -180,13 +189,251 @@ document.addEventListener(
             );
 
 
-        fetchRecordsFromCloud();
+       fetchRecordsFromCloud();
 
-        setupForgotPasswordEnter();
+setupForgotPasswordEnter();
+
+
+/* إذا كان المستخدم مسجل دخول بالفعل */
+if (
+    localStorage.getItem(
+        'schoolLoggedIn'
+    ) === 'true'
+) {
+
+    startPresenceMonitoring();
+
+}
 
     }
 );
 
+/* ==================================================
+   ONLINE PRESENCE FUNCTIONS
+================================================== */
+
+
+/* تحديث الرقم على الشاشة */
+
+function updateOnlineUsersCount(
+    count
+) {
+
+    const element =
+        document.getElementById(
+            'onlineUsersCount'
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            Number(count) || 0;
+
+    }
+
+}
+
+
+/* إرسال heartbeat */
+
+async function sendPresenceHeartbeat() {
+
+    if (!presenceStarted) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${AUTH_BASE_URL}/api/presence/heartbeat`,
+                {
+
+                    method:
+                        'POST',
+
+                    headers: {
+
+                        'Content-Type':
+                            'application/json'
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            clientId:
+                                presenceClientId
+
+                        })
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            data &&
+            data.success
+        ) {
+
+            updateOnlineUsersCount(
+                data.count
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Presence heartbeat error:',
+            error
+        );
+
+    }
+
+}
+
+
+/* بدء مراقبة المستخدم */
+
+function startPresenceMonitoring() {
+
+    if (presenceStarted) {
+
+        return;
+
+    }
+
+
+    presenceStarted =
+        true;
+
+
+    sendPresenceHeartbeat();
+
+
+    presenceInterval =
+        setInterval(
+            sendPresenceHeartbeat,
+            20000
+        );
+
+}
+
+
+/* إيقاف المراقبة */
+
+function stopPresenceMonitoring() {
+
+    presenceStarted =
+        false;
+
+
+    if (presenceInterval) {
+
+        clearInterval(
+            presenceInterval
+        );
+
+        presenceInterval =
+            null;
+
+    }
+
+
+    updateOnlineUsersCount(
+        0
+    );
+
+}
+
+
+/* إزالة المستخدم من القائمة */
+
+function notifyPresenceLogout() {
+
+    if (!presenceClientId) {
+
+        return;
+
+    }
+
+
+    try {
+
+        fetch(
+            `${AUTH_BASE_URL}/api/presence/logout`,
+            {
+
+                method:
+                    'POST',
+
+                headers: {
+
+                    'Content-Type':
+                        'application/json'
+
+                },
+
+                body:
+                    JSON.stringify({
+
+                        clientId:
+                            presenceClientId
+
+                    }),
+
+                keepalive:
+                    true
+
+            }
+        ).catch(
+            function () {
+                /* تجاهل الخطأ أثناء إغلاق الصفحة */
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Presence logout error:',
+            error
+        );
+
+    }
+
+}
+
+
+/* عند إغلاق الصفحة */
+
+window.addEventListener(
+    'pagehide',
+    function () {
+
+        if (presenceStarted) {
+
+            notifyPresenceLogout();
+
+        }
+
+    }
+);
 
 /* ==================================================
    ONLINE PRESENCE FUNCTIONS
