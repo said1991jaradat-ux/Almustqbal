@@ -189,6 +189,207 @@ document.addEventListener(
 
 
 /* ==================================================
+   ONLINE PRESENCE FUNCTIONS
+================================================== */
+
+function updateOnlineUsersCount(
+    count
+) {
+
+    const element =
+        document.getElementById(
+            'onlineUsersCount'
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            Number(count) || 0;
+
+    }
+
+}
+
+
+/* إرسال نبضة للسيرفر */
+
+async function sendPresenceHeartbeat() {
+
+    if (!presenceStarted) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${AUTH_BASE_URL}/api/presence/heartbeat`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body:
+                        JSON.stringify({
+                            clientId:
+                                presenceClientId
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            data &&
+            data.success
+        ) {
+
+            updateOnlineUsersCount(
+                data.count
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Presence heartbeat error:',
+            error
+        );
+
+    }
+
+}
+
+
+/* بدء مراقبة الاتصال */
+
+function startPresenceMonitoring() {
+
+    if (presenceStarted) {
+        return;
+    }
+
+
+    presenceStarted = true;
+
+
+    sendPresenceHeartbeat();
+
+
+    presenceInterval =
+        setInterval(
+            sendPresenceHeartbeat,
+            20 * 1000
+        );
+
+}
+
+
+/* إيقاف مراقبة الاتصال */
+
+function stopPresenceMonitoring() {
+
+    presenceStarted = false;
+
+
+    if (presenceInterval) {
+
+        clearInterval(
+            presenceInterval
+        );
+
+        presenceInterval = null;
+
+    }
+
+
+    updateOnlineUsersCount(0);
+
+}
+
+
+/* تسجيل الخروج من نظام المتصلين */
+
+function notifyPresenceLogout() {
+
+    if (!presenceClientId) {
+        return;
+    }
+
+
+    const payload =
+        JSON.stringify({
+            clientId:
+                presenceClientId
+        });
+
+
+    try {
+
+        if (
+            navigator.sendBeacon
+        ) {
+
+            const blob =
+                new Blob(
+                    [payload],
+                    {
+                        type:
+                            'application/json'
+                    }
+                );
+
+
+            navigator.sendBeacon(
+                `${AUTH_BASE_URL}/api/presence/logout`,
+                blob
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Presence logout error:',
+            error
+        );
+
+    }
+
+}
+
+
+/* عند إغلاق الصفحة */
+
+window.addEventListener(
+    'beforeunload',
+    function () {
+
+        if (presenceStarted) {
+
+            notifyPresenceLogout();
+
+        }
+
+    }
+);
+
+
+/* ==================================================
    FORGOT PASSWORD
 ================================================== */
 
