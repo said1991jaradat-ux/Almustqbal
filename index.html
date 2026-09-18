@@ -1535,110 +1535,32 @@
            LOGOUT
         ========================================= */
 
-        function logout() {
+      function logout() {
 
-            /* إخراج المستخدم من قائمة المتصلين */
+    if (
+        typeof notifyPresenceLogout ===
+        'function'
+    ) {
 
-            if (
-                typeof notifyPresenceLogout ===
-                'function'
-            ) {
+        notifyPresenceLogout();
 
-                notifyPresenceLogout();
+    }
 
-            }
+    if (
+        typeof stopPresenceMonitoring ===
+        'function'
+    ) {
 
+        stopPresenceMonitoring();
 
-            if (
-                typeof stopPresenceMonitoring ===
-                'function'
-            ) {
+    }
 
-                stopPresenceMonitoring();
+    localStorage.removeItem(
+        'schoolLoggedIn'
+    );
 
-            }
-
-
-            /* إلغاء حالة الدخول */
-
-            localStorage.removeItem(
-                'schoolLoggedIn'
-            );
-
-
-            const mainContent =
-                document.getElementById(
-                    "mainContent"
-                );
-
-
-            const adminModal =
-                document.getElementById(
-                    "adminModal"
-                );
-
-
-            const loginScreen =
-                document.getElementById(
-                    "loginScreen"
-                );
-
-
-            const passInput =
-                document.getElementById(
-                    "passInput"
-                );
-
-
-            const errorMsg =
-                document.getElementById(
-                    "errorMsg"
-                );
-
-
-            if (mainContent) {
-
-                mainContent.style.display =
-                    "none";
-
-            }
-
-
-            if (adminModal) {
-
-                adminModal.style.display =
-                    "none";
-
-            }
-
-
-            if (loginScreen) {
-
-                loginScreen.style.display =
-                    "flex";
-
-            }
-
-
-            if (passInput) {
-
-                passInput.value =
-                    "";
-
-            }
-
-
-            if (errorMsg) {
-
-                errorMsg.style.display =
-                    "none";
-
-            }
-
-        }
-
-
-
+    ...
+}
         /* =========================================
            ENTER لتسجيل الدخول
         ========================================= */
