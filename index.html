@@ -1312,237 +1312,17 @@
 </div>
 
 
+async function checkPassword() {
 
-<!-- ==================================================
-     AUTH / LOGIN
-================================================== -->
-
-<script>
-
-
-    const AUTH_BASE_URL =
-        'https://almustqbal.onrender.com';
-
-
-
-    async function checkPassword() {
-
-        const inputElement =
-            document.getElementById(
-                "passInput"
-            );
-
-
-        const loginBtn =
-            document.querySelector(
-                '.login-box button'
-            );
-
-
-        const errorMsg =
-            document.getElementById(
-                "errorMsg"
-            );
-
-
-        if (
-            !inputElement ||
-            !loginBtn
-        ) {
-
-            return;
-
-        }
-
-
-        const userInput =
-            inputElement.value;
-
-
-        const originalBtnText =
-            loginBtn.innerText;
-
-
-        loginBtn.disabled =
-            true;
-
-
-        loginBtn.innerText =
-            "جاري التحقق...";
-
-
-        if (errorMsg) {
-
-            errorMsg.style.display =
-                "none";
-
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${AUTH_BASE_URL}/api/login`,
-                    {
-
-                        method:
-                            'POST',
-
-                        headers: {
-
-                            'Content-Type':
-                                'application/json'
-
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                password:
-                                    userInput
-
-                            })
-
-                    }
-                );
-
-
-            const result =
-                await response.json();
-
-
-           if (
-    response.ok &&
-    result.success
-) {
-
-    /* حفظ حالة تسجيل الدخول */
-    localStorage.setItem(
-        'schoolLoggedIn',
-        'true'
-    );
-
-
-    document
-        .getElementById(
-            "loginScreen"
-        )
-        .style.display =
-            "none";
-
-
-    document
-        .getElementById(
-            "mainContent"
-        )
-        .style.display =
-            "block";
-
-
-    /* بدء عداد المتصلين */
-    if (
-        typeof startPresenceMonitoring ===
-        'function'
-    ) {
-
-        startPresenceMonitoring();
-
-    }
-
-
-            } else {
-
-
-                if (errorMsg) {
-
-                    errorMsg.style.display =
-                        "block";
-
-                }
-
-            }
-
-
-        } catch (err) {
-
-            console.error(
-                err
-            );
-
-
-            alert(
-                "تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا."
-            );
-
-        }
-
-
-        finally {
-
-            loginBtn.disabled =
-                false;
-
-
-            loginBtn.innerText =
-                originalBtnText;
-
-        }
-
-    }
-
-
-
-function logout() {
-
-    /* إخراج المستخدم من قائمة المتصلين */
-    if (
-        typeof notifyPresenceLogout ===
-        'function'
-    ) {
-
-        notifyPresenceLogout();
-
-    }
-
-
-    if (
-        typeof stopPresenceMonitoring ===
-        'function'
-    ) {
-
-        stopPresenceMonitoring();
-
-    }
-
-
-    /* إلغاء حالة الدخول */
-    localStorage.removeItem(
-        'schoolLoggedIn'
-    );
-
-
-    const mainContent =
-        document.getElementById(
-            "mainContent"
-        );
-
-
-    const adminModal =
-        document.getElementById(
-            "adminModal"
-        );
-
-
-    const loginScreen =
-        document.getElementById(
-            "loginScreen"
-        );
-
-
-    const passInput =
+    const inputElement =
         document.getElementById(
             "passInput"
+        );
+
+
+    const loginBtn =
+        document.querySelector(
+            '.login-box button'
         );
 
 
@@ -1552,36 +1332,30 @@ function logout() {
         );
 
 
-    if (mainContent) {
+    if (
+        !inputElement ||
+        !loginBtn
+    ) {
 
-        mainContent.style.display =
-            "none";
-
-    }
-
-
-    if (adminModal) {
-
-        adminModal.style.display =
-            "none";
+        return;
 
     }
 
 
-    if (loginScreen) {
-
-        loginScreen.style.display =
-            "flex";
-
-    }
+    const userInput =
+        inputElement.value;
 
 
-    if (passInput) {
+    const originalBtnText =
+        loginBtn.innerText;
 
-        passInput.value =
-            "";
 
-    }
+    loginBtn.disabled =
+        true;
+
+
+    loginBtn.innerText =
+        "جاري التحقق...";
 
 
     if (errorMsg) {
@@ -1591,36 +1365,145 @@ function logout() {
 
     }
 
-}
 
+    try {
 
+        const response =
+            await fetch(
+                `${AUTH_BASE_URL}/api/login`,
+                {
 
-    /* Enter لتسجيل الدخول */
+                    method:
+                        'POST',
 
-    document
-        .getElementById(
-            "passInput"
-        )
-        .addEventListener(
-            "keydown",
-            function (event) {
+                    headers: {
 
-                if (
-                    event.key ===
-                    "Enter"
-                ) {
+                        'Content-Type':
+                            'application/json'
 
-                    checkPassword();
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            password:
+                                userInput
+
+                        })
 
                 }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            response.ok &&
+            result.success
+        ) {
+
+            /* حفظ حالة تسجيل الدخول */
+
+            localStorage.setItem(
+                'schoolLoggedIn',
+                'true'
+            );
+
+
+            /* إخفاء شاشة تسجيل الدخول */
+
+            const loginScreen =
+                document.getElementById(
+                    "loginScreen"
+                );
+
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    "none";
 
             }
+
+
+            /* إظهار النظام */
+
+            const mainContent =
+                document.getElementById(
+                    "mainContent"
+                );
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    "block";
+
+            }
+
+
+            /* بدء عداد المتصلين */
+
+            if (
+                typeof startPresenceMonitoring ===
+                'function'
+            ) {
+
+                startPresenceMonitoring();
+
+            }
+
+
+        } else {
+
+            if (errorMsg) {
+
+                errorMsg.textContent =
+                    result.message ||
+                    "كلمة المرور غير صحيحة";
+
+
+                errorMsg.style.display =
+                    "block";
+
+            }
+
+        }
+
+
+    } catch (err) {
+
+        console.error(
+            "LOGIN ERROR:",
+            err
         );
 
-</script>
+
+        if (errorMsg) {
+
+            errorMsg.textContent =
+                "تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.";
 
 
-<script>
+            errorMsg.style.display =
+                "block";
+
+        }
+
+    } finally {
+
+        loginBtn.disabled =
+            false;
+
+
+        loginBtn.innerText =
+            originalBtnText;
+
+    }
+
+}
 
 /* ==================================================
    RESTORE LOGIN AFTER REFRESH
