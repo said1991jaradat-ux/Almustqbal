@@ -1764,118 +1764,115 @@
 
 
 
-    <!-- ==================================================
-         FORGOT PASSWORD MODAL
-    ================================================== -->
-
-    <div
-        id="forgotPasswordModal"
-        style="
-            display:none;
-            position:fixed;
-            inset:0;
-            background:rgba(0,0,0,0.55);
-            z-index:10000;
-            justify-content:center;
-            align-items:center;
-        ">
-
-
-        <div
-            style="
-                background:white;
-                width:90%;
-                max-width:400px;
-                padding:30px;
-                border-radius:12px;
-                box-shadow:0 10px 35px rgba(0,0,0,0.2);
-                text-align:center;
-            ">
-
-
-            <h2>
-                استعادة كلمة المرور
-            </h2>
-
-
-            <p>
-                ما هو رقمك المفضل؟
-            </p>
-
-
-            <input
-                type="number"
-                id="favoriteNumberInput"
-                placeholder="أدخل رقمك المفضل"
-                autocomplete="off"
-                style="
-                    width:100%;
-                    box-sizing:border-box;
-                    padding:12px;
-                    margin:10px 0;
-                    font-size:16px;
-                    text-align:center;
-                    border:1px solid #ddd;
-                    border-radius:6px;
-                ">
-
-
-            <button
-                type="button"
-                id="forgotSubmitBtn"
-                onclick="submitForgotPassword()"
-                style="
-                    width:100%;
-                    padding:12px;
-                    margin-top:8px;
-                    background:#007bff;
-                    color:white;
-                    border:none;
-                    border-radius:6px;
-                    font-size:16px;
-                    cursor:pointer;
-                ">
-
-                متابعة
-
-            </button>
-
-
-            <button
-                type="button"
-                onclick="closeForgotPassword()"
-                style="
-                    width:100%;
-                    padding:10px;
-                    margin-top:8px;
-                    background:#6c757d;
-                    color:white;
-                    border:none;
-                    border-radius:6px;
-                    cursor:pointer;
-                ">
-
-                إلغاء
-
-            </button>
-
-
-            <p
-                id="forgotErrorMsg"
-                style="
-                    color:red;
-                    display:none;
-                    margin-top:12px;
-                ">
-
-            </p>
-
-        </div>
-
-    </div>
+    
 
 
 </div>
+
+<!-- ==================================================
+     FORGOT PASSWORD MODAL
+================================================== -->
+
+<div
+    id="forgotPasswordModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.55);
+        z-index:10000;
+        justify-content:center;
+        align-items:center;
+    ">
+
+    <div
+        style="
+            background:white;
+            width:90%;
+            max-width:400px;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 10px 35px rgba(0,0,0,0.2);
+            text-align:center;
+        ">
+
+        <h2>
+            استعادة كلمة المرور
+        </h2>
+
+        <p>
+            ما هو رقمك المفضل؟
+        </p>
+
+        <input
+            type="number"
+            id="favoriteNumberInput"
+            placeholder="أدخل رقمك المفضل"
+            autocomplete="off"
+            style="
+                width:100%;
+                box-sizing:border-box;
+                padding:12px;
+                margin:10px 0;
+                font-size:16px;
+                text-align:center;
+                border:1px solid #ddd;
+                border-radius:6px;
+            ">
+
+        <button
+            type="button"
+            id="forgotSubmitBtn"
+            onclick="submitForgotPassword()"
+            style="
+                width:100%;
+                padding:12px;
+                margin-top:8px;
+                background:#007bff;
+                color:white;
+                border:none;
+                border-radius:6px;
+                font-size:16px;
+                cursor:pointer;
+            ">
+
+            متابعة
+
+        </button>
+
+        <button
+            type="button"
+            onclick="closeForgotPassword()"
+            style="
+                width:100%;
+                padding:10px;
+                margin-top:8px;
+                background:#6c757d;
+                color:white;
+                border:none;
+                border-radius:6px;
+                cursor:pointer;
+            ">
+
+            إلغاء
+
+        </button>
+
+        <p
+            id="forgotErrorMsg"
+            style="
+                color:red;
+                display:none;
+                margin-top:12px;
+            ">
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>
 
 
 </body>
