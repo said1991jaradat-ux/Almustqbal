@@ -1930,9 +1930,9 @@ select:focus {
 
     background-position: center center;
 
-    background-size: 230px auto;
+    background-size: 260px auto;
 
-    opacity: 0.30;
+    opacity: 0.70;
 
     z-index: 0;
 
