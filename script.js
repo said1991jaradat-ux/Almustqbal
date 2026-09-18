@@ -2037,72 +2037,46 @@ function changeAdminReportDate() {
    PRINT ADMIN REPORT
 ================================================== */
 
+
 function printAdminReport() {
 
     const records =
         getFilteredAdminRecords();
 
-
     const title =
         getAdminReportTitle();
-
 
     const period =
         getAdminPeriodLabel();
 
-
     const total =
         records.length;
-
 
     const lateness =
         records.filter(
             function (r) {
-
-                return (
-                    r.type ===
-                    'lateness'
-                );
-
+                return r.type === 'lateness';
             }
         ).length;
-
 
     const uniform =
         records.filter(
             function (r) {
-
-                return (
-                    r.type ===
-                    'uniform'
-                );
-
+                return r.type === 'uniform';
             }
         ).length;
-
 
     const escape =
         records.filter(
             function (r) {
-
-                return (
-                    r.type ===
-                    'escape'
-                );
-
+                return r.type === 'escape';
             }
         ).length;
-
 
     const absence =
         records.filter(
             function (r) {
-
-                return (
-                    r.type ===
-                    'absence'
-                );
-
+                return r.type === 'absence';
             }
         ).length;
 
@@ -2113,89 +2087,60 @@ function printAdminReport() {
                 function (record) {
 
                     const recordDateObject =
-                        getRecordDateObject(
-                            record
-                        );
-
+                        getRecordDateObject(record);
 
                     const recordDate =
                         recordDateObject
-                            ? recordDateObject.toLocaleDateString(
-                                'ar-EG'
-                            )
-                            : record.date ||
-                              '';
-
+                            ? recordDateObject.toLocaleDateString('ar-EG')
+                            : record.date || '';
 
                     const grade =
-                        record.grade ||
-                        '';
-
+                        record.grade || '';
 
                     const section =
-                        record.section ||
-                        '';
-
+                        record.section || '';
 
                     const gradeSection =
-                        grade ||
-                        section
+                        grade || section
                             ? `${grade} / ${section}`
                             : '--';
 
-
                     return `
-
                         <tr>
 
                             <td>
-                                ${escapeHtml(
-                                    recordDate
-                                )}
+                                ${escapeHtml(recordDate)}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
-                                    translateType(
-                                        record.type
-                                    )
+                                    translateType(record.type)
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
-                                    record.studentName ||
-                                    ''
+                                    record.studentName || ''
                                 )}
                             </td>
 
+                            <td>
+                                ${escapeHtml(gradeSection)}
+                            </td>
 
                             <td>
                                 ${escapeHtml(
-                                    gradeSection
+                                    record.time || ''
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
-                                    record.time ||
-                                    ''
-                                )}
-                            </td>
-
-
-                            <td>
-                                ${escapeHtml(
-                                    record.details ||
-                                    ''
+                                    record.details || ''
                                 )}
                             </td>
 
                         </tr>
-
                     `;
 
                 }
@@ -2218,7 +2163,6 @@ function printAdminReport() {
         );
 
         return;
-
     }
 
 
@@ -2226,9 +2170,7 @@ function printAdminReport() {
 
         <!DOCTYPE html>
 
-        <html
-            lang="ar"
-            dir="rtl">
+        <html lang="ar" dir="rtl">
 
         <head>
 
@@ -2238,251 +2180,167 @@ function printAdminReport() {
                 ${escapeHtml(title)}
             </title>
 
-
             <style>
 
-                body {
-
-                    font-family:
-                        Arial,
-                        sans-serif;
-
-                    direction:
-                        rtl;
-
-                    padding:
-                        30px;
-
+                @page {
+                    size: A4;
+                    margin: 15mm;
                 }
 
+                body {
+                    font-family: Arial, sans-serif;
+                    direction: rtl;
+                    padding: 20px;
+                    color: #000;
+                }
 
                 h1,
                 h2 {
-
-                    text-align:
-                        center;
-
+                    text-align: center;
+                    margin: 5px 0;
                 }
 
+                h1 {
+                    font-size: 24px;
+                }
+
+                h2 {
+                    font-size: 20px;
+                }
+
+                .manager {
+                    text-align: center;
+                    font-size: 16px;
+                    margin: 8px 0 15px;
+                    font-weight: bold;
+                }
 
                 .period {
-
-                    text-align:
-                        center;
-
-                    margin-bottom:
-                        25px;
-
-                    color:
-                        #555;
-
+                    text-align: center;
+                    margin-bottom: 25px;
+                    color: #555;
                 }
-
 
                 .summary {
-
-                    display:
-                        flex;
-
-                    gap:
-                        10px;
-
-                    margin-bottom:
-                        25px;
-
-                    flex-wrap:
-                        wrap;
-
+                    display: flex;
+                    gap: 10px;
+                    margin-bottom: 25px;
+                    flex-wrap: wrap;
                 }
-
 
                 .box {
-
-                    flex:
-                        1;
-
-                    min-width:
-                        130px;
-
-                    border:
-                        1px solid #ddd;
-
-                    padding:
-                        15px;
-
-                    text-align:
-                        center;
-
-                    border-radius:
-                        8px;
-
+                    flex: 1;
+                    min-width: 130px;
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    text-align: center;
+                    border-radius: 8px;
                 }
-
 
                 table {
-
-                    width:
-                        100%;
-
-                    border-collapse:
-                        collapse;
-
+                    width: 100%;
+                    border-collapse: collapse;
                 }
-
 
                 th,
                 td {
-
-                    border:
-                        1px solid #ccc;
-
-                    padding:
-                        10px;
-
-                    text-align:
-                        center;
-
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    text-align: center;
                 }
 
-
                 th {
+                    background: #eeeeee;
+                }
 
-                    background:
-                        #eeeeee;
+                .print-signature {
+                    margin-top: 70px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ccc;
 
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+
+                .signature-line {
+                    min-width: 240px;
+                    text-align: center;
                 }
 
             </style>
 
         </head>
 
-
         <body>
-
 
             <h1>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h1>
 
-
             <h2>
                 ${escapeHtml(title)}
             </h2>
 
-
-            <div class="period">
-
-                ${escapeHtml(period)}
-
+            <div class="manager">
+                مدير المدرسة: أ. سمير مصلح
             </div>
 
+            <div class="period">
+                ${escapeHtml(period)}
+            </div>
 
             <div class="summary">
 
-
                 <div class="box">
-
-                    <strong>
-                        إجمالي الحالات
-                    </strong>
-
+                    <strong>إجمالي الحالات</strong>
                     <br>
-
                     ${total}
-
                 </div>
 
-
                 <div class="box">
-
-                    <strong>
-                        التأخير
-                    </strong>
-
+                    <strong>التأخير</strong>
                     <br>
-
                     ${lateness}
-
                 </div>
 
-
                 <div class="box">
-
-                    <strong>
-                        الزي المدرسي
-                    </strong>
-
+                    <strong>الزي المدرسي</strong>
                     <br>
-
                     ${uniform}
-
                 </div>
 
-
                 <div class="box">
-
-                    <strong>
-                        الهروب
-                    </strong>
-
+                    <strong>الهروب</strong>
                     <br>
-
                     ${escape}
-
                 </div>
-
 
                 <div class="box">
-
-                    <strong>
-                        الغياب
-                    </strong>
-
+                    <strong>الغياب</strong>
                     <br>
-
                     ${absence}
-
                 </div>
-
 
             </div>
 
-
             <table>
-
 
                 <thead>
 
                     <tr>
-
-                        <th>
-                            التاريخ
-                        </th>
-
-                        <th>
-                            نوع الحالة
-                        </th>
-
-                        <th>
-                            اسم الطالب
-                        </th>
-
-                        <th>
-                            الصف / الشعبة
-                        </th>
-
-                        <th>
-                            وقت التسجيل
-                        </th>
-
-                        <th>
-                            التفاصيل
-                        </th>
-
+                        <th>التاريخ</th>
+                        <th>نوع الحالة</th>
+                        <th>اسم الطالب</th>
+                        <th>الصف / الشعبة</th>
+                        <th>وقت التسجيل</th>
+                        <th>التفاصيل</th>
                     </tr>
 
                 </thead>
-
 
                 <tbody>
 
@@ -2490,33 +2348,35 @@ function printAdminReport() {
 
                 </tbody>
 
-
             </table>
 
+            <div class="print-signature">
+
+                <div>
+                    مدير المدرسة: أ. سمير مصلح
+                </div>
+
+                <div class="signature-line">
+                    التوقيع: __________________
+                </div>
+
+            </div>
 
             <script>
 
-                window.onload =
-                    function () {
-
-                        window.print();
-
-                    };
+                window.onload = function () {
+                    window.print();
+                };
 
             <\/script>
-
 
         </body>
 
         </html>
-
     `);
 
-
     printWindow.document.close();
-
 }
-
 
 /* ==================================================
    OTHER REASON
@@ -3167,23 +3027,14 @@ function setAutoDate(
 function searchStudentReport() {
 
     const input =
-        document.getElementById(
-            'searchStudent'
-        );
-
+        document.getElementById('searchStudent');
 
     if (!input) {
-
         return;
-
     }
 
-
     const search =
-        input.value
-            .trim()
-            .toLowerCase();
-
+        input.value.trim().toLowerCase();
 
     if (!search) {
 
@@ -3192,18 +3043,14 @@ function searchStudentReport() {
         );
 
         return;
-
     }
-
 
     const found =
         currentAllRecords.filter(
             function (record) {
 
                 const name =
-                    record.studentName ||
-                    '';
-
+                    record.studentName || '';
 
                 return name
                     .toLowerCase()
@@ -3220,7 +3067,6 @@ function searchStudentReport() {
         );
 
         return;
-
     }
 
 
@@ -3230,50 +3076,36 @@ function searchStudentReport() {
                 function (record) {
 
                     const grade =
-                        record.grade ||
-                        '';
-
+                        record.grade || '';
 
                     const section =
-                        record.section ||
-                        '';
-
+                        record.section || '';
 
                     const gradeSection =
-                        grade ||
-                        section
+                        grade || section
                             ? `${grade} / ${section}`
                             : '--';
 
-
                     return `
-
                         <tr>
 
                             <td>
                                 ${escapeHtml(
-                                    record.date ||
-                                    ''
+                                    record.date || ''
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
-                                    translateType(
-                                        record.type
-                                    )
+                                    translateType(record.type)
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
-                                    record.studentName ||
-                                    ''
+                                    record.studentName || ''
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
@@ -3281,24 +3113,19 @@ function searchStudentReport() {
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
-                                    record.time ||
-                                    ''
+                                    record.time || ''
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
-                                    record.details ||
-                                    ''
+                                    record.details || ''
                                 )}
                             </td>
 
                         </tr>
-
                     `;
 
                 }
@@ -3321,7 +3148,6 @@ function searchStudentReport() {
         );
 
         return;
-
     }
 
 
@@ -3329,9 +3155,7 @@ function searchStudentReport() {
 
         <!DOCTYPE html>
 
-        <html
-            lang="ar"
-            dir="rtl">
+        <html lang="ar" dir="rtl">
 
         <head>
 
@@ -3341,139 +3165,126 @@ function searchStudentReport() {
                 تقرير الطالب
             </title>
 
-
             <style>
 
-                body {
-
-                    font-family:
-                        Arial,
-                        sans-serif;
-
-                    direction:
-                        rtl;
-
-                    padding:
-                        30px;
-
+                @page {
+                    size: A4;
+                    margin: 15mm;
                 }
 
+                body {
+                    font-family: Arial, sans-serif;
+                    direction: rtl;
+                    padding: 20px;
+                    color: #000;
+                }
 
                 h1,
                 h2 {
-
-                    text-align:
-                        center;
-
+                    text-align: center;
                 }
 
+                h1 {
+                    font-size: 24px;
+                }
+
+                h2 {
+                    font-size: 20px;
+                }
+
+                .manager {
+                    text-align: center;
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-bottom: 20px;
+                }
+
+                .student-name {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    font-size: 17px;
+                }
 
                 table {
-
-                    width:
-                        100%;
-
-                    border-collapse:
-                        collapse;
-
-                    margin-top:
-                        25px;
-
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 25px;
                 }
-
 
                 th,
                 td {
-
-                    border:
-                        1px solid #ccc;
-
-                    padding:
-                        10px;
-
-                    text-align:
-                        center;
-
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    text-align: center;
                 }
 
-
                 th {
+                    background: #eee;
+                }
 
-                    background:
-                        #eee;
+                .print-signature {
+                    margin-top: 70px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ccc;
 
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+
+                .signature-line {
+                    min-width: 240px;
+                    text-align: center;
                 }
 
             </style>
 
         </head>
 
-
         <body>
-
 
             <h1>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h1>
 
-
             <h2>
                 تقرير الطالب
             </h2>
 
+            <div class="manager">
+                مدير المدرسة: أ. سمير مصلح
+            </div>
 
-            <p
-                style="text-align:center;">
+            <div class="student-name">
 
                 اسم الطالب:
-
                 <strong>
-
                     ${escapeHtml(
-                        found[0].studentName ||
-                        ''
+                        found[0].studentName || ''
                     )}
-
                 </strong>
 
-            </p>
-
+            </div>
 
             <table>
-
 
                 <thead>
 
                     <tr>
 
-                        <th>
-                            التاريخ
-                        </th>
-
-                        <th>
-                            النوع
-                        </th>
-
-                        <th>
-                            الطالب
-                        </th>
-
-                        <th>
-                            الصف / الشعبة
-                        </th>
-
-                        <th>
-                            وقت التسجيل
-                        </th>
-
-                        <th>
-                            التفاصيل
-                        </th>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>الطالب</th>
+                        <th>الصف / الشعبة</th>
+                        <th>وقت التسجيل</th>
+                        <th>التفاصيل</th>
 
                     </tr>
 
                 </thead>
-
 
                 <tbody>
 
@@ -3481,9 +3292,19 @@ function searchStudentReport() {
 
                 </tbody>
 
-
             </table>
 
+            <div class="print-signature">
+
+                <div>
+                    مدير المدرسة: أ. سمير مصلح
+                </div>
+
+                <div class="signature-line">
+                    التوقيع: __________________
+                </div>
+
+            </div>
 
         </body>
 
@@ -3497,9 +3318,7 @@ function searchStudentReport() {
 
     setTimeout(
         function () {
-
             win.print();
-
         },
         300
     );
@@ -3511,13 +3330,10 @@ function searchStudentReport() {
    CATEGORY REPORT
 ================================================== */
 
-function printCategoryReport(
-    category
-) {
+function printCategoryReport(category) {
 
     const records =
-        dbData[category] ||
-        [];
+        dbData[category] || [];
 
 
     if (!records.length) {
@@ -3527,14 +3343,11 @@ function printCategoryReport(
         );
 
         return;
-
     }
 
 
     const title =
-        translateType(
-            category
-        );
+        translateType(category);
 
 
     const rows =
@@ -3543,39 +3356,30 @@ function printCategoryReport(
                 function (record) {
 
                     const grade =
-                        record.grade ||
-                        '';
-
+                        record.grade || '';
 
                     const section =
-                        record.section ||
-                        '';
-
+                        record.section || '';
 
                     const gradeSection =
-                        grade ||
-                        section
+                        grade || section
                             ? `${grade} / ${section}`
                             : '--';
 
-
                     return `
-
                         <tr>
 
                             <td>
                                 ${escapeHtml(
-                                    record.date
+                                    record.date || ''
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
-                                    record.student
+                                    record.student || ''
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
@@ -3583,13 +3387,11 @@ function printCategoryReport(
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
-                                    record.time
+                                    record.time || ''
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
@@ -3600,7 +3402,6 @@ function printCategoryReport(
                             </td>
 
                         </tr>
-
                     `;
 
                 }
@@ -3623,7 +3424,6 @@ function printCategoryReport(
         );
 
         return;
-
     }
 
 
@@ -3631,9 +3431,7 @@ function printCategoryReport(
 
         <!DOCTYPE html>
 
-        <html
-            lang="ar"
-            dir="rtl">
+        <html lang="ar" dir="rtl">
 
         <head>
 
@@ -3643,118 +3441,109 @@ function printCategoryReport(
                 ${escapeHtml(title)}
             </title>
 
-
             <style>
 
-                body {
-
-                    font-family:
-                        Arial,
-                        sans-serif;
-
-                    direction:
-                        rtl;
-
-                    padding:
-                        30px;
-
+                @page {
+                    size: A4;
+                    margin: 15mm;
                 }
 
+                body {
+                    font-family: Arial, sans-serif;
+                    direction: rtl;
+                    padding: 20px;
+                    color: #000;
+                }
 
                 h1,
                 h2 {
-
-                    text-align:
-                        center;
-
+                    text-align: center;
                 }
 
+                h1 {
+                    font-size: 24px;
+                }
+
+                h2 {
+                    font-size: 20px;
+                    margin-bottom: 8px;
+                }
+
+                .manager {
+                    text-align: center;
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-bottom: 20px;
+                }
 
                 table {
-
-                    width:
-                        100%;
-
-                    border-collapse:
-                        collapse;
-
-                    margin-top:
-                        25px;
-
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 25px;
                 }
-
 
                 th,
                 td {
-
-                    border:
-                        1px solid #ccc;
-
-                    padding:
-                        10px;
-
-                    text-align:
-                        center;
-
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    text-align: center;
                 }
 
-
                 th {
+                    background: #eee;
+                }
 
-                    background:
-                        #eee;
+                .print-signature {
+                    margin-top: 70px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ccc;
 
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+
+                .signature-line {
+                    min-width: 240px;
+                    text-align: center;
                 }
 
             </style>
 
         </head>
 
-
         <body>
-
 
             <h1>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h1>
 
-
             <h2>
                 ${escapeHtml(title)}
             </h2>
 
+            <div class="manager">
+                مدير المدرسة: أ. سمير مصلح
+            </div>
 
             <table>
-
 
                 <thead>
 
                     <tr>
 
-                        <th>
-                            التاريخ
-                        </th>
-
-                        <th>
-                            الطالب
-                        </th>
-
-                        <th>
-                            الصف / الشعبة
-                        </th>
-
-                        <th>
-                            وقت التسجيل
-                        </th>
-
-                        <th>
-                            التفاصيل
-                        </th>
+                        <th>التاريخ</th>
+                        <th>الطالب</th>
+                        <th>الصف / الشعبة</th>
+                        <th>وقت التسجيل</th>
+                        <th>التفاصيل</th>
 
                     </tr>
 
                 </thead>
-
 
                 <tbody>
 
@@ -3762,9 +3551,27 @@ function printCategoryReport(
 
                 </tbody>
 
-
             </table>
 
+            <div class="print-signature">
+
+                <div>
+                    مدير المدرسة: أ. سمير مصلح
+                </div>
+
+                <div class="signature-line">
+                    التوقيع: __________________
+                </div>
+
+            </div>
+
+            <script>
+
+                window.onload = function () {
+                    window.print();
+                };
+
+            <\/script>
 
         </body>
 
@@ -3778,14 +3585,14 @@ function printCategoryReport(
 
     setTimeout(
         function () {
-
             win.print();
-
         },
         300
     );
 
 }
+
+
 
 
 /* ==================================================
