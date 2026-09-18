@@ -1422,7 +1422,7 @@
                     .style.display =
                         "block";
 
-
+startPresenceMonitoring();
             } else {
 
 
@@ -1466,7 +1466,8 @@
 
 
     function logout() {
-
+notifyPresenceLogout();
+stopPresenceMonitoring();
         const mainContent =
             document.getElementById(
                 "mainContent"
