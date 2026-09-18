@@ -8,6 +8,46 @@ const API_URL =
 
 
 /* ==================================================
+   ONLINE PRESENCE
+================================================== */
+
+const AUTH_BASE_URL =
+    'https://almustqbal.onrender.com';
+
+let presenceInterval = null;
+
+let presenceStarted = false;
+
+
+/* معرف ثابت لهذا الجهاز/المتصفح */
+
+let presenceClientId =
+    localStorage.getItem(
+        'schoolPresenceClientId'
+    );
+
+
+if (!presenceClientId) {
+
+    presenceClientId =
+        (
+            crypto.randomUUID
+            ? crypto.randomUUID()
+            : (
+                Date.now().toString(36) +
+                Math.random().toString(36).substring(2)
+            )
+        );
+
+    localStorage.setItem(
+        'schoolPresenceClientId',
+        presenceClientId
+    );
+
+}
+
+
+/* ==================================================
    DATA
 ================================================== */
 
