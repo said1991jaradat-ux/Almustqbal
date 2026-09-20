@@ -3354,6 +3354,7 @@ async function addAbsence(
 
 }
 
+
 /* ==================================================
    ADD OTHER PROBLEM
 ================================================== */
@@ -3361,89 +3362,118 @@ async function addAbsence(
 async function addOtherProblem(event) {
 
     if (event) {
-
         event.preventDefault();
-
     }
 
+    /* اسم الطالب */
+    const studentElement =
+        document.getElementById('otherProblemStudent');
 
     const student =
-        getValue(
-            'otherProblemStudent'
-        );
+        studentElement
+            ? studentElement.value.trim()
+            : '';
 
+    /* الصف */
+    const gradeElement =
+        document.getElementById('otherProblemGrade');
 
     const grade =
-        getValue(
-            'otherProblemGrade'
-        );
+        gradeElement
+            ? gradeElement.value.trim()
+            : '';
 
+    /* الشعبة */
+    const sectionElement =
+        document.getElementById('otherProblemSection');
 
     const section =
-        getValue(
-            'otherProblemSection'
-        );
+        sectionElement
+            ? sectionElement.value.trim()
+            : '';
 
+    /* نوع المخالفة */
+    const problemTypeElement =
+        document.getElementById('otherProblemType');
 
     const problemType =
-        getValue(
-            'otherProblemType'
-        );
+        problemTypeElement
+            ? problemTypeElement.value.trim()
+            : '';
 
+    /* الملاحظات */
+    const notesElement =
+        document.getElementById('otherProblemNotes');
 
     const notes =
-        getValue(
-            'otherProblemNotes'
-        );
+        notesElement
+            ? notesElement.value.trim()
+            : '';
 
+
+    /* ==========================================
+       التحقق من البيانات
+    ========================================== */
 
     if (!student) {
 
-        alert(
-            'يرجى إدخال اسم الطالب'
-        );
+        alert('يرجى إدخال اسم الطالب');
+
+        if (studentElement) {
+            studentElement.focus();
+        }
 
         return;
-
     }
 
 
     if (!grade) {
 
-        alert(
-            'يرجى اختيار الصف'
-        );
+        alert('يرجى اختيار الصف');
+
+        if (gradeElement) {
+            gradeElement.focus();
+        }
 
         return;
-
     }
 
 
     if (!section) {
 
-        alert(
-            'يرجى اختيار الشعبة'
-        );
+        alert('يرجى اختيار الشعبة');
+
+        if (sectionElement) {
+            sectionElement.focus();
+        }
 
         return;
-
     }
 
 
     if (!problemType) {
 
-        alert(
-            'يرجى اختيار نوع المخالفة'
-        );
+        alert('يرجى اختيار نوع المخالفة');
+
+        if (problemTypeElement) {
+            problemTypeElement.focus();
+        }
 
         return;
-
     }
 
+
+    /* ==========================================
+       التاريخ والوقت
+    ========================================== */
 
     const dateTime =
         getAutomaticDateTime();
 
+
+    /* ==========================================
+       تفاصيل المخالفة
+    ========================================== */
 
     let details =
         problemType;
@@ -3457,6 +3487,10 @@ async function addOtherProblem(event) {
 
     }
 
+
+    /* ==========================================
+       الحفظ
+    ========================================== */
 
     try {
 
@@ -3491,6 +3525,8 @@ async function addOtherProblem(event) {
         );
 
 
+        /* تفريغ النموذج */
+
         const form =
             document.getElementById(
                 'otherProblemsForm'
@@ -3504,6 +3540,8 @@ async function addOtherProblem(event) {
         }
 
 
+        /* تحديث السجلات */
+
         await fetchRecordsFromCloud();
 
 
@@ -3516,7 +3554,11 @@ async function addOtherProblem(event) {
 
 
         alert(
-            'حدث خطأ أثناء حفظ المخالفة'
+            'حدث خطأ أثناء حفظ المخالفة:\n\n' +
+            (
+                error.message ||
+                'خطأ غير معروف'
+            )
         );
 
     }
