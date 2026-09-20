@@ -3631,20 +3631,14 @@ async function saveRecord(
 
 }
 
-
 /* ==================================================
    HELPERS
 ================================================== */
 
-function getValue(
-    id
-) {
+function getValue(id) {
 
     const element =
-        document.getElementById(
-            id
-        );
-
+        document.getElementById(id);
 
     return element
         ? element.value.trim()
@@ -3653,15 +3647,25 @@ function getValue(
 }
 
 
-function setAutoDate(
-    id
-) {
+function setText(id, value) {
 
     const element =
-        document.getElementById(
-            id
-        );
+        document.getElementById(id);
 
+    if (element) {
+
+        element.textContent =
+            value ?? '';
+
+    }
+
+}
+
+
+function setAutoDate(id) {
+
+    const element =
+        document.getElementById(id);
 
     if (element) {
 
