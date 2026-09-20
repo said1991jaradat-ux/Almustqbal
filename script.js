@@ -1937,11 +1937,11 @@ function renderAdminReport() {
 
 
     const otherProblems =
-        records.filter(
-            r =>
-                r.type ===
-                'otherProblems'
-        ).length;
+    records.filter(
+        r =>
+            r.type ===
+            'otherProblems'
+    ).length;
 
 
     setText(
@@ -2760,6 +2760,15 @@ function printAdminReport() {
 
                     ${absence}
                 </div>
+<div class="box">
+    <strong>
+        مشاكل أخرى
+    </strong>
+
+    <br>
+
+    ${otherProblems}
+</div>
 
             </div>
 
@@ -3339,6 +3348,10 @@ async function addAbsence(
         await fetchRecordsFromCloud();
 
 
+
+
+
+       
     } catch (error) {
 
         console.error(
