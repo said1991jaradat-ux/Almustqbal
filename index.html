@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -34,160 +35,89 @@
         ========================================= */
 
         #loginScreen {
-
             position: fixed;
-
             inset: 0;
-
             width: 100%;
-
             height: 100%;
-
             background: #f4f4f9;
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             z-index: 9999;
-
         }
-
 
         .login-box {
-
             background: white;
-
             padding: 30px;
-
             text-align: center;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 10px 35px rgba(0,0,0,0.12);
-
+            box-shadow: 0 10px 35px rgba(0,0,0,0.12);
             width: 90%;
-
             max-width: 400px;
-
         }
-
 
         .login-box h2 {
-
             margin-bottom: 10px;
-
         }
-
 
         .login-box input,
         .login-box button {
-
             padding: 12px;
-
             margin: 8px 0;
-
             font-size: 16px;
-
             width: 100%;
-
             box-sizing: border-box;
-
         }
-
 
         .login-box input {
-
             border: 1px solid #ddd;
-
             border-radius: 6px;
-
             text-align: center;
-
         }
-
 
         .login-box button {
-
             background-color: #007bff;
-
             color: white;
-
             border: none;
-
             border-radius: 6px;
-
             cursor: pointer;
-
         }
-
 
         .login-box button:hover {
-
             background-color: #0056b3;
-
         }
-
 
         .login-box button:disabled {
-
             opacity: 0.7;
-
             cursor: wait;
-
         }
-
 
         /* =========================================
            CASES GRID
         ========================================= */
 
         .cases-grid {
-
             display: grid;
-
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 20px;
-
             align-items: start;
-
         }
-
 
         .cases-grid .card {
-
             width: 100%;
-
             box-sizing: border-box;
-
         }
-
 
         @media (max-width: 1200px) {
-
             .cases-grid {
-
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
-
         }
 
-
         @media (max-width: 700px) {
-
             .cases-grid {
-
                 grid-template-columns: 1fr;
-
             }
-
         }
 
     </style>
@@ -264,7 +194,8 @@
 
 </div>
 
-    <!-- ==================================================
+
+<!-- ==================================================
      SECTION SELECTION
 ================================================== -->
 
@@ -313,7 +244,6 @@
 
         </p>
 
-
         <div
             style="
                 display:flex;
@@ -321,9 +251,6 @@
                 gap:20px;
                 flex-wrap:wrap;
             ">
-
-
-            <!-- متابعة الطلاب -->
 
             <button
                 type="button"
@@ -347,8 +274,6 @@
 
             </button>
 
-
-            <!-- متابعة المعلمين -->
 
             <button
                 type="button"
@@ -378,6 +303,7 @@
 
 </div>
 
+
 <!-- ==================================================
      MAIN CONTENT
 ================================================== -->
@@ -398,7 +324,6 @@
             <h1>
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
             </h1>
-
 
             <div class="manager-ticker">
 
@@ -422,7 +347,6 @@
 
             </div>
 
-
             <div
                 class="live-date"
                 id="currentDate">
@@ -436,16 +360,12 @@
 
         <div class="header-actions">
 
-
-            <!-- SEARCH -->
-
             <div class="search-box">
 
                 <input
                     type="text"
                     id="searchStudent"
                     placeholder="ابحث باسم الطالب للتقرير...">
-
 
                 <button
                     type="button"
@@ -458,8 +378,6 @@
 
             </div>
 
-
-            <!-- HEADER BUTTONS -->
 
             <div class="backup-btns">
 
@@ -544,11 +462,9 @@
                     1. تسجيل الغياب
                 </h3>
 
-
                 <form
                     id="absenceForm"
                     onsubmit="addAbsence(event)">
-
 
                     <div class="form-group">
 
@@ -566,7 +482,6 @@
 
 
                     <div class="form-row">
-
 
                         <div class="form-group">
 
@@ -648,7 +563,6 @@
             </section>
 
 
-
             <!-- =========================================
                  2. UNIFORM
             ========================================== -->
@@ -659,11 +573,9 @@
                     2. الالتزام بالزي المدرسي
                 </h3>
 
-
                 <form
                     id="uniformForm"
                     onsubmit="addUniform(event)">
-
 
                     <div class="form-group">
 
@@ -681,7 +593,6 @@
 
 
                     <div class="form-row">
-
 
                         <div class="form-group">
 
@@ -784,7 +695,6 @@
             </section>
 
 
-
             <!-- =========================================
                  3. LATENESS
             ========================================== -->
@@ -795,11 +705,9 @@
                     3. تسجيل التأخير الصباحي
                 </h3>
 
-
                 <form
                     id="latenessForm"
                     onsubmit="addLateness(event)">
-
 
                     <div class="form-group">
 
@@ -817,7 +725,6 @@
 
 
                     <div class="form-row">
-
 
                         <div class="form-group">
 
@@ -951,7 +858,6 @@
             </section>
 
 
-
             <!-- =========================================
                  4. ESCAPE
             ========================================== -->
@@ -962,11 +868,9 @@
                     4. تسجيل حالة الهروب
                 </h3>
 
-
                 <form
                     id="escapeForm"
                     onsubmit="addEscape(event)">
-
 
                     <div class="form-group">
 
@@ -984,7 +888,6 @@
 
 
                     <div class="form-row">
-
 
                         <div class="form-group">
 
@@ -1067,40 +970,44 @@
 
 
             <!-- =========================================
-     5. OTHER PROBLEMS
-========================================== -->
+                 5. OTHER PROBLEMS
+            ========================================== -->
 
-<section class="card">
+            <section class="card">
 
-    <h3>
-        5. مشاكل أخرى
-    </h3>
-
-
-    <form
-        id="otherProblemsForm"
-        onsubmit="addOtherProblem(event)">
+                <h3>
+                    5. مشاكل أخرى
+                </h3>
 
 
-        <!-- اسم الطالب -->
+                <form
+                    id="otherProblemsForm"
+                    onsubmit="addOtherProblem(event)">
 
-        <div class="form-group">
 
-            <label>
-                اسم الطالب:
-            </label>
+                    <!-- اسم الطالب -->
 
-            <input
-                type="text"
-                id="otherProblemStudent"
-                required
-                placeholder="الاسم الرباعي">
+                    <div class="form-group">
 
-        </div>
-         
-                       
+                        <label>
+                            اسم الطالب:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="otherProblemStudent"
+                            required
+                            placeholder="الاسم الرباعي">
+
+                    </div>
+
+
+                    <!-- الصف والشعبة -->
+
                     <div class="form-row">
 
+
+                        <!-- الصف -->
 
                         <div class="form-group">
 
@@ -1108,22 +1015,40 @@
                                 الصف:
                             </label>
 
-                            <select id="otherProblemGrade" required>
+                            <select
+                                id="otherProblemGrade"
+                                required>
 
-    <option value="">
-        اختر الصف
-    </option>
+                                <option value="">
+                                    اختر الصف
+                                </option>
 
-    <option value="الخامس">الخامس</option>
-    <option value="السادس">السادس</option>
-    <option value="السابع">السابع</option>
-    <option value="الثامن">الثامن</option>
-    <option value="التاسع">التاسع</option>
+                                <option value="الخامس">
+                                    الخامس
+                                </option>
 
-</select>
+                                <option value="السادس">
+                                    السادس
+                                </option>
+
+                                <option value="السابع">
+                                    السابع
+                                </option>
+
+                                <option value="الثامن">
+                                    الثامن
+                                </option>
+
+                                <option value="التاسع">
+                                    التاسع
+                                </option>
+
+                            </select>
 
                         </div>
 
+
+                        <!-- الشعبة -->
 
                         <div class="form-group">
 
@@ -1131,12 +1056,29 @@
                                 الشعبة:
                             </label>
 
-                            <select id="escapeSection">
+                            <select
+                                id="otherProblemSection"
+                                required>
 
-                                <option>أ</option>
-                                <option>ب</option>
-                                <option>ج</option>
-                                <option>د</option>
+                                <option value="">
+                                    اختر الشعبة
+                                </option>
+
+                                <option value="أ">
+                                    أ
+                                </option>
+
+                                <option value="ب">
+                                    ب
+                                </option>
+
+                                <option value="ج">
+                                    ج
+                                </option>
+
+                                <option value="د">
+                                    د
+                                </option>
 
                             </select>
 
@@ -1145,127 +1087,124 @@
                     </div>
 
 
+                    <!-- نوع المخالفة -->
 
-        <!-- نوع المخالفة -->
+                    <div class="form-group">
 
-        <div class="form-group">
+                        <label>
+                            نوع المخالفة:
+                        </label>
 
-            <label>
-                نوع المخالفة:
-            </label>
+                        <select
+                            id="otherProblemType"
+                            required>
 
-            <select
-                id="otherProblemType"
-                required>
+                            <option value="">
+                                اختر نوع المخالفة
+                            </option>
 
-                <option value="">
-                    اختر نوع المخالفة
-                </option>
+                            <option value="ضبط دخان">
+                                ضبط دخان
+                            </option>
 
-                <option value="ضبط دخان">
-                    ضبط دخان
-                </option>
+                            <option value="ضبط سجائر الكترونية">
+                                ضبط سجائر الكترونية
+                            </option>
 
-                <option value="ضبط سجائر الكترونية">
-                    ضبط سجائر الكترونية
-                </option>
+                            <option value="ضبط أداة حادة">
+                                ضبط أداة حادة
+                            </option>
 
-                <option value="ضبط أداة حادة">
-                    ضبط أداة حادة
-                </option>
+                            <option value="اعتداء على طالب">
+                                اعتداء على طالب
+                            </option>
 
-                <option value="اعتداء على طالب">
-                    اعتداء على طالب
-                </option>
+                            <option value="اعتداء على حرم المدرسة">
+                                اعتداء على حرم المدرسة
+                            </option>
 
-                <option value="اعتداء على حرم المدرسة">
-                    اعتداء على حرم المدرسة
-                </option>
+                            <option value="الشتائم والألفاظ غير اللائقة">
+                                الشتائم والألفاظ غير اللائقة
+                            </option>
 
-                <option value="الشتائم والألفاظ غير اللائقة">
-                    الشتائم والألفاظ غير اللائقة
-                </option>
+                            <option value="سب الذات الإلهية">
+                                سب الذات الإلهية
+                            </option>
 
-                <option value="سب الذات الإلهية">
-                    سب الذات الإلهية
-                </option>
+                            <option value="مشاكل أخرى">
+                                مشاكل أخرى
+                            </option>
 
-                <option value="مشاكل أخرى">
-                    مشاكل أخرى
-                </option>
+                        </select>
 
-            </select>
-
-        </div>
-
-
-        <!-- الملاحظات -->
-
-        <div class="form-group">
-
-            <label>
-                ملاحظات:
-            </label>
-
-            <textarea
-                id="otherProblemNotes"
-                rows="4"
-                placeholder="اكتب أي ملاحظات إضافية هنا...">
-            </textarea>
-
-        </div>
+                    </div>
 
 
-        <!-- حفظ -->
+                    <!-- الملاحظات -->
 
-        <button
-            type="submit"
-            class="btn">
+                    <div class="form-group">
 
-            حفظ المخالفة
+                        <label>
+                            ملاحظات:
+                        </label>
 
-        </button>
+                        <textarea
+                            id="otherProblemNotes"
+                            rows="4"
+                            placeholder="اكتب أي ملاحظات إضافية هنا..."></textarea>
 
-    </form>
-
-
-    <!-- السجلات الأخيرة -->
-
-    <div class="logs-section">
-
-        <h4>
-            آخر المخالفات:
-        </h4>
-
-        <div
-            id="otherProblemsLogs"
-            class="logs-list">
-        </div>
-
-    </div>
+                    </div>
 
 
-    <!-- التقرير -->
+                    <!-- حفظ -->
 
-    <button
-        type="button"
-        onclick="printCategoryReport('otherProblems')"
-        class="btn"
-        style="
-            margin-top:15px;
-            background-color:#6c757d;
-        ">
+                    <button
+                        type="submit"
+                        class="btn">
 
-        طباعة تقرير المشاكل الأخرى
+                        حفظ المخالفة
 
-    </button>
+                    </button>
 
-</section>
-            
+                </form>
+
+
+                <!-- السجلات الأخيرة -->
+
+                <div class="logs-section">
+
+                    <h4>
+                        آخر المخالفات:
+                    </h4>
+
+                    <div
+                        id="otherProblemsLogs"
+                        class="logs-list">
+                    </div>
+
+                </div>
+
+
+                <!-- التقرير -->
+
+                <button
+                    type="button"
+                    onclick="printCategoryReport('otherProblems')"
+                    class="btn"
+                    style="
+                        margin-top:15px;
+                        background-color:#6c757d;
+                    ">
+
+                    طباعة تقرير المشاكل الأخرى
+
+                </button>
+
+            </section>
+
         </div>
 
     </main>
-
 
 
     <!-- ==================================================
@@ -1275,7 +1214,6 @@
     <div
         id="printReport"
         class="print-only">
-
 
         <div class="report-header">
 
@@ -1290,7 +1228,6 @@
             <p id="reportPrintDate"></p>
 
             <hr>
-
 
             <div class="student-title-wrap">
 
@@ -1322,7 +1259,6 @@
     </div>
 
 
-
     <!-- ==================================================
          ADMIN DASHBOARD
     ================================================== -->
@@ -1332,9 +1268,7 @@
         class="admin-modal"
         style="display:none;">
 
-
         <div class="admin-page">
-
 
             <div class="admin-header">
 
@@ -1361,7 +1295,6 @@
                 </button>
 
             </div>
-
 
 
             <!-- TABS -->
@@ -1403,7 +1336,6 @@
             </div>
 
 
-
             <!-- CONTROLS -->
 
             <div class="admin-controls">
@@ -1417,7 +1349,7 @@
                     <input
                         type="date"
                         id="adminReferenceDate"
-                        onchange="changeAdminReportDate()">
+                        onchange="changeAdminReportDate">
 
                 </div>
 
@@ -1455,7 +1387,6 @@
                 </button>
 
             </div>
-
 
 
             <!-- SUMMARY -->
@@ -1568,8 +1499,29 @@
                 </div>
 
 
-            </div>
+                <!-- OTHER PROBLEMS -->
 
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        ⚠️
+                    </div>
+
+                    <div>
+
+                        <span>
+                            مشاكل أخرى
+                        </span>
+
+                        <strong id="adminOtherProblemsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
 
 
             <!-- TABLE -->
@@ -1636,433 +1588,95 @@
     </div>
 
 
-
-    <!-- ==================================================
-         AUTH / LOGIN
-    ================================================== -->
-
-    <script>
-
-        const AUTH_BASE_URL =
-            'https://almustqbal.onrender.com';
+</div>
 
 
-        async function checkPassword() {
+<!-- ==================================================
+     AUTH / LOGIN
+================================================== -->
 
-            const inputElement =
-                document.getElementById(
-                    "passInput"
+<script>
+
+    const AUTH_BASE_URL =
+        'https://almustqbal.onrender.com';
+
+
+    async function checkPassword() {
+
+        const inputElement =
+            document.getElementById("passInput");
+
+
+        const loginBtn =
+            document.querySelector('.login-box button');
+
+
+        const errorMsg =
+            document.getElementById("errorMsg");
+
+
+        if (!inputElement || !loginBtn) {
+            return;
+        }
+
+
+        const userInput =
+            inputElement.value;
+
+
+        const originalBtnText =
+            loginBtn.innerText;
+
+
+        loginBtn.disabled =
+            true;
+
+
+        loginBtn.innerText =
+            "جاري التحقق...";
+
+
+        if (errorMsg) {
+            errorMsg.style.display =
+                "none";
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${AUTH_BASE_URL}/api/login`,
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body:
+                            JSON.stringify({
+                                password:
+                                    userInput
+                            })
+                    }
                 );
 
 
-            const loginBtn =
-                document.querySelector(
-                    '.login-box button'
-                );
-
-
-            const errorMsg =
-                document.getElementById(
-                    "errorMsg"
-                );
+            const result =
+                await response.json();
 
 
             if (
-                !inputElement ||
-                !loginBtn
+                response.ok &&
+                result.success
             ) {
 
-                return;
-
-            }
-
-
-            const userInput =
-                inputElement.value;
-
-
-            const originalBtnText =
-                loginBtn.innerText;
-
-
-            loginBtn.disabled =
-                true;
-
-
-            loginBtn.innerText =
-                "جاري التحقق...";
-
-
-            if (errorMsg) {
-
-                errorMsg.style.display =
-                    "none";
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${AUTH_BASE_URL}/api/login`,
-                        {
-
-                            method:
-                                'POST',
-
-                            headers: {
-
-                                'Content-Type':
-                                    'application/json'
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    password:
-                                        userInput
-
-                                })
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                /* ================================
-                   تسجيل الدخول الصحيح
-                ================================= */
-
-                if (
-                    response.ok &&
-                    result.success
-                ) {
-
-                    localStorage.setItem(
-                        'schoolLoggedIn',
-                        'true'
-                    );
-
-
-                    const loginScreen =
-                        document.getElementById(
-                            "loginScreen"
-                        );
-
-
-                    const mainContent =
-                        document.getElementById(
-                            "mainContent"
-                        );
-
-
-/* إخفاء شاشة تسجيل الدخول */
-
-if (loginScreen) {
-
-    loginScreen.style.display =
-        'none';
-
-}
-
-
-/* إظهار شاشة اختيار القسم */
-
-const sectionSelection =
-    document.getElementById(
-        'sectionSelection'
-    );
-
-
-if (sectionSelection) {
-
-    sectionSelection.style.display =
-        'flex';
-
-}
-
-
-/* إبقاء الصفحة الرئيسية مخفية */
-
-if (mainContent) {
-
-    mainContent.style.display =
-        'none';
-
-}
-
-                    /* بدء عداد المتصلين */
-
-                    if (
-                        typeof startPresenceMonitoring ===
-                        'function'
-                    ) {
-
-                        startPresenceMonitoring();
-
-                    }
-
-
-                } else {
-
-                    if (errorMsg) {
-
-                        errorMsg.textContent =
-                            result.message ||
-                            "كلمة المرور غير صحيحة";
-
-
-                        errorMsg.style.display =
-                            "block";
-
-                    }
-
-                }
-
-
-            } catch (err) {
-
-                console.error(
-                    "LOGIN ERROR:",
-                    err
+                localStorage.setItem(
+                    'schoolLoggedIn',
+                    'true'
                 );
-
-
-                if (errorMsg) {
-
-                    errorMsg.textContent =
-                        "تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.";
-
-
-                    errorMsg.style.display =
-                        "block";
-
-                }
-
-            } finally {
-
-                loginBtn.disabled =
-                    false;
-
-
-                loginBtn.innerText =
-                    originalBtnText;
-
-            }
-
-        }
-
-function continueStudents() {
-
-    const sectionSelection =
-        document.getElementById(
-            'sectionSelection'
-        );
-
-
-    const mainContent =
-        document.getElementById(
-            'mainContent'
-        );
-
-
-    if (sectionSelection) {
-
-        sectionSelection.style.display =
-            'none';
-
-    }
-
-
-    if (mainContent) {
-
-        mainContent.style.display =
-            'block';
-
-    }
-
-}
-        function continueTeachers() {
-
-    alert(
-        'قسم متابعة المعلمين سيتم برمجته لاحقًا.'
-    );
-
-}
-
-        /* =========================================
-           LOGOUT
-        ========================================= */
-
-  async function logout() {
-
-    /* إرسال الخروج للسيرفر */
-
-    if (
-        typeof notifyPresenceLogout ===
-        'function'
-    ) {
-
-        notifyPresenceLogout();
-
-    }
-
-
-    /* إيقاف Heartbeat */
-
-    if (
-        typeof stopPresenceMonitoring ===
-        'function'
-    ) {
-
-        stopPresenceMonitoring();
-
-    }
-
-
-    /* حذف جلسة الدخول */
-
-    localStorage.removeItem(
-        'schoolLoggedIn'
-    );
-
-
-    /* إخفاء النظام */
-
-    const mainContent =
-        document.getElementById(
-            'mainContent'
-        );
-
-
-    if (mainContent) {
-
-        mainContent.style.display =
-            'none';
-
-    }
-
-
-    /* إغلاق لوحة الإدارة */
-
-    const adminModal =
-        document.getElementById(
-            'adminModal'
-        );
-
-
-    if (adminModal) {
-
-        adminModal.style.display =
-            'none';
-
-    }
-
-
-    /* إظهار تسجيل الدخول */
-
-    const loginScreen =
-        document.getElementById(
-            'loginScreen'
-        );
-
-
-    if (loginScreen) {
-
-        loginScreen.style.display =
-            'flex';
-
-    }
-
-
-    /* تنظيف كلمة المرور */
-
-    const passInput =
-        document.getElementById(
-            'passInput'
-        );
-
-
-    if (passInput) {
-
-        passInput.value =
-            '';
-
-    }
-
-
-    const errorMsg =
-        document.getElementById(
-            'errorMsg'
-        );
-
-
-    if (errorMsg) {
-
-        errorMsg.textContent =
-            '';
-
-        errorMsg.style.display =
-            'none';
-
-    }
-
-}
-        /* =========================================
-           ENTER لتسجيل الدخول
-        ========================================= */
-
-        const loginInput =
-            document.getElementById(
-                "passInput"
-            );
-
-
-        if (loginInput) {
-
-            loginInput.addEventListener(
-                "keydown",
-                function (event) {
-
-                    if (
-                        event.key ===
-                        "Enter"
-                    ) {
-
-                        event.preventDefault();
-
-                        checkPassword();
-
-                    }
-
-                }
-            );
-
-        }
-
-    </script>
-
-
-
-    <!-- ==================================================
-         RESTORE LOGIN AFTER REFRESH
-    ================================================== -->
-
-    <script>
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-                const loggedIn =
-                    localStorage.getItem(
-                        'schoolLoggedIn'
-                    );
 
 
                 const loginScreen =
@@ -2077,85 +1691,417 @@ function continueStudents() {
                     );
 
 
-                const adminModal =
+                if (loginScreen) {
+
+                    loginScreen.style.display =
+                        'none';
+
+                }
+
+
+                const sectionSelection =
                     document.getElementById(
-                        "adminModal"
+                        'sectionSelection'
                     );
 
 
+                if (sectionSelection) {
+
+                    sectionSelection.style.display =
+                        'flex';
+
+                }
+
+
+                if (mainContent) {
+
+                    mainContent.style.display =
+                        'none';
+
+                }
+
+
                 if (
-    loggedIn ===
-    'true'
-) {
+                    typeof startPresenceMonitoring ===
+                    'function'
+                ) {
 
-    if (loginScreen) {
+                    startPresenceMonitoring();
 
-        loginScreen.style.display =
-            "none";
-
-    }
+                }
 
 
-    if (mainContent) {
+            } else {
 
-        mainContent.style.display =
-            "none";
+                if (errorMsg) {
 
-    }
+                    errorMsg.textContent =
+                        result.message ||
+                        "كلمة المرور غير صحيحة";
 
-
-    const sectionSelection =
-        document.getElementById(
-            "sectionSelection"
-        );
-
-
-    if (sectionSelection) {
-
-        sectionSelection.style.display =
-            "flex";
-
-    }
-
-
-    if (adminModal) {
-
-        adminModal.style.display =
-            "none";
-
-    }
-
-}
-
-
-                    if (adminModal) {
-
-                        adminModal.style.display =
-                            "none";
-
-                    }
+                    errorMsg.style.display =
+                        "block";
 
                 }
 
             }
+
+
+        } catch (err) {
+
+            console.error(
+                "LOGIN ERROR:",
+                err
+            );
+
+
+            if (errorMsg) {
+
+                errorMsg.textContent =
+                    "تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.";
+
+                errorMsg.style.display =
+                    "block";
+
+            }
+
+
+        } finally {
+
+            loginBtn.disabled =
+                false;
+
+            loginBtn.innerText =
+                originalBtnText;
+
+        }
+
+    }
+
+
+    function continueStudents() {
+
+        const sectionSelection =
+            document.getElementById(
+                'sectionSelection'
+            );
+
+
+        const mainContent =
+            document.getElementById(
+                'mainContent'
+            );
+
+
+        if (sectionSelection) {
+
+            sectionSelection.style.display =
+                'none';
+
+        }
+
+
+        if (mainContent) {
+
+            mainContent.style.display =
+                'block';
+
+        }
+
+    }
+
+
+    function continueTeachers() {
+
+        alert(
+            'قسم متابعة المعلمين سيتم برمجته لاحقًا.'
         );
 
-    </script>
+    }
 
 
+    /* =========================================
+       LOGOUT
+    ========================================= */
 
-    <!-- ==================================================
-         MAIN JAVASCRIPT
-    ================================================== -->
+    async function logout() {
 
-    <script src="script.js"></script>
+        if (
+            typeof notifyPresenceLogout ===
+            'function'
+        ) {
+
+            notifyPresenceLogout();
+
+        }
 
 
+        if (
+            typeof stopPresenceMonitoring ===
+            'function'
+        ) {
 
-    
+            stopPresenceMonitoring();
+
+        }
 
 
-</div>
+        localStorage.removeItem(
+            'schoolLoggedIn'
+        );
+
+
+        const mainContent =
+            document.getElementById(
+                'mainContent'
+            );
+
+
+        if (mainContent) {
+
+            mainContent.style.display =
+                'none';
+
+        }
+
+
+        const adminModal =
+            document.getElementById(
+                'adminModal'
+            );
+
+
+        if (adminModal) {
+
+            adminModal.style.display =
+                'none';
+
+        }
+
+
+        const sectionSelection =
+            document.getElementById(
+                'sectionSelection'
+            );
+
+
+        if (sectionSelection) {
+
+            sectionSelection.style.display =
+                'none';
+
+        }
+
+
+        const loginScreen =
+            document.getElementById(
+                'loginScreen'
+            );
+
+
+        if (loginScreen) {
+
+            loginScreen.style.display =
+                'flex';
+
+        }
+
+
+        const passInput =
+            document.getElementById(
+                'passInput'
+            );
+
+
+        if (passInput) {
+
+            passInput.value =
+                '';
+
+        }
+
+
+        const errorMsg =
+            document.getElementById(
+                'errorMsg'
+            );
+
+
+        if (errorMsg) {
+
+            errorMsg.textContent =
+                '';
+
+            errorMsg.style.display =
+                'none';
+
+        }
+
+    }
+
+
+    /* =========================================
+       ENTER لتسجيل الدخول
+    ========================================= */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const loginInput =
+                document.getElementById(
+                    "passInput"
+                );
+
+
+            if (loginInput) {
+
+                loginInput.addEventListener(
+                    "keydown",
+                    function (event) {
+
+                        if (
+                            event.key ===
+                            "Enter"
+                        ) {
+
+                            event.preventDefault();
+
+                            checkPassword();
+
+                        }
+
+                    }
+                );
+
+            }
+
+        }
+    );
+
+</script>
+
+
+<!-- ==================================================
+     RESTORE LOGIN AFTER REFRESH
+================================================== -->
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const loggedIn =
+                localStorage.getItem(
+                    'schoolLoggedIn'
+                );
+
+
+            const loginScreen =
+                document.getElementById(
+                    "loginScreen"
+                );
+
+
+            const mainContent =
+                document.getElementById(
+                    "mainContent"
+                );
+
+
+            const adminModal =
+                document.getElementById(
+                    "adminModal"
+                );
+
+
+            const sectionSelection =
+                document.getElementById(
+                    "sectionSelection"
+                );
+
+
+            if (loggedIn === 'true') {
+
+                if (loginScreen) {
+
+                    loginScreen.style.display =
+                        "none";
+
+                }
+
+
+                if (mainContent) {
+
+                    mainContent.style.display =
+                        "none";
+
+                }
+
+
+                if (sectionSelection) {
+
+                    sectionSelection.style.display =
+                        "flex";
+
+                }
+
+
+                if (adminModal) {
+
+                    adminModal.style.display =
+                        "none";
+
+                }
+
+            } else {
+
+                if (loginScreen) {
+
+                    loginScreen.style.display =
+                        "flex";
+
+                }
+
+
+                if (sectionSelection) {
+
+                    sectionSelection.style.display =
+                        "none";
+
+                }
+
+
+                if (mainContent) {
+
+                    mainContent.style.display =
+                        "none";
+
+                }
+
+
+                if (adminModal) {
+
+                    adminModal.style.display =
+                        "none";
+
+                }
+
+            }
+
+        }
+    );
+
+</script>
+
+
+<!-- ==================================================
+     MAIN JAVASCRIPT
+================================================== -->
+
+<script src="script.js"></script>
+
 
 <!-- ==================================================
      FORGOT PASSWORD MODAL
@@ -2208,6 +2154,7 @@ function continueStudents() {
                 border-radius:6px;
             ">
 
+
         <button
             type="button"
             id="forgotSubmitBtn"
@@ -2228,6 +2175,7 @@ function continueStudents() {
 
         </button>
 
+
         <button
             type="button"
             onclick="closeForgotPassword()"
@@ -2246,6 +2194,7 @@ function continueStudents() {
 
         </button>
 
+
         <p
             id="forgotErrorMsg"
             style="
@@ -2260,8 +2209,7 @@ function continueStudents() {
 </div>
 
 
-
-
 </body>
 
 </html>
+```
