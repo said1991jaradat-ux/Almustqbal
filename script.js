@@ -2332,144 +2332,121 @@ function printAdminReport() {
     const records =
         getFilteredAdminRecords();
 
-
     const title =
         getAdminReportTitle();
-
 
     const period =
         getAdminPeriodLabel();
 
-
     const total =
         records.length;
 
-
     const lateness =
         records.filter(
-            r =>
-                r.type ===
-                'lateness'
+            r => r.type === 'lateness'
         ).length;
-
 
     const uniform =
         records.filter(
-            r =>
-                r.type ===
-                'uniform'
+            r => r.type === 'uniform'
         ).length;
-
 
     const escape =
         records.filter(
-            r =>
-                r.type ===
-                'escape'
+            r => r.type === 'escape'
         ).length;
-
 
     const absence =
         records.filter(
-            r =>
-                r.type ===
-                'absence'
+            r => r.type === 'absence'
+        ).length;
+
+    const otherProblems =
+        records.filter(
+            r => r.type === 'otherProblems'
         ).length;
 
 
+    /* ==================================================
+       إنشاء صفوف التقرير
+    ================================================== */
+
     const rows =
         records
-            .map(
-                function (record) {
+            .map(function (record) {
 
-                    const dateObject =
-                        getRecordDateObject(
-                            record
-                        );
+                const dateObject =
+                    getRecordDateObject(record);
 
+                const recordDate =
+                    dateObject
+                        ? dateObject.toLocaleDateString('ar-EG')
+                        : record.date || '';
 
-                    const recordDate =
-                        dateObject
-                            ? dateObject.toLocaleDateString(
-                                'ar-EG'
-                            )
-                            : record.date || '';
+                const grade =
+                    record.grade || '';
 
+                const section =
+                    record.section || '';
 
-                    const grade =
-                        record.grade || '';
+                const gradeSection =
+                    (grade || section)
+                        ? `${grade} / ${section}`
+                        : '--';
 
+                return `
+                    <tr>
 
-                    const section =
-                        record.section || '';
+                        <td>
+                            ${escapeHtml(recordDate)}
+                        </td>
 
+                        <td>
+                            ${escapeHtml(
+                                translateType(record.type)
+                            )}
+                        </td>
 
-                    const gradeSection =
-                        grade ||
-                        section
-                            ? `${grade} / ${section}`
-                            : '--';
+                        <td>
+                            ${escapeHtml(
+                                record.studentName || ''
+                            )}
+                        </td>
 
+                        <td>
+                            ${escapeHtml(
+                                gradeSection
+                            )}
+                        </td>
 
-                    return `
+                        <td>
+                            ${escapeHtml(
+                                record.time || ''
+                            )}
+                        </td>
 
-                        <tr>
+                        <td>
+                            ${escapeHtml(
+                                record.details || ''
+                            )}
+                        </td>
 
-                            <td>
-                                ${escapeHtml(
-                                    recordDate
-                                )}
-                            </td>
+                    </tr>
+                `;
 
-                            <td>
-                                ${escapeHtml(
-                                    translateType(
-                                        record.type
-                                    )
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    record.studentName ||
-                                    ''
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    gradeSection
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    record.time ||
-                                    ''
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    record.details ||
-                                    ''
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
+            })
             .join('');
 
+
+    /* ==================================================
+       نافذة الطباعة
+    ================================================== */
 
     const printWindow =
         window.open(
             '',
             '_blank',
-            'width=1200,height=800'
+            'width=1200,height=900'
         );
 
 
@@ -2484,354 +2461,478 @@ function printAdminReport() {
     }
 
 
-    printWindow.document.write(`
+    const html = `
 
-        <!DOCTYPE html>
+<!DOCTYPE html>
 
-        <html
-            lang="ar"
-            dir="rtl">
+<html lang="ar" dir="rtl">
 
-        <head>
+<head>
 
-            <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-            <title>
-                ${escapeHtml(title)}
-            </title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-            <style>
+    <title>
+        ${escapeHtml(title)}
+    </title>
 
-                @page {
+    <style>
 
-                    size:
-                        A4;
+        * {
+            box-sizing: border-box;
+        }
 
-                    margin:
-                        15mm;
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
 
-                }
+        body {
 
-                body {
+            font-family:
+                Arial,
+                Tahoma,
+                sans-serif;
 
-                    font-family:
-                        Arial,
-                        sans-serif;
+            direction: rtl;
 
-                    direction:
-                        rtl;
+            margin: 0;
 
-                    padding:
-                        20px;
+            padding: 20px;
 
-                }
+            color: #000;
 
-                h1,
-                h2 {
+            background: #fff;
 
-                    text-align:
-                        center;
+        }
 
-                    margin:
-                        5px 0;
+        .header {
 
-                }
+            text-align: center;
 
-                h1 {
+            margin-bottom: 20px;
 
-                    font-size:
-                        24px;
+        }
 
-                }
+        .school-name {
 
-                h2 {
+            font-size: 24px;
 
-                    font-size:
-                        20px;
+            font-weight: bold;
 
-                }
+            margin-bottom: 8px;
 
-                .manager {
+        }
 
-                    text-align:
-                        center;
+        .report-title {
 
-                    font-size:
-                        16px;
+            font-size: 21px;
 
-                    font-weight:
-                        bold;
+            font-weight: bold;
 
-                    margin:
-                        8px 0 15px;
+            margin-bottom: 8px;
 
-                }
+        }
 
-                .period {
+        .manager {
 
-                    text-align:
-                        center;
+            font-size: 16px;
 
-                    margin-bottom:
-                        25px;
+            font-weight: bold;
 
-                    color:
-                        #555;
+            margin-bottom: 8px;
 
-                }
+        }
 
-                .summary {
+        .period {
 
-                    display:
-                        flex;
+            font-size: 15px;
 
-                    gap:
-                        10px;
+            color: #444;
 
-                    margin-bottom:
-                        25px;
+        }
 
-                    flex-wrap:
-                        wrap;
 
-                }
+        /* ===============================
+           SUMMARY
+        =============================== */
 
-                .box {
+        .summary {
 
-                    flex:
-                        1;
+            display: grid;
 
-                    min-width:
-                        130px;
+            grid-template-columns:
+                repeat(6, 1fr);
 
-                    border:
-                        1px solid #ddd;
+            gap: 8px;
 
-                    padding:
-                        15px;
+            margin: 20px 0;
 
-                    text-align:
-                        center;
+        }
 
-                    border-radius:
-                        8px;
+        .box {
 
-                }
+            border:
+                1px solid #999;
 
-                table {
+            border-radius: 6px;
 
-                    width:
-                        100%;
+            padding: 10px;
 
-                    border-collapse:
-                        collapse;
+            text-align: center;
 
-                }
+            min-height: 65px;
 
-                th,
-                td {
+        }
 
-                    border:
-                        1px solid #ccc;
+        .box-title {
 
-                    padding:
-                        10px;
+            font-size: 13px;
 
-                    text-align:
-                        center;
+            font-weight: bold;
 
-                }
+            margin-bottom: 5px;
 
-                th {
+        }
 
-                    background:
-                        #eeeeee;
+        .box-number {
 
-                }
+            font-size: 20px;
 
-                .print-signature {
+            font-weight: bold;
 
-                    margin-top:
-                        70px;
+        }
 
-                    padding-top:
-                        20px;
 
-                    border-top:
-                        1px solid #ccc;
+        /* ===============================
+           TABLE
+        =============================== */
 
-                    display:
-                        flex;
+        table {
 
-                    justify-content:
-                        space-between;
+            width: 100%;
 
-                    align-items:
-                        flex-end;
+            border-collapse: collapse;
 
-                    font-size:
-                        16px;
+            margin-top: 15px;
 
-                    font-weight:
-                        bold;
+        }
 
-                }
+        th,
+        td {
 
-                .signature-line {
+            border:
+                1px solid #999;
 
-                    min-width:
-                        240px;
+            padding:
+                8px;
 
-                    text-align:
-                        center;
+            text-align:
+                center;
 
-                }
+            vertical-align:
+                middle;
 
-            </style>
+            font-size:
+                13px;
 
-        </head>
+        }
 
-        <body>
+        th {
 
-            <h1>
-                مدرسة ذكور المستقبل الصالح الأساسية العليا
-            </h1>
+            background:
+                #eeeeee;
 
-            <h2>
-                ${escapeHtml(title)}
-            </h2>
+            font-weight:
+                bold;
 
-            <div class="manager">
-                مدير المدرسة: أ. سمير مصلح
+        }
+
+        tr {
+
+            page-break-inside:
+                avoid;
+
+        }
+
+
+        /* ===============================
+           FOOTER
+        =============================== */
+
+        .signature {
+
+            margin-top:
+                60px;
+
+            padding-top:
+                15px;
+
+            border-top:
+                1px solid #aaa;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            font-size:
+                16px;
+
+            font-weight:
+                bold;
+
+        }
+
+        .signature-line {
+
+            min-width:
+                250px;
+
+            text-align:
+                center;
+
+        }
+
+
+        @media print {
+
+            body {
+
+                padding:
+                    0;
+
+            }
+
+            .summary {
+
+                grid-template-columns:
+                    repeat(6, 1fr);
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+
+        <div class="school-name">
+            مدرسة ذكور المستقبل الصالح الأساسية العليا
+        </div>
+
+        <div class="report-title">
+            ${escapeHtml(title)}
+        </div>
+
+        <div class="manager">
+            مدير المدرسة: أ. سمير مصلح
+        </div>
+
+        <div class="period">
+            ${escapeHtml(period)}
+        </div>
+
+    </div>
+
+
+    <div class="summary">
+
+        <div class="box">
+
+            <div class="box-title">
+                إجمالي الحالات
             </div>
 
-            <div class="period">
-                ${escapeHtml(period)}
+            <div class="box-number">
+                ${total}
             </div>
 
-            <div class="summary">
+        </div>
 
-                <div class="box">
-                    <strong>
-                        إجمالي الحالات
-                    </strong>
 
-                    <br>
+        <div class="box">
 
-                    ${total}
-                </div>
-
-                <div class="box">
-                    <strong>
-                        التأخير
-                    </strong>
-
-                    <br>
-
-                    ${lateness}
-                </div>
-
-                <div class="box">
-                    <strong>
-                        الزي المدرسي
-                    </strong>
-
-                    <br>
-
-                    ${uniform}
-                </div>
-
-                <div class="box">
-                    <strong>
-                        الهروب
-                    </strong>
-
-                    <br>
-
-                    ${escape}
-                </div>
-
-                <div class="box">
-                    <strong>
-                        الغياب
-                    </strong>
-
-                    <br>
-
-                    ${absence}
-                </div>
-<div class="box">
-    <strong>
-        مشاكل أخرى
-    </strong>
-
-    <br>
-
-    ${otherProblems}
-</div>
-
+            <div class="box-title">
+                التأخير
             </div>
 
-            <table>
+            <div class="box-number">
+                ${lateness}
+            </div>
 
-                <thead>
+        </div>
 
+
+        <div class="box">
+
+            <div class="box-title">
+                الزي المدرسي
+            </div>
+
+            <div class="box-number">
+                ${uniform}
+            </div>
+
+        </div>
+
+
+        <div class="box">
+
+            <div class="box-title">
+                الهروب
+            </div>
+
+            <div class="box-number">
+                ${escape}
+            </div>
+
+        </div>
+
+
+        <div class="box">
+
+            <div class="box-title">
+                الغياب
+            </div>
+
+            <div class="box-number">
+                ${absence}
+            </div>
+
+        </div>
+
+
+        <div class="box">
+
+            <div class="box-title">
+                مشاكل أخرى
+            </div>
+
+            <div class="box-number">
+                ${otherProblems}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    التاريخ
+                </th>
+
+                <th>
+                    نوع الحالة
+                </th>
+
+                <th>
+                    اسم الطالب
+                </th>
+
+                <th>
+                    الصف / الشعبة
+                </th>
+
+                <th>
+                    وقت التسجيل
+                </th>
+
+                <th>
+                    التفاصيل
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            ${
+                rows ||
+                `
                     <tr>
 
-                        <th>التاريخ</th>
-                        <th>نوع الحالة</th>
-                        <th>اسم الطالب</th>
-                        <th>الصف / الشعبة</th>
-                        <th>وقت التسجيل</th>
-                        <th>التفاصيل</th>
+                        <td colspan="6">
+                            لا توجد سجلات
+                        </td>
 
                     </tr>
+                `
+            }
 
-                </thead>
+        </tbody>
 
-                <tbody>
+    </table>
 
-                    ${rows}
 
-                </tbody>
+    <div class="signature">
 
-            </table>
+        <div>
+            مدير المدرسة: أ. سمير مصلح
+        </div>
 
-            <div class="print-signature">
+        <div class="signature-line">
+            التوقيع: __________________
+        </div>
 
-                <div>
-                    مدير المدرسة: أ. سمير مصلح
-                </div>
+    </div>
 
-                <div class="signature-line">
-                    التوقيع: __________________
-                </div>
 
-            </div>
+</body>
 
-            <script>
+</html>
 
-                window.onload =
-                    function () {
+`;
 
-                        window.print();
 
-                    };
+    /* ==================================================
+       كتابة الصفحة
+    ================================================== */
 
-            <\/script>
+    printWindow.document.open();
 
-        </body>
-
-        </html>
-
-    `);
-
+    printWindow.document.write(html);
 
     printWindow.document.close();
 
+
+    /* ==================================================
+       الطباعة بعد تحميل الصفحة
+    ================================================== */
+
+    printWindow.onload =
+        function () {
+
+            setTimeout(
+                function () {
+
+                    printWindow.focus();
+
+                    printWindow.print();
+
+                },
+                500
+            );
+
+        };
+
 }
-
-
 /* ==================================================
    OTHER REASON
 ================================================== */
