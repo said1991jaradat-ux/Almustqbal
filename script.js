@@ -67,7 +67,9 @@ let dbData = {
 
     escape: [],
 
-    absence: []
+    absence: [],
+
+    otherProblems: []
 
 };
 
@@ -893,12 +895,15 @@ async function fetchRecordsFromCloud() {
                 [],
 
             escape:
-                [],
+        [],
 
-            absence:
-                []
+    absence:
+        [],
 
-        };
+    otherProblems:
+        []
+
+};
 
 
         records.forEach(
@@ -987,7 +992,16 @@ async function fetchRecordsFromCloud() {
                     );
 
                 }
+else if (
+    record.type ===
+    'otherProblems'
+) {
 
+    dbData.otherProblems.push(
+        mapped
+    );
+
+}
             }
         );
 
@@ -1056,6 +1070,12 @@ function renderLogs() {
     renderCategoryLogs(
         'absence',
         'absenceLogs'
+    );
+
+
+    renderCategoryLogs(
+        'otherProblems',
+        'otherProblemsLogs'
     );
 
 }
@@ -1944,9 +1964,12 @@ function renderAdminReport() {
     setText(
         'adminAbsenceCount',
         absence
-    );
 
-
+       setText(
+    'adminOtherProblemsCount',
+    otherProblems
+);
+       
     renderAdminTable(
         records
     );
@@ -2022,7 +2045,14 @@ function translateType(
 
     }
 
+if (
+    type ===
+    'otherProblems'
+) {
 
+    return 'مشاكل أخرى';
+
+}
     return type || '';
 
 }
@@ -2132,11 +2162,12 @@ function renderAdminTable(
                         record.section || '';
 
 
-                    const gradeSection =
-                        grade ||
-                        section
-                            ? `${grade} / ${section}`
-                            : '--';
+                  const gradeSection =
+    grade && section
+        ? `${grade} / ${section}`
+        : grade ||
+          section ||
+          '--';
 
 
                     return `
@@ -3336,6 +3367,174 @@ async function addAbsence(
 
 }
 
+/* ==================================================
+   ADD OTHER PROBLEM
+================================================== */
+
+async function addOtherProblem(event) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    const student =
+        getValue(
+            'otherProblemStudent'
+        );
+
+
+    const grade =
+        getValue(
+            'otherProblemGrade'
+        );
+
+
+    const section =
+        getValue(
+            'otherProblemSection'
+        );
+
+
+    const problemType =
+        getValue(
+            'otherProblemType'
+        );
+
+
+    const notes =
+        getValue(
+            'otherProblemNotes'
+        );
+
+
+    if (!student) {
+
+        alert(
+            'يرجى إدخال اسم الطالب'
+        );
+
+        return;
+
+    }
+
+
+    if (!grade) {
+
+        alert(
+            'يرجى اختيار الصف'
+        );
+
+        return;
+
+    }
+
+
+    if (!section) {
+
+        alert(
+            'يرجى اختيار الشعبة'
+        );
+
+        return;
+
+    }
+
+
+    if (!problemType) {
+
+        alert(
+            'يرجى اختيار نوع المخالفة'
+        );
+
+        return;
+
+    }
+
+
+    const dateTime =
+        getAutomaticDateTime();
+
+
+    let details =
+        problemType;
+
+
+    if (notes) {
+
+        details +=
+            ' | ملاحظات: ' +
+            notes;
+
+    }
+
+
+    try {
+
+        await saveRecord({
+
+            type:
+                'otherProblems',
+
+            studentName:
+                student,
+
+            grade:
+                grade,
+
+            section:
+                section,
+
+            date:
+                dateTime.date,
+
+            time:
+                dateTime.time,
+
+            details:
+                details
+
+        });
+
+
+        alert(
+            'تم حفظ المخالفة بنجاح'
+        );
+
+
+        const form =
+            document.getElementById(
+                'otherProblemsForm'
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        await fetchRecordsFromCloud();
+
+
+    } catch (error) {
+
+        console.error(
+            'Other problem error:',
+            error
+        );
+
+
+        alert(
+            'حدث خطأ أثناء حفظ المخالفة'
+        );
+
+    }
+
+}
 
 /* ==================================================
    SAVE RECORD
