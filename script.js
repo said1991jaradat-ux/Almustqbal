@@ -1878,7 +1878,6 @@ function getAdminPeriodLabel() {
 
 }
 
-
 /* ==================================================
    ADMIN REPORT
 ================================================== */
@@ -1937,6 +1936,14 @@ function renderAdminReport() {
         ).length;
 
 
+    const otherProblems =
+        records.filter(
+            r =>
+                r.type ===
+                'otherProblems'
+        ).length;
+
+
     setText(
         'adminTotalCount',
         total
@@ -1964,40 +1971,20 @@ function renderAdminReport() {
     setText(
         'adminAbsenceCount',
         absence
+    );
 
-       setText(
-    'adminOtherProblemsCount',
-    otherProblems
-);
-       
+
+    setText(
+        'adminOtherProblemsCount',
+        otherProblems
+    );
+
+
     renderAdminTable(
         records
     );
 
 }
-
-
-function setText(
-    id,
-    value
-) {
-
-    const element =
-        document.getElementById(
-            id
-        );
-
-
-    if (element) {
-
-        element.textContent =
-            value;
-
-    }
-
-}
-
-
 /* ==================================================
    TRANSLATE
 ================================================== */
