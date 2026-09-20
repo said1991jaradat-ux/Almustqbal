@@ -535,209 +535,6 @@
 
 
             <!-- =========================================
-     5. OTHER PROBLEMS
-========================================== -->
-
-<section class="card">
-
-    <h3>
-        5. مشاكل أخرى
-    </h3>
-
-
-    <form
-        id="otherProblemsForm"
-        onsubmit="addOtherProblem(event)">
-
-
-        <!-- اسم الطالب -->
-
-        <div class="form-group">
-
-            <label>
-                اسم الطالب:
-            </label>
-
-            <input
-                type="text"
-                id="otherProblemStudent"
-                required
-                placeholder="الاسم الرباعي">
-
-        </div>
-           <div class="form-group">
-
-                            <label>
-                                الصف:
-                            </label>
-
-                            <select id="absenceGrade">
-
-                                <option>الخامس</option>
-                                <option>السادس</option>
-                                <option>السابع</option>
-                                <option>الثامن</option>
-                                <option>التاسع</option>
-
-                            </select>
-
-                        </div>
-
-
-        <!-- الشعبة -->
-
-        <div class="form-group">
-
-            <label>
-                الشعبة:
-            </label>
-
-            <select
-                id="otherProblemSection"
-                required>
-
-                <option value="">
-                    اختر الشعبة
-                </option>
-
-                <option value="أ">
-                    أ
-                </option>
-
-                <option value="ب">
-                    ب
-                </option>
-
-                <option value="ج">
-                    ج
-                </option>
-
-                <option value="د">
-                    د
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- نوع المخالفة -->
-
-        <div class="form-group">
-
-            <label>
-                نوع المخالفة:
-            </label>
-
-            <select
-                id="otherProblemType"
-                required>
-
-                <option value="">
-                    اختر نوع المخالفة
-                </option>
-
-                <option value="ضبط دخان">
-                    ضبط دخان
-                </option>
-
-                <option value="ضبط سجائر الكترونية">
-                    ضبط سجائر الكترونية
-                </option>
-
-                <option value="ضبط أداة حادة">
-                    ضبط أداة حادة
-                </option>
-
-                <option value="اعتداء على طالب">
-                    اعتداء على طالب
-                </option>
-
-                <option value="اعتداء على حرم المدرسة">
-                    اعتداء على حرم المدرسة
-                </option>
-
-                <option value="الشتائم والألفاظ غير اللائقة">
-                    الشتائم والألفاظ غير اللائقة
-                </option>
-
-                <option value="سب الذات الإلهية">
-                    سب الذات الإلهية
-                </option>
-
-                <option value="مشاكل أخرى">
-                    مشاكل أخرى
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- الملاحظات -->
-
-        <div class="form-group">
-
-            <label>
-                ملاحظات:
-            </label>
-
-            <textarea
-                id="otherProblemNotes"
-                rows="4"
-                placeholder="اكتب أي ملاحظات إضافية هنا...">
-            </textarea>
-
-        </div>
-
-
-        <!-- حفظ -->
-
-        <button
-            type="submit"
-            class="btn">
-
-            حفظ المخالفة
-
-        </button>
-
-    </form>
-
-
-    <!-- السجلات الأخيرة -->
-
-    <div class="logs-section">
-
-        <h4>
-            آخر المخالفات:
-        </h4>
-
-        <div
-            id="otherProblemsLogs"
-            class="logs-list">
-        </div>
-
-    </div>
-
-
-    <!-- التقرير -->
-
-    <button
-        type="button"
-        onclick="printCategoryReport('otherProblems')"
-        class="btn"
-        style="
-            margin-top:15px;
-            background-color:#6c757d;
-        ">
-
-        طباعة تقرير المشاكل الأخرى
-
-    </button>
-
-</section>
-            
-            <!-- =========================================
                  1. ABSENCE
             ========================================== -->
 
@@ -1269,6 +1066,209 @@
             </section>
 
 
+            <!-- =========================================
+     5. OTHER PROBLEMS
+========================================== -->
+
+<section class="card">
+
+    <h3>
+        5. مشاكل أخرى
+    </h3>
+
+
+    <form
+        id="otherProblemsForm"
+        onsubmit="addOtherProblem(event)">
+
+
+        <!-- اسم الطالب -->
+
+        <div class="form-group">
+
+            <label>
+                اسم الطالب:
+            </label>
+
+            <input
+                type="text"
+                id="otherProblemStudent"
+                required
+                placeholder="الاسم الرباعي">
+
+        </div>
+           <div class="form-group">
+
+                            <label>
+                                الصف:
+                            </label>
+
+                            <select id="absenceGrade">
+
+                                <option>الخامس</option>
+                                <option>السادس</option>
+                                <option>السابع</option>
+                                <option>الثامن</option>
+                                <option>التاسع</option>
+
+                            </select>
+
+                        </div>
+
+
+        <!-- الشعبة -->
+
+        <div class="form-group">
+
+            <label>
+                الشعبة:
+            </label>
+
+            <select
+                id="otherProblemSection"
+                required>
+
+                <option value="">
+                    اختر الشعبة
+                </option>
+
+                <option value="أ">
+                    أ
+                </option>
+
+                <option value="ب">
+                    ب
+                </option>
+
+                <option value="ج">
+                    ج
+                </option>
+
+                <option value="د">
+                    د
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- نوع المخالفة -->
+
+        <div class="form-group">
+
+            <label>
+                نوع المخالفة:
+            </label>
+
+            <select
+                id="otherProblemType"
+                required>
+
+                <option value="">
+                    اختر نوع المخالفة
+                </option>
+
+                <option value="ضبط دخان">
+                    ضبط دخان
+                </option>
+
+                <option value="ضبط سجائر الكترونية">
+                    ضبط سجائر الكترونية
+                </option>
+
+                <option value="ضبط أداة حادة">
+                    ضبط أداة حادة
+                </option>
+
+                <option value="اعتداء على طالب">
+                    اعتداء على طالب
+                </option>
+
+                <option value="اعتداء على حرم المدرسة">
+                    اعتداء على حرم المدرسة
+                </option>
+
+                <option value="الشتائم والألفاظ غير اللائقة">
+                    الشتائم والألفاظ غير اللائقة
+                </option>
+
+                <option value="سب الذات الإلهية">
+                    سب الذات الإلهية
+                </option>
+
+                <option value="مشاكل أخرى">
+                    مشاكل أخرى
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- الملاحظات -->
+
+        <div class="form-group">
+
+            <label>
+                ملاحظات:
+            </label>
+
+            <textarea
+                id="otherProblemNotes"
+                rows="4"
+                placeholder="اكتب أي ملاحظات إضافية هنا...">
+            </textarea>
+
+        </div>
+
+
+        <!-- حفظ -->
+
+        <button
+            type="submit"
+            class="btn">
+
+            حفظ المخالفة
+
+        </button>
+
+    </form>
+
+
+    <!-- السجلات الأخيرة -->
+
+    <div class="logs-section">
+
+        <h4>
+            آخر المخالفات:
+        </h4>
+
+        <div
+            id="otherProblemsLogs"
+            class="logs-list">
+        </div>
+
+    </div>
+
+
+    <!-- التقرير -->
+
+    <button
+        type="button"
+        onclick="printCategoryReport('otherProblems')"
+        class="btn"
+        style="
+            margin-top:15px;
+            background-color:#6c757d;
+        ">
+
+        طباعة تقرير المشاكل الأخرى
+
+    </button>
+
+</section>
+            
         </div>
 
     </main>
