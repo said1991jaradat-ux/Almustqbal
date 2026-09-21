@@ -2055,14 +2055,10 @@ select:focus {
 
     text-align: right;
 }
-/* ==================================================
-   شريط الترحيب المتحرك
-================================================== */
-
 .welcome-ticker {
     position: absolute;
 
-    top: 0;
+    bottom: 0;
     left: 0;
 
     width: 100%;
@@ -2092,11 +2088,10 @@ select:focus {
 
     direction: rtl;
 
-    animation: welcomeMove 12s linear infinite;
+    animation: welcomeMove 25s linear infinite;
 }
 
 @keyframes welcomeMove {
-
     from {
         right: 100%;
     }
@@ -2104,5 +2099,4 @@ select:focus {
     to {
         right: -100%;
     }
-
 }
