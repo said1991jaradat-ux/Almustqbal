@@ -2241,6 +2241,8 @@ if (
     ========================================= */
 
     async function logout() {
+        localStorage.removeItem('schoolLoggedIn');
+localStorage.removeItem('schoolSection');
 
         if (
             typeof notifyPresenceLogout ===
@@ -2512,119 +2514,6 @@ if (
 
 </script>
 
-
-<!-- ==================================================
-     RESTORE LOGIN AFTER REFRESH
-================================================== -->
-
-<script>
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-
-            const loggedIn =
-                localStorage.getItem(
-                    'schoolLoggedIn'
-                );
-
-
-            const loginScreen =
-                document.getElementById(
-                    "loginScreen"
-                );
-
-
-            const mainContent =
-                document.getElementById(
-                    "mainContent"
-                );
-
-
-            const adminModal =
-                document.getElementById(
-                    "adminModal"
-                );
-
-
-            const sectionSelection =
-                document.getElementById(
-                    "sectionSelection"
-                );
-
-
-            if (loggedIn === 'true') {
-
-                if (loginScreen) {
-
-                    loginScreen.style.display =
-                        "none";
-
-                }
-
-
-                if (mainContent) {
-
-                    mainContent.style.display =
-                        "none";
-
-                }
-
-
-                if (sectionSelection) {
-
-                    sectionSelection.style.display =
-                        "flex";
-
-                }
-
-
-                if (adminModal) {
-
-                    adminModal.style.display =
-                        "none";
-
-                }
-
-            } else {
-
-                if (loginScreen) {
-
-                    loginScreen.style.display =
-                        "flex";
-
-                }
-
-
-                if (sectionSelection) {
-
-                    sectionSelection.style.display =
-                        "none";
-
-                }
-
-
-                if (mainContent) {
-
-                    mainContent.style.display =
-                        "none";
-
-                }
-
-
-                if (adminModal) {
-
-                    adminModal.style.display =
-                        "none";
-
-                }
-
-            }
-
-        }
-    );
-
-</script>
 
 
 <!-- ==================================================
