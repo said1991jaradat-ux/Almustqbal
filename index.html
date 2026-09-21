@@ -2024,6 +2024,82 @@ async function checkPassword() {
             originalBtnText;
     }
 }
+    function continueStudents() {
+
+    localStorage.setItem(
+        'schoolSection',
+        'students'
+    );
+
+    const sectionSelection =
+        document.getElementById(
+            'sectionSelection'
+        );
+
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
+
+    const loginScreen =
+        document.getElementById(
+            'loginScreen'
+        );
+
+    if (sectionSelection) {
+        sectionSelection.style.display =
+            'none';
+    }
+
+    if (loginScreen) {
+        loginScreen.style.display =
+            'none';
+    }
+
+    if (mainContent) {
+        mainContent.style.display =
+            'block';
+    }
+}
+
+
+function continueTeachers() {
+
+    localStorage.setItem(
+        'schoolSection',
+        'teachers'
+    );
+
+    const sectionSelection =
+        document.getElementById(
+            'sectionSelection'
+        );
+
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
+
+    const loginScreen =
+        document.getElementById(
+            'loginScreen'
+        );
+
+    if (sectionSelection) {
+        sectionSelection.style.display =
+            'none';
+    }
+
+    if (loginScreen) {
+        loginScreen.style.display =
+            'none';
+    }
+
+    if (mainContent) {
+        mainContent.style.display =
+            'block';
+    }
+}
 
     /* ==================================================
        LOGOUT
