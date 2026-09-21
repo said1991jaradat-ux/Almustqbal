@@ -2253,6 +2253,7 @@
 
     }
 
+<script>
 
     /* ==================================================
        RESTORE LOGIN STATE
@@ -2267,30 +2268,25 @@
                     'schoolLoggedIn'
                 );
 
-
             const savedSection =
                 localStorage.getItem(
                     'schoolSection'
                 );
-
 
             const loginScreen =
                 document.getElementById(
                     'loginScreen'
                 );
 
-
             const loginBox =
                 document.querySelector(
                     '.login-box'
                 );
 
-
             const sectionSelection =
                 document.getElementById(
                     'sectionSelection'
                 );
-
 
             const mainContent =
                 document.getElementById(
@@ -2299,13 +2295,25 @@
 
 
             /*
-             * المستخدم غير مسجل دخول
+             * ==========================================
+             * حالة غير مسجل دخول
+             * ==========================================
              */
 
-            if (
-                loggedIn !==
-                'true'
-            ) {
+            if (loggedIn !== 'true') {
+
+                /* تنظيف أي حالة قديمة غير صحيحة */
+
+                localStorage.removeItem(
+                    'schoolLoggedIn'
+                );
+
+                localStorage.removeItem(
+                    'schoolSection'
+                );
+
+
+                /* إظهار شاشة تسجيل الدخول */
 
                 if (loginScreen) {
 
@@ -2345,29 +2353,24 @@
 
 
             /*
-             * المستخدم مسجل دخول
+             * ==========================================
+             * مسجل دخول + قسم الطلاب
+             * ==========================================
              */
 
-            if (loginBox) {
-
-                loginBox.style.display =
-                    'none';
-
-            }
-
-
-            /*
-             * تم اختيار قسم الطلاب
-             */
-
-            if (
-                savedSection ===
-                'students'
-            ) {
+            if (savedSection === 'students') {
 
                 if (loginScreen) {
 
                     loginScreen.style.display =
+                        'none';
+
+                }
+
+
+                if (loginBox) {
+
+                    loginBox.style.display =
                         'none';
 
                 }
@@ -2388,34 +2391,111 @@
 
                 }
 
-            } else {
+
+                return;
+
+            }
+
+
+            /*
+             * ==========================================
+             * مسجل دخول + قسم المعلمين
+             * ==========================================
+             */
+
+            if (savedSection === 'teachers') {
 
                 /*
-                 * مسجل دخول لكن لم يختر قسمًا
+                 * في حالة وجود teachers.html
+                 * نترك المتصفح ينتقل إليها.
                  */
 
-                if (loginScreen) {
+                window.location.href =
+                    'teachers.html';
 
-                    loginScreen.style.display =
-                        'flex';
+                return;
 
-                }
-
-
-                if (sectionSelection) {
-
-                    sectionSelection.style.display =
-                        'flex';
-
-                }
+            }
 
 
-                if (mainContent) {
+            /*
+             * ==========================================
+     * حالة دخول غير مكتملة
+     *
+     * schoolLoggedIn = true
+     * ولكن لا يوجد قسم محفوظ
+     *
+     * لا نخفي شاشة الدخول.
+     * نعيد الحالة للوضع الطبيعي.
+     * ==========================================
+     */
 
-                    mainContent.style.display =
-                        'none';
+            localStorage.removeItem(
+                'schoolLoggedIn'
+            );
 
-                }
+            localStorage.removeItem(
+                'schoolSection'
+            );
+
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    'flex';
+
+            }
+
+
+            if (loginBox) {
+
+                loginBox.style.display =
+                    'block';
+
+            }
+
+
+            if (sectionSelection) {
+
+                sectionSelection.style.display =
+                    'none';
+
+            }
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    'none';
+
+            }
+
+
+            /* تنظيف حقل كلمة المرور */
+
+            const passInput =
+                document.getElementById(
+                    'passInput'
+                );
+
+            if (passInput) {
+
+                passInput.value = '';
+
+            }
+
+
+            const errorMsg =
+                document.getElementById(
+                    'errorMsg'
+                );
+
+            if (errorMsg) {
+
+                errorMsg.textContent = '';
+
+                errorMsg.style.display =
+                    'none';
 
             }
 
@@ -2446,6 +2526,8 @@
     );
 
 </script>
+
+
 
 
 <!-- ==================================================
