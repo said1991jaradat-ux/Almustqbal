@@ -2202,7 +2202,7 @@
                 await response.json();
 
 
-            if (
+if (
     response.ok &&
     result.success
 ) {
@@ -2213,15 +2213,9 @@
     );
 
 
-    /* في كل تسجيل دخول جديد نعرض شاشة الاختيار */
-
-   
-
-
-    const loginScreen =
-        document.getElementById(
-            'loginScreen'
-        );
+    localStorage.removeItem(
+        'schoolSection'
+    );
 
 
     const loginBox =
@@ -2236,20 +2230,16 @@
         );
 
 
+    const loginScreen =
+        document.getElementById(
+            'loginScreen'
+        );
+
+
     const mainContent =
         document.getElementById(
             'mainContent'
         );
-
-
-    /* إبقاء الواجهة الرئيسية */
-
-    if (loginScreen) {
-
-        loginScreen.style.display =
-            'flex';
-
-    }
 
 
     /* إخفاء صندوق تسجيل الدخول */
@@ -2262,7 +2252,17 @@
     }
 
 
-    /* إظهار زري الطلاب والمعلمين */
+    /* إبقاء الواجهة الرئيسية ظاهرة */
+
+    if (loginScreen) {
+
+        loginScreen.style.display =
+            'flex';
+
+    }
+
+
+    /* إظهار اختيار القسم */
 
     if (sectionSelection) {
 
@@ -2272,7 +2272,7 @@
     }
 
 
-    /* إبقاء نظام الطلاب مخفيًا */
+    /* إبقاء نظام الطلاب مخفي */
 
     if (mainContent) {
 
@@ -2282,7 +2282,7 @@
     }
 
 
-    /* تشغيل عداد المتصلين */
+    /* تشغيل المتصلين */
 
     if (
         typeof startPresenceMonitoring ===
@@ -2341,7 +2341,7 @@
     }
 
 
-    function continueStudents() {
+   function continueStudents() {
 
     localStorage.setItem(
         'schoolSection',
@@ -2349,57 +2349,48 @@
     );
 
 
-   const loginScreen =
-    document.getElementById(
-        'loginScreen'
-    );
+    const loginScreen =
+        document.getElementById(
+            'loginScreen'
+        );
 
 
-const loginBox =
-    document.querySelector(
-        '.login-box'
-    );
+    const sectionSelection =
+        document.getElementById(
+            'sectionSelection'
+        );
 
 
-const sectionSelection =
-    document.getElementById(
-        'sectionSelection'
-    );
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
 
 
-if (mainContent) {
+    if (sectionSelection) {
 
-    mainContent.style.display =
-        'none';
+        sectionSelection.style.display =
+            'none';
 
-}
-
-
-if (sectionSelection) {
-
-    sectionSelection.style.display =
-        'none';
-
-}
+    }
 
 
-if (loginScreen) {
+    if (loginScreen) {
 
-    loginScreen.style.display =
-        'flex';
+        loginScreen.style.display =
+            'none';
 
-}
+    }
 
 
-if (loginBox) {
+    if (mainContent) {
 
-    loginBox.style.display =
-        'block';
+        mainContent.style.display =
+            'block';
+
+    }
 
 }
-
-}
-
  function continueTeachers() {
 
     localStorage.setItem(
