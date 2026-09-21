@@ -2243,6 +2243,7 @@ if (
     async function logout() {
         localStorage.removeItem('schoolLoggedIn');
 localStorage.removeItem('schoolSection');
+        location.reload();
 
         if (
             typeof notifyPresenceLogout ===
