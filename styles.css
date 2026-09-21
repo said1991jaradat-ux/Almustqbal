@@ -1973,7 +1973,10 @@ select:focus {
 /* مربع تسجيل الدخول */
 
 .login-box {
-    position: relative;
+    position: absolute;
+
+    top: 40px;
+    right: 50px;
 
     z-index: 5;
 
