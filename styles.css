@@ -1903,23 +1903,31 @@ select:focus {
    صورة واحدة لخلفية واجهة تسجيل الدخول
 ================================================== */
 
-#loginScreen {
-    position: fixed;
+.login-background {
+    position: absolute;
     inset: 0;
+
     width: 100%;
     height: 100%;
 
-    background-image: url('https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/343115378_3491540304501523_4825229709260791039_n.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    object-fit: cover;
+    object-position: center;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    z-index: 1;
+}
 
-    z-index: 9999;
-    overflow: hidden;
+.login-box {
+    position: absolute;
+    top: 40px;
+    right: 50px;
+
+    z-index: 10;
+
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border-radius: 18px;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
 
