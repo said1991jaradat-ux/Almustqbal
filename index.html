@@ -2202,69 +2202,97 @@
 
 
             if (
-                response.ok &&
-                result.success
-            ) {
+    response.ok &&
+    result.success
+) {
 
-                localStorage.setItem(
-                    'schoolLoggedIn',
-                    'true'
-                );
-
-
-                const loginScreen =
-                    document.getElementById(
-                        "loginScreen"
-                    );
+    localStorage.setItem(
+        'schoolLoggedIn',
+        'true'
+    );
 
 
-                const mainContent =
-                    document.getElementById(
-                        "mainContent"
-                    );
+    /* في كل تسجيل دخول جديد نعرض شاشة الاختيار */
+
+   
 
 
-                if (loginScreen) {
-
-                    loginScreen.style.display =
-                        'none';
-
-                }
+    const loginScreen =
+        document.getElementById(
+            'loginScreen'
+        );
 
 
-                const sectionSelection =
-                    document.getElementById(
-                        'sectionSelection'
-                    );
+    const loginBox =
+        document.querySelector(
+            '.login-box'
+        );
 
 
-                if (sectionSelection) {
-
-                    sectionSelection.style.display =
-                        'flex';
-
-                }
+    const sectionSelection =
+        document.getElementById(
+            'sectionSelection'
+        );
 
 
-                if (mainContent) {
-
-                    mainContent.style.display =
-                        'none';
-
-                }
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
 
 
-                if (
-                    typeof startPresenceMonitoring ===
-                    'function'
-                ) {
+    /* إبقاء الواجهة الرئيسية */
 
-                    startPresenceMonitoring();
+    if (loginScreen) {
 
-                }
+        loginScreen.style.display =
+            'flex';
+
+    }
 
 
-            } else {
+    /* إخفاء صندوق تسجيل الدخول */
+
+    if (loginBox) {
+
+        loginBox.style.display =
+            'none';
+
+    }
+
+
+    /* إظهار زري الطلاب والمعلمين */
+
+    if (sectionSelection) {
+
+        sectionSelection.style.display =
+            'flex';
+
+    }
+
+
+    /* إبقاء نظام الطلاب مخفيًا */
+
+    if (mainContent) {
+
+        mainContent.style.display =
+            'none';
+
+    }
+
+
+    /* تشغيل عداد المتصلين */
+
+    if (
+        typeof startPresenceMonitoring ===
+        'function'
+    ) {
+
+        startPresenceMonitoring();
+
+    }
+
+} else {
 
                 if (errorMsg) {
 
@@ -2314,44 +2342,75 @@
 
     function continueStudents() {
 
-        const sectionSelection =
-            document.getElementById(
-                'sectionSelection'
-            );
+    localStorage.setItem(
+        'schoolSection',
+        'students'
+    );
 
 
-        const mainContent =
-            document.getElementById(
-                'mainContent'
-            );
+   const loginScreen =
+    document.getElementById(
+        'loginScreen'
+    );
 
 
-        if (sectionSelection) {
-
-            sectionSelection.style.display =
-                'none';
-
-        }
+const loginBox =
+    document.querySelector(
+        '.login-box'
+    );
 
 
-        if (mainContent) {
-
-            mainContent.style.display =
-                'block';
-
-        }
-
-    }
+const sectionSelection =
+    document.getElementById(
+        'sectionSelection'
+    );
 
 
-    function continueTeachers() {
+if (mainContent) {
 
-        alert(
-            'قسم متابعة المعلمين سيتم برمجته لاحقًا.'
-        );
+    mainContent.style.display =
+        'none';
 
-    }
+}
 
+
+if (sectionSelection) {
+
+    sectionSelection.style.display =
+        'none';
+
+}
+
+
+if (loginScreen) {
+
+    loginScreen.style.display =
+        'flex';
+
+}
+
+
+if (loginBox) {
+
+    loginBox.style.display =
+        'block';
+
+}
+
+}
+
+ function continueTeachers() {
+
+    localStorage.setItem(
+        'schoolSection',
+        'teachers'
+    );
+
+
+    window.location.href =
+        'teachers.html';
+
+}
 
     /* =========================================
        LOGOUT
@@ -2379,9 +2438,7 @@
         }
 
 
-        localStorage.removeItem(
-            'schoolLoggedIn'
-        );
+     
 
 
         const mainContent =
@@ -2477,40 +2534,157 @@
        ENTER لتسجيل الدخول
     ========================================= */
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
+  document.addEventListener(
+    'DOMContentLoaded',
+    function () {
 
-            const loginInput =
-                document.getElementById(
-                    "passInput"
-                );
+        const loggedIn =
+            localStorage.getItem(
+                'schoolLoggedIn'
+            );
 
 
-            if (loginInput) {
+        const savedSection =
+            localStorage.getItem(
+                'schoolSection'
+            );
 
-                loginInput.addEventListener(
-                    "keydown",
-                    function (event) {
 
-                        if (
-                            event.key ===
-                            "Enter"
-                        ) {
+        const loginScreen =
+            document.getElementById(
+                'loginScreen'
+            );
 
-                            event.preventDefault();
 
-                            checkPassword();
+        const loginBox =
+            document.querySelector(
+                '.login-box'
+            );
 
-                        }
 
-                    }
-                );
+        const sectionSelection =
+            document.getElementById(
+                'sectionSelection'
+            );
+
+
+        const mainContent =
+            document.getElementById(
+                'mainContent'
+            );
+
+
+        if (
+            loggedIn !==
+            'true'
+        ) {
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    'flex';
+
+            }
+
+
+            if (loginBox) {
+
+                loginBox.style.display =
+                    'block';
+
+            }
+
+
+            if (sectionSelection) {
+
+                sectionSelection.style.display =
+                    'none';
+
+            }
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    'none';
+
+            }
+
+
+            return;
+
+        }
+
+
+        /* المستخدم مسجل دخول */
+
+        if (loginBox) {
+
+            loginBox.style.display =
+                'none';
+
+        }
+
+
+        if (
+            savedSection ===
+            'students'
+        ) {
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    'none';
+
+            }
+
+
+            if (sectionSelection) {
+
+                sectionSelection.style.display =
+                    'none';
+
+            }
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    'block';
+
+            }
+
+        } else {
+
+            /* مسجل دخول لكن لم يختر قسمًا */
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    'flex';
+
+            }
+
+
+            if (sectionSelection) {
+
+                sectionSelection.style.display =
+                    'flex';
+
+            }
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    'none';
 
             }
 
         }
-    );
+
+    }
+);
 
 </script>
 
