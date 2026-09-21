@@ -30,6 +30,517 @@
     </script>
 
     <style>
+        /* ==================================================
+   NEW HOME PAGE
+================================================== */
+
+#loginScreen {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8f2df 0%,
+            #f3ebd0 50%,
+            #eee2bd 100%
+        );
+
+    display: flex;
+
+    justify-content: flex-start;
+
+    align-items: flex-start;
+
+    z-index: 9990;
+
+}
+
+
+/* ==================================================
+   HEXAGON GALLERY
+================================================== */
+
+.hex-gallery {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    overflow: hidden;
+
+}
+
+
+/* الشكل الخارجي */
+
+.hex-tile {
+
+    position: absolute;
+
+    width: 270px;
+
+    height: 270px;
+
+    background: #d4af37;
+
+    clip-path:
+        polygon(
+            25% 6.7%,
+            75% 6.7%,
+            100% 50%,
+            75% 93.3%,
+            25% 93.3%,
+            0 50%
+        );
+
+    overflow: hidden;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.08);
+
+}
+
+
+/* الصورة الداخلية */
+
+.hex-tile::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 7px;
+
+    background-image:
+        url("343115378_3491540304501523_4825229709260791039_n.jpg");
+
+    background-size: cover;
+
+    background-position: center;
+
+    clip-path:
+        polygon(
+            25% 6.7%,
+            75% 6.7%,
+            100% 50%,
+            75% 93.3%,
+            25% 93.3%,
+            0 50%
+        );
+
+}
+
+
+/* ==================================================
+   HEXAGON POSITIONS
+================================================== */
+
+.hex-1 {
+
+    top: 90px;
+
+    left: 3%;
+
+}
+
+
+.hex-2 {
+
+    top: 30px;
+
+    left: 24%;
+
+}
+
+
+.hex-3 {
+
+    top: 30px;
+
+    left: 47%;
+
+}
+
+
+.hex-4 {
+
+    top: 210px;
+
+    left: 36%;
+
+    width: 330px;
+
+    height: 330px;
+
+}
+
+
+.hex-5 {
+
+    top: 390px;
+
+    left: 15%;
+
+}
+
+
+.hex-6 {
+
+    top: 390px;
+
+    left: 60%;
+
+}
+
+
+.hex-7 {
+
+    top: 550px;
+
+    right: 2%;
+
+}
+
+
+/* ==================================================
+   LOGIN BOX - TOP RIGHT
+================================================== */
+
+.login-box {
+
+    position: absolute;
+
+    top: 28px;
+
+    right: 28px;
+
+    z-index: 10;
+
+    background: rgba(255,255,255,0.96);
+
+    padding: 25px;
+
+    text-align: center;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,0.15);
+
+    width: 330px;
+
+    max-width: calc(100vw - 56px);
+
+}
+
+
+/* ==================================================
+   SECTION SELECTION
+================================================== */
+
+#sectionSelection {
+
+    position: fixed !important;
+
+    inset: 0 !important;
+
+    width: 100% !important;
+
+    height: 100% !important;
+
+    background: transparent !important;
+
+    z-index: 9995 !important;
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: flex-end;
+
+    pointer-events: none;
+
+}
+
+
+/* الحاوية الداخلية */
+
+#sectionSelection > div {
+
+    background: transparent !important;
+
+    box-shadow: none !important;
+
+    width: auto !important;
+
+    max-width: none !important;
+
+    padding: 20px !important;
+
+    margin-bottom: 45px;
+
+    text-align: center;
+
+    pointer-events: auto;
+
+}
+
+
+/* العنوان */
+
+#sectionSelection h2 {
+
+    color: #0b1d3a !important;
+
+    background: rgba(255,255,255,0.92);
+
+    display: inline-block;
+
+    padding: 10px 25px;
+
+    border-radius: 10px;
+
+    margin-bottom: 15px;
+
+}
+
+
+/* النص */
+
+#sectionSelection p {
+
+    background: rgba(255,255,255,0.9);
+
+    display: inline-block;
+
+    padding: 7px 18px;
+
+    border-radius: 8px;
+
+}
+
+
+/* أزرار القسم */
+
+#sectionSelection button {
+
+    min-width: 250px !important;
+
+    padding: 18px 28px !important;
+
+    font-size: 20px !important;
+
+    border-radius: 12px !important;
+
+    font-weight: bold;
+
+    border: none;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 20px rgba(0,0,0,0.15);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+#sectionSelection button:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 12px 25px rgba(0,0,0,0.20);
+
+}
+
+
+/* زر الطلاب */
+
+#sectionSelection button:first-of-type {
+
+    background: #007bff !important;
+
+}
+
+
+/* زر المعلمين */
+
+#sectionSelection button:last-of-type {
+
+    background: #6c757d !important;
+
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 900px) {
+
+    .hex-tile {
+
+        width: 190px;
+
+        height: 190px;
+
+    }
+
+
+    .hex-1 {
+
+        top: 120px;
+
+        left: -35px;
+
+    }
+
+
+    .hex-2 {
+
+        top: 100px;
+
+        left: 25%;
+
+    }
+
+
+    .hex-3 {
+
+        top: 100px;
+
+        right: -35px;
+
+        left: auto;
+
+    }
+
+
+    .hex-4 {
+
+        width: 230px;
+
+        height: 230px;
+
+        top: 280px;
+
+        left: 50%;
+
+        transform: translateX(-50%);
+
+    }
+
+
+    .hex-5 {
+
+        top: 430px;
+
+        left: 5%;
+
+    }
+
+
+    .hex-6 {
+
+        top: 430px;
+
+        right: 5%;
+
+        left: auto;
+
+    }
+
+
+    .hex-7 {
+
+        display: none;
+
+    }
+
+
+    .login-box {
+
+        top: 15px;
+
+        right: 15px;
+
+        width: 280px;
+
+        max-width: calc(100vw - 30px);
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .login-box {
+
+        width: 250px;
+
+        padding: 18px;
+
+    }
+
+
+    .hex-tile {
+
+        width: 145px;
+
+        height: 145px;
+
+    }
+
+
+    .hex-4 {
+
+        width: 180px;
+
+        height: 180px;
+
+    }
+
+
+    #sectionSelection > div {
+
+        width: 100% !important;
+
+        box-sizing: border-box;
+
+        margin-bottom: 20px;
+
+    }
+
+
+    #sectionSelection button {
+
+        width: 100%;
+
+        min-width: 0 !important;
+
+        max-width: 350px;
+
+    }
+
+}
 
         /* =========================================
            LOGIN
