@@ -1901,38 +1901,6 @@ select:focus {
 
 
 
-/* =========================================================
-   شعار المدرسة كمربعات متكررة في شاشة الدخول
-========================================================= */
-
-#loginScreen {
-    position: fixed;
-    inset: 0;
-
-    background-color: #0b1d3a !important;
-
-    background-image: url("https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/343115378_3491540304501523_4825229709260791039_n.jpg") !important;
-
-    background-repeat: repeat !important;
-
-    background-size: 500px 500px !important;
-
-    background-position: top right !important;
-}
-
-
-/* مربع تسجيل الدخول يبقى أبيض بالكامل */
-#loginScreen .login-box {
-    position: relative;
-
-    background: #ffffff !important;
-
-    z-index: 10;
-
-    opacity: 1 !important;
-
-    box-shadow: 0 10px 35px rgba(0,0,0,0.25);
-}
 
 
 
