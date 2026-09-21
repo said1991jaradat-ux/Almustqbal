@@ -1982,5 +1982,77 @@ select:focus {
 }
 
 
+/* ==================================================
+   صحيفة كلمة مدير المدرسة
+================================================== */
 
+.principal-message {
+    position: absolute;
+
+    top: 365px;
+    left: 50px;
+
+    width: 300px;
+    min-height: 220px;
+
+    padding: 18px;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            rgba(255, 250, 235, 0.96),
+            rgba(245, 238, 215, 0.96)
+        );
+
+    border: 2px solid #8b7355;
+    border-radius: 6px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.22);
+
+    z-index: 5;
+
+    direction: rtl;
+
+    font-family: "Amiri", "Times New Roman", serif;
+}
+
+
+/* عنوان الصحيفة */
+
+.newspaper-header {
+    text-align: center;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    color: #3d3024;
+
+    padding-bottom: 10px;
+}
+
+
+/* الخط الفاصل */
+
+.newspaper-line {
+    width: 100%;
+    height: 2px;
+
+    background: #8b7355;
+
+    margin-bottom: 14px;
+}
+
+
+/* نص كلمة المدير */
+
+.principal-message-text {
+    font-size: 17px;
+    line-height: 1.8;
+
+    color: #40362b;
+
+    text-align: right;
+}
 
