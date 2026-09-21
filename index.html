@@ -1846,246 +1846,184 @@
     /* ==================================================
        LOGIN
     ================================================== */
+async function checkPassword() {
 
-    async function checkPassword() {
+    const inputElement =
+        document.getElementById('passInput');
 
-        const inputElement =
-            document.getElementById('passInput');
+    const loginBtn =
+        document.querySelector('.login-box button');
 
-        const loginBtn =
-            document.querySelector('.login-box button');
+    const errorMsg =
+        document.getElementById('errorMsg');
 
-        const errorMsg =
-            document.getElementById('errorMsg');
+    if (!inputElement || !loginBtn) {
+        console.error('عناصر تسجيل الدخول غير موجودة');
+        return;
+    }
 
-        if (!inputElement || !loginBtn) {
-            console.error('عناصر تسجيل الدخول غير موجودة');
-            return;
-        }
+    const userInput =
+        inputElement.value.trim();
 
-        const userInput =
-            inputElement.value.trim();
-
-        if (!userInput) {
-
-            if (errorMsg) {
-
-                errorMsg.textContent =
-                    'يرجى إدخال كلمة المرور.';
-
-                errorMsg.style.display =
-                    'block';
-            }
-
-            inputElement.focus();
-
-            return;
-        }
-
-        const originalBtnText =
-            loginBtn.innerText;
-
-        loginBtn.disabled = true;
-        loginBtn.innerText = 'جاري التحقق...';
+    if (!userInput) {
 
         if (errorMsg) {
 
-            errorMsg.style.display =
-                'none';
-
             errorMsg.textContent =
-                '';
+                'يرجى إدخال كلمة المرور.';
+
+            errorMsg.style.display =
+                'block';
         }
 
-        try {
+        inputElement.focus();
 
-            const response =
-                await fetch(
-                    `${AUTH_BASE_URL}/api/login`,
-                    {
-                        method: 'POST',
+        return;
+    }
 
-                        headers: {
-                            'Content-Type':
-                                'application/json'
-                        },
+    const originalBtnText =
+        loginBtn.innerText;
 
-                        body: JSON.stringify({
-                            password: userInput
-                        })
-                    }
+    loginBtn.disabled = true;
+    loginBtn.innerText = 'جاري التحقق...';
+
+    if (errorMsg) {
+
+        errorMsg.style.display =
+            'none';
+
+        errorMsg.textContent =
+            '';
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${AUTH_BASE_URL}/api/login`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        password: userInput
+                    })
+                }
+            );
+
+        const result =
+            await response.json();
+
+        if (
+            response.ok &&
+            result.success
+        ) {
+
+            localStorage.setItem(
+                'schoolLoggedIn',
+                'true'
+            );
+
+            localStorage.removeItem(
+                'schoolSection'
+            );
+
+            const loginScreen =
+                document.getElementById(
+                    'loginScreen'
                 );
 
-            const result =
-                await response.json();
-
-            if (
-                response.ok &&
-                result.success
-            ) {
-
-                localStorage.setItem(
-                    'schoolLoggedIn',
-                    'true'
+            const loginBox =
+                document.querySelector(
+                    '.login-box'
                 );
 
-                localStorage.removeItem(
-                    'schoolSection'
+            const sectionSelection =
+                document.getElementById(
+                    'sectionSelection'
                 );
 
-                const loginScreen =
-                    document.getElementById(
-                        'loginScreen'
-                    );
+            const mainContent =
+                document.getElementById(
+                    'mainContent'
+                );
 
-                const loginBox =
-                    document.querySelector(
-                        '.login-box'
-                    );
+            if (loginBox) {
 
-                const sectionSelection =
-                    document.getElementById(
-                        'sectionSelection'
-                    );
-
-                const mainContent =
-                    document.getElementById(
-                        'mainContent'
-                    );
-
-                if (loginBox) {
-
-                    loginBox.style.display =
-                        'none';
-                }
-
-                if (loginScreen) {
-
-                    loginScreen.style.display =
-                        'flex';
-                }
-
-                if (sectionSelection) {
-
-                    sectionSelection.style.display =
-                        'flex';
-                }
-
-                if (mainContent) {
-
-                    mainContent.style.display =
-                        'none';
-                }
-
-                if (
-                    typeof startPresenceMonitoring ===
-                    'function'
-                ) {
-
-                    startPresenceMonitoring();
-                }
-
-            } else {
-
-                if (errorMsg) {
-
-                    errorMsg.textContent =
-                        result.message ||
-                        'كلمة المرور غير صحيحة.';
-
-                    errorMsg.style.display =
-                        'block';
-                }
+                loginBox.style.display =
+                    'none';
             }
 
-        } catch (err) {
+            /* إخفاء شاشة تسجيل الدخول بالكامل */
+            if (loginScreen) {
 
-            console.error(
-                'LOGIN ERROR:',
-                err
-            );
+                loginScreen.style.display =
+                    'none';
+            }
+
+            /* إظهار شاشة اختيار القسم */
+            if (sectionSelection) {
+
+                sectionSelection.style.display =
+                    'flex';
+            }
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    'none';
+            }
+
+            if (
+                typeof startPresenceMonitoring ===
+                'function'
+            ) {
+
+                startPresenceMonitoring();
+            }
+
+        } else {
 
             if (errorMsg) {
 
                 errorMsg.textContent =
-                    'تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.';
+                    result.message ||
+                    'كلمة المرور غير صحيحة.';
 
                 errorMsg.style.display =
                     'block';
             }
-
-        } finally {
-
-            loginBtn.disabled =
-                false;
-
-            loginBtn.innerText =
-                originalBtnText;
         }
-    }
 
+    } catch (err) {
 
-    /* ==================================================
-       CONTINUE STUDENTS
-    ================================================== */
-
-    function continueStudents() {
-
-        localStorage.setItem(
-            'schoolSection',
-            'students'
+        console.error(
+            'LOGIN ERROR:',
+            err
         );
 
-        const loginScreen =
-            document.getElementById(
-                'loginScreen'
-            );
+        if (errorMsg) {
 
-        const sectionSelection =
-            document.getElementById(
-                'sectionSelection'
-            );
+            errorMsg.textContent =
+                'تعذر الاتصال بالسيرفر، تأكد من الإنترنت وحاول مجددًا.';
 
-        const mainContent =
-            document.getElementById(
-                'mainContent'
-            );
-
-        if (sectionSelection) {
-
-            sectionSelection.style.display =
-                'none';
-        }
-
-        if (loginScreen) {
-
-            loginScreen.style.display =
-                'none';
-        }
-
-        if (mainContent) {
-
-            mainContent.style.display =
+            errorMsg.style.display =
                 'block';
         }
+
+    } finally {
+
+        loginBtn.disabled =
+            false;
+
+        loginBtn.innerText =
+            originalBtnText;
     }
-
-
-    /* ==================================================
-       CONTINUE TEACHERS
-    ================================================== */
-
-    function continueTeachers() {
-
-        localStorage.setItem(
-            'schoolSection',
-            'teachers'
-        );
-
-        window.location.href =
-            'teachers.html';
-    }
-
+}
 
     /* ==================================================
        LOGOUT
