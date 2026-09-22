@@ -2593,92 +2593,78 @@ function resetForm(
 
 }
 
-
 /* =========================================================
    TAB SWITCHING
 ========================================================= */
 
-function switchTab(
-    tabName
-) {
+function switchTab(tabName) {
 
+    /* إخفاء جميع الأقسام */
     document
-        .querySelectorAll(
-            '.tab-content'
-        )
-        .forEach(
-            tab => {
+        .querySelectorAll('.tab-content')
+        .forEach(tab => {
 
-                tab.classList.remove(
-                    'active'
-                );
+            tab.classList.remove('active');
 
-            }
-        );
+        });
 
 
+    /* إزالة التفعيل من جميع أزرار القائمة */
     document
-        .querySelectorAll(
-            '.tab-btn'
-        )
-        .forEach(
-            button => {
+        .querySelectorAll('.nav-btn')
+        .forEach(button => {
 
-                button.classList.remove(
-                    'active'
-                );
+            button.classList.remove('active');
 
-            }
-        );
+        });
 
 
+    /* القسم المطلوب */
     const target =
         document.getElementById(
-            tabName
+            `tab-${tabName}`
         );
 
 
     if (target) {
 
-        target.classList.add(
-            'active'
-        );
+        target.classList.add('active');
 
     }
 
 
+    /* تفعيل زر القائمة */
     const buttons =
         document.querySelectorAll(
-            '.tab-btn'
+            '.nav-btn'
         );
 
 
-    buttons.forEach(
-        button => {
+    buttons.forEach(button => {
 
-            const onclick =
-                button.getAttribute(
-                    'onclick'
-                );
+        const onclick =
+            button.getAttribute(
+                'onclick'
+            );
 
 
-            if (
-                onclick &&
-                onclick.includes(
-                    `switchTab('${tabName}')`
-                )
-            ) {
+        if (
+            onclick &&
+            onclick.includes(
+                `switchTab('${tabName}')`
+            )
+        ) {
 
-                button.classList.add(
-                    'active'
-                );
-
-            }
+            button.classList.add(
+                'active'
+            );
 
         }
-    );
+
+    });
 
 
+    /* تحديث لوحة التحكم */
     if (
         tabName === 'dashboard'
     ) {
