@@ -3215,7 +3215,7 @@ async function importData(
    PRINT REPORT
 ========================================================= */
 
-function printReport() {
+function printTeachersReport() {
 
     const now =
         new Date();
