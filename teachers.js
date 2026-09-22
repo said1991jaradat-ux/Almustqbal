@@ -1,4 +1,3 @@
-
 /* =========================================================
    نظام متابعة وإدارة المعلمين
    teachers.js
@@ -8,18 +7,27 @@
 
 
 /* =========================================================
-   STORAGE
+   TEACHERS DATABASE API
 ========================================================= */
 
-const TEACHERS_STORAGE_KEY = "teachersManagementData";
+const TEACHERS_API_URL =
+    "https://almustqbal.onrender.com/api/teacher-records";
+
 
 let teachersData = {
+
     absence: [],
+
     written: [],
+
     committees: [],
+
     tardiness: [],
+
     duty: [],
+
     notes: []
+
 };
 
 
@@ -28,6 +36,7 @@ let teachersData = {
 ========================================================= */
 
 let absenceChart = null;
+
 let writtenChart = null;
 
 
@@ -35,21 +44,24 @@ let writtenChart = null;
    INITIALIZATION
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
 
-    loadData();
+        await loadData();
 
-    setTodayDates();
+        setTodayDates();
 
-    renderAll();
+        renderAll();
 
-    toggleCommitteeNote();
+        toggleCommitteeNote();
 
-    toggleDutyNote();
+        toggleDutyNote();
 
-    initializeIcons();
+        initializeIcons();
 
-});
+    }
+);
 
 
 /* =========================================================
@@ -59,65 +71,109 @@ document.addEventListener("DOMContentLoaded", function () {
 function initializeIcons() {
 
     if (window.lucide) {
+
         lucide.createIcons();
+
     }
 
 }
 
 
 /* =========================================================
-   LOAD DATA
+   LOAD DATA FROM MONGODB
 ========================================================= */
 
-function loadData() {
+async function loadData() {
 
     try {
 
-        const saved =
-            localStorage.getItem(
-                TEACHERS_STORAGE_KEY
+        const response =
+            await fetch(
+                TEACHERS_API_URL,
+                {
+                    method: "GET"
+                }
             );
 
-        if (!saved) {
-            return;
+
+        if (!response.ok) {
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
         }
 
-        const parsed =
-            JSON.parse(saved);
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success ||
+            !result.data
+        ) {
+
+            throw new Error(
+                result.message ||
+                "استجابة غير صحيحة من السيرفر"
+            );
+
+        }
+
 
         teachersData = {
 
             absence:
-                Array.isArray(parsed.absence)
-                    ? parsed.absence
+                Array.isArray(
+                    result.data.absence
+                )
+                    ? result.data.absence
                     : [],
 
             written:
-                Array.isArray(parsed.written)
-                    ? parsed.written
+                Array.isArray(
+                    result.data.written
+                )
+                    ? result.data.written
                     : [],
 
             committees:
-                Array.isArray(parsed.committees)
-                    ? parsed.committees
+                Array.isArray(
+                    result.data.committees
+                )
+                    ? result.data.committees
                     : [],
 
             tardiness:
-                Array.isArray(parsed.tardiness)
-                    ? parsed.tardiness
+                Array.isArray(
+                    result.data.tardiness
+                )
+                    ? result.data.tardiness
                     : [],
 
             duty:
-                Array.isArray(parsed.duty)
-                    ? parsed.duty
+                Array.isArray(
+                    result.data.duty
+                )
+                    ? result.data.duty
                     : [],
 
             notes:
-                Array.isArray(parsed.notes)
-                    ? parsed.notes
+                Array.isArray(
+                    result.data.notes
+                )
+                    ? result.data.notes
                     : []
 
         };
+
+
+        console.log(
+            "تم تحميل بيانات المعلمين من MongoDB"
+        );
+
 
     } catch (error) {
 
@@ -126,42 +182,323 @@ function loadData() {
             error
         );
 
+
+        teachersData = {
+
+            absence: [],
+
+            written: [],
+
+            committees: [],
+
+            tardiness: [],
+
+            duty: [],
+
+            notes: []
+
+        };
+
+
+        alert(
+            "تعذر الاتصال بقاعدة بيانات المعلمين."
+        );
+
     }
+
+}
+
+
+/* =========================================================
+   ADD TEACHER RECORD TO MONGODB
+========================================================= */
+
+async function addTeacherRecord(
+    type,
+    data
+) {
+
+    try {
+
+        const response =
+            await fetch(
+                TEACHERS_API_URL,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            type:
+                                type,
+
+                            data:
+                                data
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "تعذر حفظ السجل"
+            );
+
+        }
+
+
+        return result.record;
+
+
+    } catch (error) {
+
+        console.error(
+            "خطأ في إضافة سجل المعلم:",
+            error
+        );
+
+
+        alert(
+            "تعذر حفظ بيانات المعلم في قاعدة البيانات."
+        );
+
+
+        return null;
+
+    }
+
+}
+
+
+/* =========================================================
+   UPDATE TEACHER RECORD IN MONGODB
+========================================================= */
+
+async function updateTeacherRecord(
+    id,
+    type,
+    data
+) {
+
+    try {
+
+        const response =
+            await fetch(
+
+                `${TEACHERS_API_URL}/${encodeURIComponent(id)}`,
+
+                {
+
+                    method: "PUT",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            type:
+                                type,
+
+                            data:
+                                data
+
+                        })
+
+                }
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "تعذر تعديل السجل"
+            );
+
+        }
+
+
+        return result.record;
+
+
+    } catch (error) {
+
+        console.error(
+            "خطأ في تعديل سجل المعلم:",
+            error
+        );
+
+
+        alert(
+            "تعذر تعديل بيانات المعلم في قاعدة البيانات."
+        );
+
+
+        return null;
+
+    }
+
+}
+
+
+/* =========================================================
+   DELETE TEACHER RECORD FROM MONGODB
+========================================================= */
+
+async function deleteTeacherRecord(
+    id
+) {
+
+    try {
+
+        const response =
+            await fetch(
+
+                `${TEACHERS_API_URL}/${encodeURIComponent(id)}`,
+
+                {
+
+                    method: "DELETE"
+
+                }
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "تعذر حذف السجل"
+            );
+
+        }
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "خطأ في حذف سجل المعلم:",
+            error
+        );
+
+
+        alert(
+            "تعذر حذف سجل المعلم من قاعدة البيانات."
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================================
+   GET RECORD ID
+========================================================= */
+
+function getRecordId(
+    record
+) {
+
+    if (!record) {
+        return "";
+    }
+
+    return String(
+        record._id ||
+        record.id ||
+        ""
+    );
+
+}
+
+
+/* =========================================================
+   REMOVE DATABASE ID FROM DATA
+   يستخدم فقط عند إرسال البيانات للسيرفر
+========================================================= */
+
+function cleanRecordForDatabase(
+    record
+) {
+
+    const cleaned = {
+        ...record
+    };
+
+
+    delete cleaned._id;
+
+    delete cleaned.id;
+
+
+    return cleaned;
 
 }
 
 
 /* =========================================================
    SAVE DATA
+   لم يعد يستخدم localStorage.
+   أبقينا الدالة حتى لا تتعطل أي وظيفة قديمة
+   تعتمد عليها.
 ========================================================= */
 
-function saveData() {
+async function saveData() {
 
-    try {
-
-        localStorage.setItem(
-            TEACHERS_STORAGE_KEY,
-            JSON.stringify(teachersData)
-        );
-
-    } catch (error) {
-
-        console.error(
-            "خطأ في حفظ بيانات المعلمين:",
-            error
-        );
-
-        alert(
-            "تعذر حفظ البيانات على هذا الجهاز."
-        );
-
-    }
+    return true;
 
 }
 
 
 /* =========================================================
    GENERATE ID
+   يستخدم فقط للعرض المحلي المؤقت.
 ========================================================= */
 
 function generateId() {
@@ -182,20 +519,31 @@ function generateId() {
 
 function getToday() {
 
-    const date = new Date();
+    const date =
+        new Date();
+
 
     const year =
         date.getFullYear();
 
+
     const month =
         String(
             date.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
+
 
     const day =
         String(
             date.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
+
 
     return `${year}-${month}-${day}`;
 
@@ -208,18 +556,26 @@ function getToday() {
 
 function getCurrentDateTime() {
 
-    const now = new Date();
+    const now =
+        new Date();
+
 
     return {
 
-        date: getToday(),
+        date:
+            getToday(),
 
         time:
             now.toLocaleTimeString(
                 "ar-PS",
                 {
-                    hour: "2-digit",
-                    minute: "2-digit"
+
+                    hour:
+                        "2-digit",
+
+                    minute:
+                        "2-digit"
+
                 }
             ),
 
@@ -251,25 +607,32 @@ function setTodayDates() {
 
     ];
 
+
     const today =
         getToday();
 
-    dateIds.forEach(function (id) {
 
-        const element =
-            document.getElementById(id);
+    dateIds.forEach(
+        function (id) {
 
-        if (
-            element &&
-            !element.value
-        ) {
+            const element =
+                document.getElementById(
+                    id
+                );
 
-            element.value =
-                today;
+
+            if (
+                element &&
+                !element.value
+            ) {
+
+                element.value =
+                    today;
+
+            }
 
         }
-
-    });
+    );
 
 }
 
@@ -278,18 +641,29 @@ function setTodayDates() {
    DATE FORMAT
 ========================================================= */
 
-function formatDate(dateString) {
+function formatDate(
+    dateString
+) {
 
     if (!dateString) {
+
         return "";
+
     }
+
 
     const parts =
         dateString.split("-");
 
-    if (parts.length !== 3) {
+
+    if (
+        parts.length !== 3
+    ) {
+
         return dateString;
+
     }
+
 
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 
@@ -300,28 +674,42 @@ function formatDate(dateString) {
    DAY NAME
 ========================================================= */
 
-function getDayName(dateString) {
+function getDayName(
+    dateString
+) {
 
     if (!dateString) {
+
         return "";
+
     }
+
 
     const date =
         new Date(
-            dateString + "T00:00:00"
+            dateString +
+            "T00:00:00"
         );
+
 
     const days = [
 
         "الأحد",
+
         "الاثنين",
+
         "الثلاثاء",
+
         "الأربعاء",
+
         "الخميس",
+
         "الجمعة",
+
         "السبت"
 
     ];
+
 
     return days[
         date.getDay()
@@ -334,11 +722,16 @@ function getDayName(dateString) {
    FORMAT DATE WITH DAY
 ========================================================= */
 
-function formatDateWithDay(dateString) {
+function formatDateWithDay(
+    dateString
+) {
 
     if (!dateString) {
+
         return "";
+
     }
+
 
     return `
         ${getDayName(dateString)}
@@ -353,7 +746,9 @@ function formatDateWithDay(dateString) {
    ESCAPE HTML
 ========================================================= */
 
-function escapeHtml(value) {
+function escapeHtml(
+    value
+) {
 
     if (
         value === null ||
@@ -363,6 +758,7 @@ function escapeHtml(value) {
         return "";
 
     }
+
 
     return String(value)
 
@@ -398,20 +794,25 @@ function escapeHtml(value) {
    TAB SYSTEM
 ========================================================= */
 
-function switchTab(tabName) {
+function switchTab(
+    tabName
+) {
 
     const tabs =
         document.querySelectorAll(
             ".tab-content"
         );
 
-    tabs.forEach(function (tab) {
 
-        tab.classList.remove(
-            "active"
-        );
+    tabs.forEach(
+        function (tab) {
 
-    });
+            tab.classList.remove(
+                "active"
+            );
+
+        }
+    );
 
 
     const buttons =
@@ -419,19 +820,24 @@ function switchTab(tabName) {
             ".nav-btn"
         );
 
-    buttons.forEach(function (button) {
 
-        button.classList.remove(
-            "active"
-        );
+    buttons.forEach(
+        function (button) {
 
-    });
+            button.classList.remove(
+                "active"
+            );
+
+        }
+    );
 
 
     const selectedTab =
         document.getElementById(
-            "tab-" + tabName
+            "tab-" +
+            tabName
         );
+
 
     if (selectedTab) {
 
@@ -444,14 +850,18 @@ function switchTab(tabName) {
 
     const selectedButton =
         Array.from(buttons)
-            .find(function (button) {
+            .find(
+                function (button) {
 
-                return button.getAttribute(
-                    "onclick"
-                ) ===
-                `switchTab('${tabName}')`;
+                    return (
+                        button.getAttribute(
+                            "onclick"
+                        ) ===
+                        `switchTab('${tabName}')`
+                    );
 
-            });
+                }
+            );
 
 
     if (selectedButton) {
@@ -481,7 +891,9 @@ function switchTab(tabName) {
    ABSENCE
 ========================================================= */
 
-function saveAbsence(event) {
+async function saveAbsence(
+    event
+) {
 
     event.preventDefault();
 
@@ -491,20 +903,24 @@ function saveAbsence(event) {
             "absence-name"
         ).value.trim();
 
+
     const date =
         document.getElementById(
             "absence-date"
         ).value;
+
 
     const reason =
         document.getElementById(
             "absence-reason"
         ).value;
 
+
     const formStatus =
         document.getElementById(
             "absence-form-status"
         ).value;
+
 
     const editId =
         document.getElementById(
@@ -512,7 +928,10 @@ function saveAbsence(event) {
         ).value;
 
 
-    if (!name || !date) {
+    if (
+        !name ||
+        !date
+    ) {
 
         alert(
             "يرجى إدخال اسم المعلم والتاريخ."
@@ -528,14 +947,20 @@ function saveAbsence(event) {
         const index =
             teachersData.absence.findIndex(
                 item =>
-                    item.id === editId
+                    getRecordId(item) ===
+                    String(editId)
             );
+
 
         if (index !== -1) {
 
-            teachersData.absence[index] = {
+            const oldRecord =
+                teachersData.absence[index];
 
-                ...teachersData.absence[index],
+
+            const data = {
+
+                ...oldRecord,
 
                 name,
 
@@ -547,6 +972,44 @@ function saveAbsence(event) {
 
             };
 
+
+            const saved =
+                await updateTeacherRecord(
+
+                    getRecordId(
+                        oldRecord
+                    ),
+
+                    "absence",
+
+                    cleanRecordForDatabase(
+                        data
+                    )
+
+                );
+
+
+            if (!saved) {
+
+                return;
+
+            }
+
+
+            teachersData.absence[index] = {
+
+                ...saved,
+
+                _id:
+                    saved._id ||
+                    saved.id,
+
+                id:
+                    saved.id ||
+                    saved._id
+
+            };
+
         }
 
     } else {
@@ -554,10 +1017,8 @@ function saveAbsence(event) {
         const now =
             getCurrentDateTime();
 
-        teachersData.absence.unshift({
 
-            id:
-                generateId(),
+        const data = {
 
             name,
 
@@ -576,18 +1037,47 @@ function saveAbsence(event) {
             createdAt:
                 now.createdAt
 
+        };
+
+
+        const saved =
+            await addTeacherRecord(
+                "absence",
+                data
+            );
+
+
+        if (!saved) {
+
+            return;
+
+        }
+
+
+        teachersData.absence.unshift({
+
+            ...saved,
+
+            _id:
+                saved._id ||
+                saved.id,
+
+            id:
+                saved.id ||
+                saved._id
+
         });
 
     }
 
 
-    saveData();
-
     renderAll();
+
 
     resetForm(
         "absence"
     );
+
 
     alert(
 
@@ -613,13 +1103,17 @@ function renderAbsence() {
             "absence-table-body"
         );
 
+
     if (!tbody) {
+
         return;
+
     }
 
 
     if (
-        teachersData.absence.length === 0
+        teachersData.absence.length ===
+        0
     ) {
 
         tbody.innerHTML =
@@ -636,48 +1130,50 @@ function renderAbsence() {
     tbody.innerHTML =
         teachersData.absence
 
-            .map(function (item) {
+            .map(
+                function (item) {
 
-                return `
+                    return `
 
-                    <tr>
+                        <tr>
 
-                        <td>
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.name
+                                )}
+                            </td>
 
-                        <td>
-                            ${formatDateWithDay(
-                                item.date
-                            )}
-                        </td>
+                            <td>
+                                ${formatDateWithDay(
+                                    item.date
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.reason
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.reason
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.formStatus
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.formStatus
+                                )}
+                            </td>
 
-                        <td>
-                            ${actionButtons(
-                                "absence",
-                                item.id
-                            )}
-                        </td>
+                            <td>
+                                ${actionButtons(
+                                    "absence",
+                                    getRecordId(item)
+                                )}
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                `;
+                    `;
 
-            })
+                }
+            )
 
             .join("");
 
@@ -691,47 +1187,53 @@ function renderAbsence() {
    EDIT ABSENCE
 ========================================================= */
 
-function editAbsence(id) {
+function editAbsence(
+    id
+) {
 
     const item =
         teachersData.absence.find(
             record =>
-                record.id === id
+                getRecordId(record) ===
+                String(id)
         );
 
+
     if (!item) {
+
         return;
+
     }
 
 
     document.getElementById(
         "absence-edit-id"
     ).value =
-        item.id;
+        getRecordId(item);
 
 
     document.getElementById(
         "absence-name"
     ).value =
-        item.name;
+        item.name || "";
 
 
     document.getElementById(
         "absence-date"
     ).value =
-        item.date;
+        item.date || "";
 
 
     document.getElementById(
         "absence-reason"
     ).value =
-        item.reason;
+        item.reason || "";
 
 
     document.getElementById(
         "absence-form-status"
     ).value =
-        item.formStatus;
+        item.formStatus || "";
 
 
     document.getElementById(
@@ -744,6 +1246,7 @@ function editAbsence(id) {
         "absence"
     );
 
+
     initializeIcons();
 
 }
@@ -753,7 +1256,9 @@ function editAbsence(id) {
    WRITTEN WORK
 ========================================================= */
 
-function saveWritten(event) {
+async function saveWritten(
+    event
+) {
 
     event.preventDefault();
 
@@ -763,15 +1268,18 @@ function saveWritten(event) {
             "written-name"
         ).value.trim();
 
+
     const type =
         document.getElementById(
             "written-type"
         ).value;
 
+
     const date =
         document.getElementById(
             "written-date"
         ).value;
+
 
     const editId =
         document.getElementById(
@@ -779,7 +1287,10 @@ function saveWritten(event) {
         ).value;
 
 
-    if (!name || !date) {
+    if (
+        !name ||
+        !date
+    ) {
 
         alert(
             "يرجى إدخال اسم المعلم وتاريخ التسليم."
@@ -795,20 +1306,64 @@ function saveWritten(event) {
         const index =
             teachersData.written.findIndex(
                 item =>
-                    item.id === editId
+                    getRecordId(item) ===
+                    String(editId)
             );
+
 
         if (index !== -1) {
 
-            teachersData.written[index] = {
+            const oldRecord =
+                teachersData.written[index];
 
-                ...teachersData.written[index],
+
+            const data = {
+
+                ...oldRecord,
 
                 name,
 
                 type,
 
                 date
+
+            };
+
+
+            const saved =
+                await updateTeacherRecord(
+
+                    getRecordId(
+                        oldRecord
+                    ),
+
+                    "written",
+
+                    cleanRecordForDatabase(
+                        data
+                    )
+
+                );
+
+
+            if (!saved) {
+
+                return;
+
+            }
+
+
+            teachersData.written[index] = {
+
+                ...saved,
+
+                _id:
+                    saved._id ||
+                    saved.id,
+
+                id:
+                    saved.id ||
+                    saved._id
 
             };
 
@@ -819,10 +1374,8 @@ function saveWritten(event) {
         const now =
             getCurrentDateTime();
 
-        teachersData.written.unshift({
 
-            id:
-                generateId(),
+        const data = {
 
             name,
 
@@ -839,18 +1392,47 @@ function saveWritten(event) {
             createdAt:
                 now.createdAt
 
+        };
+
+
+        const saved =
+            await addTeacherRecord(
+                "written",
+                data
+            );
+
+
+        if (!saved) {
+
+            return;
+
+        }
+
+
+        teachersData.written.unshift({
+
+            ...saved,
+
+            _id:
+                saved._id ||
+                saved.id,
+
+            id:
+                saved.id ||
+                saved._id
+
         });
 
     }
 
 
-    saveData();
-
     renderAll();
+
 
     resetForm(
         "written"
     );
+
 
     alert(
 
@@ -876,13 +1458,17 @@ function renderWritten() {
             "written-table-body"
         );
 
+
     if (!tbody) {
+
         return;
+
     }
 
 
     if (
-        teachersData.written.length === 0
+        teachersData.written.length ===
+        0
     ) {
 
         tbody.innerHTML =
@@ -899,42 +1485,44 @@ function renderWritten() {
     tbody.innerHTML =
         teachersData.written
 
-            .map(function (item) {
+            .map(
+                function (item) {
 
-                return `
+                    return `
 
-                    <tr>
+                        <tr>
 
-                        <td>
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.name
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.type
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.type
+                                )}
+                            </td>
 
-                        <td>
-                            ${formatDateWithDay(
-                                item.date
-                            )}
-                        </td>
+                            <td>
+                                ${formatDateWithDay(
+                                    item.date
+                                )}
+                            </td>
 
-                        <td>
-                            ${actionButtons(
-                                "written",
-                                item.id
-                            )}
-                        </td>
+                            <td>
+                                ${actionButtons(
+                                    "written",
+                                    getRecordId(item)
+                                )}
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                `;
+                    `;
 
-            })
+                }
+            )
 
             .join("");
 
@@ -948,41 +1536,47 @@ function renderWritten() {
    EDIT WRITTEN
 ========================================================= */
 
-function editWritten(id) {
+function editWritten(
+    id
+) {
 
     const item =
         teachersData.written.find(
             record =>
-                record.id === id
+                getRecordId(record) ===
+                String(id)
         );
 
+
     if (!item) {
+
         return;
+
     }
 
 
     document.getElementById(
         "written-edit-id"
     ).value =
-        item.id;
+        getRecordId(item);
 
 
     document.getElementById(
         "written-name"
     ).value =
-        item.name;
+        item.name || "";
 
 
     document.getElementById(
         "written-type"
     ).value =
-        item.type;
+        item.type || "";
 
 
     document.getElementById(
         "written-date"
     ).value =
-        item.date;
+        item.date || "";
 
 
     document.getElementById(
@@ -995,6 +1589,7 @@ function editWritten(id) {
         "written"
     );
 
+
     initializeIcons();
 
 }
@@ -1004,7 +1599,9 @@ function editWritten(id) {
    COMMITTEES
 ========================================================= */
 
-function saveCommittee(event) {
+async function saveCommittee(
+    event
+) {
 
     event.preventDefault();
 
@@ -1039,7 +1636,10 @@ function saveCommittee(event) {
         ).value.trim();
 
 
-    if (!name || !title) {
+    if (
+        !name ||
+        !title
+    ) {
 
         alert(
             "يرجى إدخال اسم المعلم واسم اللجنة."
@@ -1059,9 +1659,11 @@ function saveCommittee(event) {
             "يرجى كتابة الملاحظة أو سبب عدم الالتزام."
         );
 
+
         document.getElementById(
             "committee-note"
         ).focus();
+
 
         return;
 
@@ -1072,11 +1674,7 @@ function saveCommittee(event) {
         getCurrentDateTime();
 
 
-    const record = {
-
-        id:
-            id ||
-            generateId(),
+    const data = {
 
         name,
 
@@ -1103,16 +1701,60 @@ function saveCommittee(event) {
         const index =
             teachersData.committees.findIndex(
                 item =>
-                    item.id === id
+                    getRecordId(item) ===
+                    String(id)
             );
+
 
         if (index !== -1) {
 
+            const oldRecord =
+                teachersData.committees[index];
+
+
+            const updatedData = {
+
+                ...oldRecord,
+
+                ...data
+
+            };
+
+
+            const saved =
+                await updateTeacherRecord(
+
+                    getRecordId(
+                        oldRecord
+                    ),
+
+                    "committee",
+
+                    cleanRecordForDatabase(
+                        updatedData
+                    )
+
+                );
+
+
+            if (!saved) {
+
+                return;
+
+            }
+
+
             teachersData.committees[index] = {
 
-                ...teachersData.committees[index],
+                ...saved,
 
-                ...record
+                _id:
+                    saved._id ||
+                    saved.id,
+
+                id:
+                    saved.id ||
+                    saved._id
 
             };
 
@@ -1120,16 +1762,39 @@ function saveCommittee(event) {
 
     } else {
 
-        teachersData.committees.unshift(
-            record
-        );
+        const saved =
+            await addTeacherRecord(
+                "committee",
+                data
+            );
+
+
+        if (!saved) {
+
+            return;
+
+        }
+
+
+        teachersData.committees.unshift({
+
+            ...saved,
+
+            _id:
+                saved._id ||
+                saved.id,
+
+            id:
+                saved.id ||
+                saved._id
+
+        });
 
     }
 
 
-    saveData();
-
     renderAll();
+
 
     resetForm(
         "committee"
@@ -1160,10 +1825,12 @@ function toggleCommitteeNote() {
             "committee-status"
         );
 
+
     const group =
         document.getElementById(
             "committee-note-group"
         );
+
 
     const note =
         document.getElementById(
@@ -1176,7 +1843,9 @@ function toggleCommitteeNote() {
         !group ||
         !note
     ) {
+
         return;
+
     }
 
 
@@ -1221,13 +1890,17 @@ function renderCommittees() {
             "committee-table-body"
         );
 
+
     if (!tbody) {
+
         return;
+
     }
 
 
     if (
-        teachersData.committees.length === 0
+        teachersData.committees.length ===
+        0
     ) {
 
         tbody.innerHTML =
@@ -1244,49 +1917,51 @@ function renderCommittees() {
     tbody.innerHTML =
         teachersData.committees
 
-            .map(function (item) {
+            .map(
+                function (item) {
 
-                return `
+                    return `
 
-                    <tr>
+                        <tr>
 
-                        <td>
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.name
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.title
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.title
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.status
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.status
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.note ||
-                                "-"
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.note ||
+                                    "-"
+                                )}
+                            </td>
 
-                        <td>
-                            ${actionButtons(
-                                "committee",
-                                item.id
-                            )}
-                        </td>
+                            <td>
+                                ${actionButtons(
+                                    "committee",
+                                    getRecordId(item)
+                                )}
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                `;
+                    `;
 
-            })
+                }
+            )
 
             .join("");
 
@@ -1300,41 +1975,47 @@ function renderCommittees() {
    EDIT COMMITTEE
 ========================================================= */
 
-function editCommittee(id) {
+function editCommittee(
+    id
+) {
 
     const item =
         teachersData.committees.find(
             record =>
-                record.id === id
+                getRecordId(record) ===
+                String(id)
         );
 
+
     if (!item) {
+
         return;
+
     }
 
 
     document.getElementById(
         "committee-edit-id"
     ).value =
-        item.id;
+        getRecordId(item);
 
 
     document.getElementById(
         "committee-name"
     ).value =
-        item.name;
+        item.name || "";
 
 
     document.getElementById(
         "committee-title"
     ).value =
-        item.title;
+        item.title || "";
 
 
     document.getElementById(
         "committee-status"
     ).value =
-        item.status;
+        item.status || "";
 
 
     document.getElementById(
@@ -1356,6 +2037,7 @@ function editCommittee(id) {
         "committees"
     );
 
+
     initializeIcons();
 
 }
@@ -1372,10 +2054,12 @@ function toggleDutyNote() {
             "duty-status"
         );
 
+
     const group =
         document.getElementById(
             "duty-note-group"
         );
+
 
     const note =
         document.getElementById(
@@ -1388,7 +2072,9 @@ function toggleDutyNote() {
         !group ||
         !note
     ) {
+
         return;
+
     }
 
 
@@ -1430,7 +2116,9 @@ function toggleDutyNote() {
    TARDINESS
 ========================================================= */
 
-function saveTardiness(event) {
+async function saveTardiness(
+    event
+) {
 
     event.preventDefault();
 
@@ -1465,7 +2153,10 @@ function saveTardiness(event) {
             : "";
 
 
-    if (!name || !arrivalTime) {
+    if (
+        !name ||
+        !arrivalTime
+    ) {
 
         alert(
             "يرجى إدخال اسم المعلم ووقت الحضور."
@@ -1480,11 +2171,7 @@ function saveTardiness(event) {
         getCurrentDateTime();
 
 
-    const record = {
-
-        id:
-            id ||
-            generateId(),
+    const data = {
 
         name,
 
@@ -1513,16 +2200,60 @@ function saveTardiness(event) {
         const index =
             teachersData.tardiness.findIndex(
                 item =>
-                    item.id === id
+                    getRecordId(item) ===
+                    String(id)
             );
+
 
         if (index !== -1) {
 
+            const oldRecord =
+                teachersData.tardiness[index];
+
+
+            const updatedData = {
+
+                ...oldRecord,
+
+                ...data
+
+            };
+
+
+            const saved =
+                await updateTeacherRecord(
+
+                    getRecordId(
+                        oldRecord
+                    ),
+
+                    "tardiness",
+
+                    cleanRecordForDatabase(
+                        updatedData
+                    )
+
+                );
+
+
+            if (!saved) {
+
+                return;
+
+            }
+
+
             teachersData.tardiness[index] = {
 
-                ...teachersData.tardiness[index],
+                ...saved,
 
-                ...record
+                _id:
+                    saved._id ||
+                    saved.id,
+
+                id:
+                    saved.id ||
+                    saved._id
 
             };
 
@@ -1530,16 +2261,39 @@ function saveTardiness(event) {
 
     } else {
 
-        teachersData.tardiness.unshift(
-            record
-        );
+        const saved =
+            await addTeacherRecord(
+                "tardiness",
+                data
+            );
+
+
+        if (!saved) {
+
+            return;
+
+        }
+
+
+        teachersData.tardiness.unshift({
+
+            ...saved,
+
+            _id:
+                saved._id ||
+                saved.id,
+
+            id:
+                saved.id ||
+                saved._id
+
+        });
 
     }
 
 
-    saveData();
-
     renderAll();
+
 
     resetForm(
         "tardiness"
@@ -1570,13 +2324,17 @@ function renderTardiness() {
             "tardiness-table-body"
         );
 
+
     if (!tbody) {
+
         return;
+
     }
 
 
     if (
-        teachersData.tardiness.length === 0
+        teachersData.tardiness.length ===
+        0
     ) {
 
         tbody.innerHTML =
@@ -1593,49 +2351,51 @@ function renderTardiness() {
     tbody.innerHTML =
         teachersData.tardiness
 
-            .map(function (item) {
+            .map(
+                function (item) {
 
-                return `
+                    return `
 
-                    <tr>
+                        <tr>
 
-                        <td>
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.name
+                                )}
+                            </td>
 
-                        <td>
-                            ${formatDateWithDay(
-                                item.date
-                            )}
-                        </td>
+                            <td>
+                                ${formatDateWithDay(
+                                    item.date
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.time
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.time
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.note ||
-                                "-"
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.note ||
+                                    "-"
+                                )}
+                            </td>
 
-                        <td>
-                            ${actionButtons(
-                                "tardiness",
-                                item.id
-                            )}
-                        </td>
+                            <td>
+                                ${actionButtons(
+                                    "tardiness",
+                                    getRecordId(item)
+                                )}
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                `;
+                    `;
 
-            })
+                }
+            )
 
             .join("");
 
@@ -1649,29 +2409,35 @@ function renderTardiness() {
    EDIT TARDINESS
 ========================================================= */
 
-function editTardiness(id) {
+function editTardiness(
+    id
+) {
 
     const item =
         teachersData.tardiness.find(
             record =>
-                record.id === id
+                getRecordId(record) ===
+                String(id)
         );
 
+
     if (!item) {
+
         return;
+
     }
 
 
     document.getElementById(
         "tardiness-edit-id"
     ).value =
-        item.id;
+        getRecordId(item);
 
 
     document.getElementById(
         "tardiness-name"
     ).value =
-        item.name;
+        item.name || "";
 
 
     const dateElement =
@@ -1679,10 +2445,11 @@ function editTardiness(id) {
             "tardiness-date"
         );
 
+
     if (dateElement) {
 
         dateElement.value =
-            item.date;
+            item.date || "";
 
     }
 
@@ -1690,13 +2457,14 @@ function editTardiness(id) {
     document.getElementById(
         "tardiness-time"
     ).value =
-        item.time;
+        item.time || "";
 
 
     const noteElement =
         document.getElementById(
             "tardiness-note"
         );
+
 
     if (noteElement) {
 
@@ -1716,6 +2484,7 @@ function editTardiness(id) {
         "tardiness"
     );
 
+
     initializeIcons();
 
 }
@@ -1725,7 +2494,9 @@ function editTardiness(id) {
    DUTY
 ========================================================= */
 
-function saveDuty(event) {
+async function saveDuty(
+    event
+) {
 
     event.preventDefault();
 
@@ -1774,11 +2545,18 @@ function saveDuty(event) {
     if (
 
         (
-            status === "غير ملتزم" ||
 
-            status === "تأخر عن موقع المناوبة"
+            status ===
+            "غير ملتزم"
 
-        ) &&
+            ||
+
+            status ===
+            "تأخر عن موقع المناوبة"
+
+        )
+
+        &&
 
         !note
 
@@ -1788,11 +2566,13 @@ function saveDuty(event) {
             "يرجى كتابة الملاحظة أو سبب المخالفة."
         );
 
+
         if (noteElement) {
 
             noteElement.focus();
 
         }
+
 
         return;
 
@@ -1803,11 +2583,7 @@ function saveDuty(event) {
         getCurrentDateTime();
 
 
-    const record = {
-
-        id:
-            id ||
-            generateId(),
+    const data = {
 
         name,
 
@@ -1838,16 +2614,60 @@ function saveDuty(event) {
         const index =
             teachersData.duty.findIndex(
                 item =>
-                    item.id === id
+                    getRecordId(item) ===
+                    String(id)
             );
+
 
         if (index !== -1) {
 
+            const oldRecord =
+                teachersData.duty[index];
+
+
+            const updatedData = {
+
+                ...oldRecord,
+
+                ...data
+
+            };
+
+
+            const saved =
+                await updateTeacherRecord(
+
+                    getRecordId(
+                        oldRecord
+                    ),
+
+                    "duty",
+
+                    cleanRecordForDatabase(
+                        updatedData
+                    )
+
+                );
+
+
+            if (!saved) {
+
+                return;
+
+            }
+
+
             teachersData.duty[index] = {
 
-                ...teachersData.duty[index],
+                ...saved,
 
-                ...record
+                _id:
+                    saved._id ||
+                    saved.id,
+
+                id:
+                    saved.id ||
+                    saved._id
 
             };
 
@@ -1855,16 +2675,39 @@ function saveDuty(event) {
 
     } else {
 
-        teachersData.duty.unshift(
-            record
-        );
+        const saved =
+            await addTeacherRecord(
+                "duty",
+                data
+            );
+
+
+        if (!saved) {
+
+            return;
+
+        }
+
+
+        teachersData.duty.unshift({
+
+            ...saved,
+
+            _id:
+                saved._id ||
+                saved.id,
+
+            id:
+                saved.id ||
+                saved._id
+
+        });
 
     }
 
 
-    saveData();
-
     renderAll();
+
 
     resetForm(
         "duty"
@@ -1895,13 +2738,17 @@ function renderDuty() {
             "duty-table-body"
         );
 
+
     if (!tbody) {
+
         return;
+
     }
 
 
     if (
-        teachersData.duty.length === 0
+        teachersData.duty.length ===
+        0
     ) {
 
         tbody.innerHTML =
@@ -1918,49 +2765,51 @@ function renderDuty() {
     tbody.innerHTML =
         teachersData.duty
 
-            .map(function (item) {
+            .map(
+                function (item) {
 
-                return `
+                    return `
 
-                    <tr>
+                        <tr>
 
-                        <td>
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.name
+                                )}
+                            </td>
 
-                        <td>
-                            ${formatDateWithDay(
-                                item.date
-                            )}
-                        </td>
+                            <td>
+                                ${formatDateWithDay(
+                                    item.date
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.status
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.status
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.note ||
-                                "-"
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.note ||
+                                    "-"
+                                )}
+                            </td>
 
-                        <td>
-                            ${actionButtons(
-                                "duty",
-                                item.id
-                            )}
-                        </td>
+                            <td>
+                                ${actionButtons(
+                                    "duty",
+                                    getRecordId(item)
+                                )}
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                `;
+                    `;
 
-            })
+                }
+            )
 
             .join("");
 
@@ -1974,29 +2823,35 @@ function renderDuty() {
    EDIT DUTY
 ========================================================= */
 
-function editDuty(id) {
+function editDuty(
+    id
+) {
 
     const item =
         teachersData.duty.find(
             record =>
-                record.id === id
+                getRecordId(record) ===
+                String(id)
         );
 
+
     if (!item) {
+
         return;
+
     }
 
 
     document.getElementById(
         "duty-edit-id"
     ).value =
-        item.id;
+        getRecordId(item);
 
 
     document.getElementById(
         "duty-name"
     ).value =
-        item.name;
+        item.name || "";
 
 
     const dateElement =
@@ -2004,10 +2859,11 @@ function editDuty(id) {
             "duty-date"
         );
 
+
     if (dateElement) {
 
         dateElement.value =
-            item.date;
+            item.date || "";
 
     }
 
@@ -2015,13 +2871,14 @@ function editDuty(id) {
     document.getElementById(
         "duty-status"
     ).value =
-        item.status;
+        item.status || "";
 
 
     const noteElement =
         document.getElementById(
             "duty-note"
         );
+
 
     if (noteElement) {
 
@@ -2044,6 +2901,7 @@ function editDuty(id) {
         "duty"
     );
 
+
     initializeIcons();
 
 }
@@ -2053,7 +2911,9 @@ function editDuty(id) {
    NOTES
 ========================================================= */
 
-function saveNote(event) {
+async function saveNote(
+    event
+) {
 
     event.preventDefault();
 
@@ -2102,20 +2962,64 @@ function saveNote(event) {
         const index =
             teachersData.notes.findIndex(
                 item =>
-                    item.id === editId
+                    getRecordId(item) ===
+                    String(editId)
             );
+
 
         if (index !== -1) {
 
-            teachersData.notes[index] = {
+            const oldRecord =
+                teachersData.notes[index];
 
-                ...teachersData.notes[index],
+
+            const data = {
+
+                ...oldRecord,
 
                 name,
 
                 date,
 
                 text
+
+            };
+
+
+            const saved =
+                await updateTeacherRecord(
+
+                    getRecordId(
+                        oldRecord
+                    ),
+
+                    "notes",
+
+                    cleanRecordForDatabase(
+                        data
+                    )
+
+                );
+
+
+            if (!saved) {
+
+                return;
+
+            }
+
+
+            teachersData.notes[index] = {
+
+                ...saved,
+
+                _id:
+                    saved._id ||
+                    saved.id,
+
+                id:
+                    saved.id ||
+                    saved._id
 
             };
 
@@ -2126,10 +3030,8 @@ function saveNote(event) {
         const now =
             getCurrentDateTime();
 
-        teachersData.notes.unshift({
 
-            id:
-                generateId(),
+        const data = {
 
             name,
 
@@ -2146,14 +3048,42 @@ function saveNote(event) {
             createdAt:
                 now.createdAt
 
+        };
+
+
+        const saved =
+            await addTeacherRecord(
+                "notes",
+                data
+            );
+
+
+        if (!saved) {
+
+            return;
+
+        }
+
+
+        teachersData.notes.unshift({
+
+            ...saved,
+
+            _id:
+                saved._id ||
+                saved.id,
+
+            id:
+                saved.id ||
+                saved._id
+
         });
 
     }
 
 
-    saveData();
-
     renderAll();
+
 
     resetForm(
         "notes"
@@ -2184,13 +3114,17 @@ function renderNotes() {
             "notes-table-body"
         );
 
+
     if (!tbody) {
+
         return;
+
     }
 
 
     if (
-        teachersData.notes.length === 0
+        teachersData.notes.length ===
+        0
     ) {
 
         tbody.innerHTML =
@@ -2207,42 +3141,44 @@ function renderNotes() {
     tbody.innerHTML =
         teachersData.notes
 
-            .map(function (item) {
+            .map(
+                function (item) {
 
-                return `
+                    return `
 
-                    <tr>
+                        <tr>
 
-                        <td>
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.name
+                                )}
+                            </td>
 
-                        <td>
-                            ${formatDateWithDay(
-                                item.date
-                            )}
-                        </td>
+                            <td>
+                                ${formatDateWithDay(
+                                    item.date
+                                )}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                item.text
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(
+                                    item.text
+                                )}
+                            </td>
 
-                        <td>
-                            ${actionButtons(
-                                "notes",
-                                item.id
-                            )}
-                        </td>
+                            <td>
+                                ${actionButtons(
+                                    "notes",
+                                    getRecordId(item)
+                                )}
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                `;
+                    `;
 
-            })
+                }
+            )
 
             .join("");
 
@@ -2256,41 +3192,47 @@ function renderNotes() {
    EDIT NOTE
 ========================================================= */
 
-function editNote(id) {
+function editNote(
+    id
+) {
 
     const item =
         teachersData.notes.find(
             record =>
-                record.id === id
+                getRecordId(record) ===
+                String(id)
         );
 
+
     if (!item) {
+
         return;
+
     }
 
 
     document.getElementById(
         "notes-edit-id"
     ).value =
-        item.id;
+        getRecordId(item);
 
 
     document.getElementById(
         "notes-name"
     ).value =
-        item.name;
+        item.name || "";
 
 
     document.getElementById(
         "notes-date"
     ).value =
-        item.date;
+        item.date || "";
 
 
     document.getElementById(
         "notes-text"
     ).value =
-        item.text;
+        item.text || "";
 
 
     document.getElementById(
@@ -2302,6 +3244,7 @@ function editNote(id) {
     switchTab(
         "notes"
     );
+
 
     initializeIcons();
 
@@ -2347,10 +3290,18 @@ function emptyRow(
    ACTION BUTTONS
 ========================================================= */
 
-function actionButtons(type, id) {
+function actionButtons(
+    type,
+    id
+) {
 
-    const safeType = escapeHtml(type);
-    const safeId = escapeHtml(id);
+    const safeType =
+        escapeHtml(type);
+
+
+    const safeId =
+        escapeHtml(id);
+
 
     return `
 
@@ -2400,7 +3351,9 @@ function actionButtons(type, id) {
         </div>
 
     `;
+
 }
+
 
 /* =========================================================
    EDIT RECORD ROUTER
@@ -2414,46 +3367,66 @@ function editRecord(
     switch (type) {
 
         case "absence":
+
             editAbsence(id);
+
             break;
+
 
         case "written":
+
             editWritten(id);
+
             break;
+
 
         case "committee":
+
             editCommittee(id);
+
             break;
+
 
         case "tardiness":
+
             editTardiness(id);
+
             break;
+
 
         case "duty":
+
             editDuty(id);
+
             break;
 
+
         case "notes":
+
             editNote(id);
+
             break;
 
     }
 
 }
 
+
 /* =========================================================
    DELETE RECORD
 ========================================================= */
 
-function deleteRecord(type, id) {
+async function deleteRecord(
+    type,
+    id
+) {
 
-    /* تصحيح اسم قسم اللجان */
     const dataType =
         type === "committee"
             ? "committees"
             : type;
 
-    /* التأكد من وجود القسم */
+
     if (!teachersData[dataType]) {
 
         console.error(
@@ -2461,61 +3434,97 @@ function deleteRecord(type, id) {
             type
         );
 
-        alert("تعذر العثور على نوع السجل.");
+
+        alert(
+            "تعذر العثور على نوع السجل."
+        );
+
+
         return;
+
     }
 
 
-    /* تأكيد الحذف */
-    const confirmed = confirm(
-        "هل أنت متأكد من حذف هذا السجل؟\n\nلا يمكن التراجع عن عملية الحذف."
-    );
+    const confirmed =
+        confirm(
+            "هل أنت متأكد من حذف هذا السجل؟\n\nلا يمكن التراجع عن عملية الحذف."
+        );
 
 
     if (!confirmed) {
+
         return;
+
     }
 
 
-    /* البحث عن السجل */
-    const oldLength =
-        teachersData[dataType].length;
-
-
-    teachersData[dataType] =
-        teachersData[dataType].filter(
+    const index =
+        teachersData[dataType].findIndex(
             function (item) {
 
-                return String(item.id) !==
-                       String(id);
+                return (
+                    getRecordId(item) ===
+                    String(id)
+                );
 
             }
         );
 
 
-    /* التأكد أن السجل تم حذفه */
-    if (
-        teachersData[dataType].length ===
-        oldLength
-    ) {
+    if (index === -1) {
 
         alert(
             "لم يتم العثور على السجل المطلوب حذفه."
         );
 
+
         return;
+
     }
 
 
-    /* حفظ البيانات */
-    saveData();
+    const record =
+        teachersData[dataType][index];
 
 
-    /* تحديث جميع الجداول والإحصائيات */
+    const recordId =
+        getRecordId(record);
+
+
+    if (!recordId) {
+
+        alert(
+            "السجل لا يحتوي على معرف قاعدة بيانات صحيح."
+        );
+
+
+        return;
+
+    }
+
+
+    const deleted =
+        await deleteTeacherRecord(
+            recordId
+        );
+
+
+    if (!deleted) {
+
+        return;
+
+    }
+
+
+    teachersData[dataType].splice(
+        index,
+        1
+    );
+
+
     renderAll();
 
 
-    /* تحديث الأيقونات */
     initializeIcons();
 
 
@@ -2524,11 +3533,15 @@ function deleteRecord(type, id) {
     );
 
 }
+
+
 /* =========================================================
    RESET FORM
 ========================================================= */
 
-function resetForm(type) {
+function resetForm(
+    type
+) {
 
     let formId = "";
 
@@ -2700,25 +3713,27 @@ function resetForm(type) {
 }
 
 
-
+/* =========================================================
+   BACK TO SECTION SELECTION
+========================================================= */
 
 function backToSectionSelection() {
 
-    // نبقي تسجيل الدخول محفوظًا
     localStorage.setItem(
-        'schoolLoggedIn',
-        'true'
+        "schoolLoggedIn",
+        "true"
     );
 
-    // إزالة اختيار قسم المعلمين فقط
+
     localStorage.removeItem(
-        'schoolSection'
+        "schoolSection"
     );
 
-    // العودة إلى الصفحة الرئيسية
-    window.location.href = 'index.html';
-}
 
+    window.location.href =
+        "index.html";
+
+}
 
 
 /* =========================================================
@@ -2776,11 +3791,15 @@ function updateDashboard() {
 
         teachersData.duty.filter(
             item =>
+
                 item.status ===
-                "غير ملتزم" ||
+                "غير ملتزم"
+
+                ||
 
                 item.status ===
                 "تأخر عن موقع المناوبة"
+
         ).length;
 
 
@@ -2853,7 +3872,9 @@ function updateAbsenceChart() {
 
 
     if (!canvas) {
+
         return;
+
     }
 
 
@@ -2995,7 +4016,9 @@ function updateWrittenChart() {
 
 
     if (!canvas) {
+
         return;
+
     }
 
 
@@ -3152,7 +4175,7 @@ function exportData() {
             "نظام متابعة وإدارة المعلمين",
 
         version:
-            "1.0",
+            "2.0",
 
         exportedAt:
             new Date().toISOString(),
@@ -3258,10 +4281,12 @@ function triggerImport() {
 
 
 /* =========================================================
-   IMPORT DATA
+   IMPORT DATA TO MONGODB
 ========================================================= */
 
-function importData(event) {
+async function importData(
+    event
+) {
 
     const file =
         event.target.files &&
@@ -3269,7 +4294,9 @@ function importData(event) {
 
 
     if (!file) {
+
         return;
+
     }
 
 
@@ -3295,7 +4322,7 @@ function importData(event) {
 
 
     reader.onload =
-        function (e) {
+        async function (e) {
 
             try {
 
@@ -3328,68 +4355,239 @@ function importData(event) {
 
                 const confirmed =
                     confirm(
-                        "هل تريد استبدال البيانات الحالية بالبيانات الموجودة في الملف؟"
+                        "هل تريد استبدال البيانات الحالية في قاعدة البيانات بالبيانات الموجودة في الملف؟"
                     );
 
 
                 if (!confirmed) {
+
                     return;
+
                 }
 
 
-                teachersData = {
+                const categories = [
 
-                    absence:
+                    {
+                        key: "absence",
+                        type: "absence"
+                    },
+
+                    {
+                        key: "written",
+                        type: "written"
+                    },
+
+                    {
+                        key: "committees",
+                        type: "committee"
+                    },
+
+                    {
+                        key: "tardiness",
+                        type: "tardiness"
+                    },
+
+                    {
+                        key: "duty",
+                        type: "duty"
+                    },
+
+                    {
+                        key: "notes",
+                        type: "notes"
+                    }
+
+                ];
+
+
+                /*
+                 * حذف السجلات الحالية
+                 * من MongoDB
+                 */
+
+                const existingResponse =
+                    await fetch(
+                        TEACHERS_API_URL
+                    );
+
+
+                if (
+                    !existingResponse.ok
+                ) {
+
+                    throw new Error(
+                        "تعذر جلب البيانات الحالية"
+                    );
+
+                }
+
+
+                const existingResult =
+                    await existingResponse.json();
+
+
+                if (
+                    !existingResult.success
+                ) {
+
+                    throw new Error(
+                        existingResult.message ||
+                        "تعذر جلب البيانات الحالية"
+                    );
+
+                }
+
+
+                for (
+                    const category
+                    of categories
+                ) {
+
+                    const records =
                         Array.isArray(
-                            importedData.absence
+                            existingResult.data[
+                                category.key
+                            ]
                         )
-                            ? importedData.absence
-                            : [],
+                            ? existingResult.data[
+                                category.key
+                            ]
+                            : [];
 
 
-                    written:
-                        Array.isArray(
-                            importedData.written
-                        )
-                            ? importedData.written
-                            : [],
+                    for (
+                        const record
+                        of records
+                    ) {
+
+                        const id =
+                            getRecordId(
+                                record
+                            );
 
 
-                    committees:
-                        Array.isArray(
-                            importedData.committees
-                        )
-                            ? importedData.committees
-                            : [],
+                        if (id) {
+
+                            const deleted =
+                                await deleteTeacherRecord(
+                                    id
+                                );
 
 
-                    tardiness:
-                        Array.isArray(
-                            importedData.tardiness
-                        )
-                            ? importedData.tardiness
-                            : [],
+                            if (!deleted) {
+
+                                throw new Error(
+                                    "تعذر حذف البيانات القديمة"
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                }
 
 
-                    duty:
-                        Array.isArray(
-                            importedData.duty
-                        )
-                            ? importedData.duty
-                            : [],
+                /*
+                 * إعادة بناء البيانات
+                 * ورفعها إلى MongoDB
+                 */
 
+                const newData = {
 
-                    notes:
-                        Array.isArray(
-                            importedData.notes
-                        )
-                            ? importedData.notes
-                            : []
+                    absence: [],
+
+                    written: [],
+
+                    committees: [],
+
+                    tardiness: [],
+
+                    duty: [],
+
+                    notes: []
 
                 };
 
 
-                saveData();
+                for (
+                    const category
+                    of categories
+                ) {
+
+                    const records =
+                        Array.isArray(
+                            importedData[
+                                category.key
+                            ]
+                        )
+                            ? importedData[
+                                category.key
+                            ]
+                            : [];
+
+
+                    for (
+                        const record
+                        of records
+                    ) {
+
+                        const cleanData =
+                            cleanRecordForDatabase(
+                                record
+                            );
+
+
+                        const saved =
+                            await addTeacherRecord(
+
+                                category.type,
+
+                                cleanData
+
+                            );
+
+
+                        if (!saved) {
+
+                            throw new Error(
+                                "تعذر استيراد أحد السجلات"
+                            );
+
+                        }
+
+
+                        const normalized = {
+
+                            ...saved,
+
+                            _id:
+                                saved._id ||
+                                saved.id,
+
+                            id:
+                                saved.id ||
+                                saved._id
+
+                        };
+
+
+                        newData[
+                            category.key
+                        ].push(
+                            normalized
+                        );
+
+                    }
+
+                }
+
+
+                teachersData =
+                    newData;
+
 
                 renderAll();
 
@@ -3397,7 +4595,7 @@ function importData(event) {
 
 
                 alert(
-                    "تم استيراد البيانات بنجاح."
+                    "تم استيراد البيانات إلى قاعدة البيانات بنجاح."
                 );
 
 
@@ -3409,8 +4607,20 @@ function importData(event) {
                 );
 
 
+                /*
+                 * إعادة تحميل البيانات
+                 * من قاعدة البيانات بعد أي خطأ
+                 */
+
+                await loadData();
+
+                renderAll();
+
+                setTodayDates();
+
+
                 alert(
-                    "تعذر قراءة الملف. تأكد أن الملف صادر من نظام متابعة المعلمين."
+                    "تعذر استيراد الملف. تأكد من صحة الملف واتصال قاعدة البيانات."
                 );
 
             }
@@ -3745,17 +4955,23 @@ function buildPrintSection(
 
     const headerCells =
         columns
-            .map(function (column) {
 
-                return `
-                    <th>
-                        ${escapeHtml(
-                            column
-                        )}
-                    </th>
-                `;
+            .map(
+                function (column) {
 
-            })
+                    return `
+
+                        <th>
+                            ${escapeHtml(
+                                column
+                            )}
+                        </th>
+
+                    `;
+
+                }
+            )
+
             .join("");
 
 
@@ -3820,10 +5036,13 @@ function printTeachersReport() {
         now.toLocaleTimeString(
             "ar-PS",
             {
+
                 hour:
                     "2-digit",
+
                 minute:
                     "2-digit"
+
             }
         );
 
@@ -3863,11 +5082,15 @@ function printTeachersReport() {
     const totalDutyViolations =
         teachersData.duty.filter(
             item =>
+
                 item.status ===
-                "غير ملتزم" ||
+                "غير ملتزم"
+
+                ||
 
                 item.status ===
                 "تأخر عن موقع المناوبة"
+
         ).length;
 
 
@@ -4508,7 +5731,9 @@ document.addEventListener(
             (
                 event.ctrlKey ||
                 event.metaKey
-            ) &&
+            )
+
+            &&
 
             event.key.toLowerCase() ===
                 "s"
@@ -4517,7 +5742,11 @@ document.addEventListener(
 
             event.preventDefault();
 
-            saveData();
+            /*
+             * لم يعد هناك حفظ محلي.
+             * الحفظ يتم مباشرة مع كل عملية
+             * إضافة / تعديل / حذف.
+             */
 
         }
 
@@ -4526,30 +5755,35 @@ document.addEventListener(
 
 
 /* =========================================================
-   log out
+   LOG OUT
 ========================================================= */
 
 function teachersLogout() {
 
-    const confirmed = confirm(
-        "هل أنت متأكد من تسجيل الخروج؟"
-    );
+    const confirmed =
+        confirm(
+            "هل أنت متأكد من تسجيل الخروج؟"
+        );
+
 
     if (!confirmed) {
+
         return;
+
     }
 
-    // حذف جلسة الدخول بالكامل
-    localStorage.removeItem(
-        'schoolLoggedIn'
-    );
 
     localStorage.removeItem(
-        'schoolSection'
+        "schoolLoggedIn"
     );
 
-    // العودة إلى صفحة تسجيل الدخول
-    window.location.href = 'index.html';
+
+    localStorage.removeItem(
+        "schoolSection"
+    );
+
+
+    window.location.href =
+        "index.html";
+
 }
-
-
