@@ -1,18 +1,21 @@
 /* =========================================================
-   نظام متابعة وإدارة المعلمين
-   teachers.js
+   TEACHERS MANAGEMENT
+   MongoDB Version
+   Compatible with server.js
 ========================================================= */
-
-"use strict";
 
 
 /* =========================================================
-   TEACHERS DATABASE API
+   API
 ========================================================= */
 
 const TEACHERS_API_URL =
-    "https://almustqbal.onrender.com/api/teacher-records";
+    'https://almustqbal.onrender.com/api/teachers';
 
+
+/* =========================================================
+   DATA
+========================================================= */
 
 let teachersData = {
 
@@ -32,47 +35,247 @@ let teachersData = {
 
 
 /* =========================================================
-   CHARTS
+   GENERAL HELPERS
 ========================================================= */
 
-let absenceChart = null;
+function getValue(id) {
 
-let writtenChart = null;
+    const element =
+        document.getElementById(id);
+
+    return element
+        ? element.value.trim()
+        : '';
+
+}
 
 
-/* =========================================================
-   INITIALIZATION
-========================================================= */
+function setValue(id, value) {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
+    const element =
+        document.getElementById(id);
 
-        await loadData();
+    if (element) {
 
-        setTodayDates();
-
-        renderAll();
-
-        toggleCommitteeNote();
-
-        toggleDutyNote();
-
-        initializeIcons();
+        element.value =
+            value ?? '';
 
     }
-);
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+}
+
+
+function getCurrentDateTime() {
+
+    const now =
+        new Date();
+
+    return {
+
+        date:
+            now.toLocaleDateString(
+                'en-CA',
+                {
+                    timeZone:
+                        'Asia/Gaza'
+                }
+            ),
+
+        time:
+            now.toLocaleTimeString(
+                'ar-PS',
+                {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone:
+                        'Asia/Gaza'
+                }
+
+            )
+
+    };
+
+}
 
 
 /* =========================================================
-   LUCIDE ICONS
+   API HELPER
 ========================================================= */
 
-function initializeIcons() {
+async function apiRequest(
+    url,
+    options = {}
+) {
 
-    if (window.lucide) {
+    try {
 
-        lucide.createIcons();
+        const response =
+            await fetch(
+                url,
+                options
+            );
+
+
+        let result = null;
+
+        const contentType =
+            response.headers.get(
+                'content-type'
+            ) || '';
+
+
+        if (
+            contentType.includes(
+                'application/json'
+            )
+        ) {
+
+            result =
+                await response.json();
+
+        } else {
+
+            const text =
+                await response.text();
+
+            try {
+
+                result =
+                    JSON.parse(text);
+
+            } catch {
+
+                result = {
+                    message: text
+                };
+
+            }
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+
+                result?.message ||
+                `HTTP ${response.status}`
+
+            );
+
+        }
+
+
+        return result;
+
+    } catch (error) {
+
+        console.error(
+            'Teachers API Error:',
+            error
+        );
+
+        throw error;
+
+    }
+
+}
+
+
+/* =========================================================
+   NORMALIZE RECORD
+========================================================= */
+
+function normalizeTeacherRecord(
+    record
+) {
+
+    if (!record) {
+
+        return null;
+
+    }
+
+
+    const data =
+        record.data &&
+        typeof record.data === 'object'
+
+            ? record.data
+
+            : {};
+
+
+    return {
+
+        id:
+            record._id ||
+            record.id ||
+            '',
+
+        type:
+            record.type ||
+            '',
+
+        ...data,
+
+        createdAt:
+            record.createdAt ||
+            data.createdAt ||
+            '',
+
+        updatedAt:
+            record.updatedAt ||
+            data.updatedAt ||
+            ''
+
+    };
+
+}
+
+
+/* =========================================================
+   ARRAY BY TYPE
+========================================================= */
+
+function getArrayName(type) {
+
+    switch (type) {
+
+        case 'absence':
+            return 'absence';
+
+        case 'written':
+            return 'written';
+
+        case 'committee':
+        case 'committees':
+            return 'committees';
+
+        case 'tardiness':
+            return 'tardiness';
+
+        case 'duty':
+            return 'duty';
+
+        case 'notes':
+            return 'notes';
+
+        default:
+            return null;
 
     }
 
@@ -87,98 +290,94 @@ async function loadData() {
 
     try {
 
-        const response =
-            await fetch(
-                TEACHERS_API_URL,
-                {
-                    method: "GET"
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-
-        }
-
-
         const result =
-            await response.json();
-
-
-        if (
-            !result.success ||
-            !result.data
-        ) {
-
-            throw new Error(
-                result.message ||
-                "استجابة غير صحيحة من السيرفر"
+            await apiRequest(
+                TEACHERS_API_URL
             );
 
-        }
+
+        const records =
+            Array.isArray(result)
+
+                ? result
+
+                : (
+                    Array.isArray(
+                        result?.records
+                    )
+
+                        ? result.records
+
+                        : []
+                );
 
 
         teachersData = {
 
-            absence:
-                Array.isArray(
-                    result.data.absence
-                )
-                    ? result.data.absence
-                    : [],
+            absence: [],
 
-            written:
-                Array.isArray(
-                    result.data.written
-                )
-                    ? result.data.written
-                    : [],
+            written: [],
 
-            committees:
-                Array.isArray(
-                    result.data.committees
-                )
-                    ? result.data.committees
-                    : [],
+            committees: [],
 
-            tardiness:
-                Array.isArray(
-                    result.data.tardiness
-                )
-                    ? result.data.tardiness
-                    : [],
+            tardiness: [],
 
-            duty:
-                Array.isArray(
-                    result.data.duty
-                )
-                    ? result.data.duty
-                    : [],
+            duty: [],
 
-            notes:
-                Array.isArray(
-                    result.data.notes
-                )
-                    ? result.data.notes
-                    : []
+            notes: []
 
         };
 
 
-        console.log(
-            "تم تحميل بيانات المعلمين من MongoDB"
+        records.forEach(
+            record => {
+
+                const item =
+                    normalizeTeacherRecord(
+                        record
+                    );
+
+
+                if (!item) {
+
+                    return;
+
+                }
+
+
+                const arrayName =
+                    getArrayName(
+                        item.type
+                    );
+
+
+                if (
+                    arrayName &&
+                    teachersData[arrayName]
+                ) {
+
+                    teachersData[
+                        arrayName
+                    ].push(item);
+
+                }
+
+            }
         );
 
+
+        console.log(
+            'تم تحميل بيانات المعلمين من MongoDB:',
+            teachersData
+        );
+
+
+        return true;
 
     } catch (error) {
 
         console.error(
-            "خطأ في تحميل بيانات المعلمين:",
+            'تعذر تحميل بيانات المعلمين:',
             error
         );
 
@@ -201,232 +400,8 @@ async function loadData() {
 
 
         alert(
-            "تعذر الاتصال بقاعدة بيانات المعلمين."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   ADD TEACHER RECORD TO MONGODB
-========================================================= */
-
-async function addTeacherRecord(
-    type,
-    data
-) {
-
-    try {
-
-        const response =
-            await fetch(
-                TEACHERS_API_URL,
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            type:
-                                type,
-
-                            data:
-                                data
-
-                        })
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !result.success
-        ) {
-
-            throw new Error(
-                result.message ||
-                "تعذر حفظ السجل"
-            );
-
-        }
-
-
-        return result.record;
-
-
-    } catch (error) {
-
-        console.error(
-            "خطأ في إضافة سجل المعلم:",
-            error
-        );
-
-
-        alert(
-            "تعذر حفظ بيانات المعلم في قاعدة البيانات."
-        );
-
-
-        return null;
-
-    }
-
-}
-
-
-/* =========================================================
-   UPDATE TEACHER RECORD IN MONGODB
-========================================================= */
-
-async function updateTeacherRecord(
-    id,
-    type,
-    data
-) {
-
-    try {
-
-        const response =
-            await fetch(
-
-                `${TEACHERS_API_URL}/${encodeURIComponent(id)}`,
-
-                {
-
-                    method: "PUT",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            type:
-                                type,
-
-                            data:
-                                data
-
-                        })
-
-                }
-
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !result.success
-        ) {
-
-            throw new Error(
-                result.message ||
-                "تعذر تعديل السجل"
-            );
-
-        }
-
-
-        return result.record;
-
-
-    } catch (error) {
-
-        console.error(
-            "خطأ في تعديل سجل المعلم:",
-            error
-        );
-
-
-        alert(
-            "تعذر تعديل بيانات المعلم في قاعدة البيانات."
-        );
-
-
-        return null;
-
-    }
-
-}
-
-
-/* =========================================================
-   DELETE TEACHER RECORD FROM MONGODB
-========================================================= */
-
-async function deleteTeacherRecord(
-    id
-) {
-
-    try {
-
-        const response =
-            await fetch(
-
-                `${TEACHERS_API_URL}/${encodeURIComponent(id)}`,
-
-                {
-
-                    method: "DELETE"
-
-                }
-
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !result.success
-        ) {
-
-            throw new Error(
-                result.message ||
-                "تعذر حذف السجل"
-            );
-
-        }
-
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "خطأ في حذف سجل المعلم:",
-            error
-        );
-
-
-        alert(
-            "تعذر حذف سجل المعلم من قاعدة البيانات."
+            'تعذر الاتصال بقاعدة بيانات المعلمين.\n\n' +
+            'تأكد من اتصال السيرفر بـ MongoDB ثم أعد تحميل الصفحة.'
         );
 
 
@@ -438,503 +413,168 @@ async function deleteTeacherRecord(
 
 
 /* =========================================================
-   GET RECORD ID
+   SAVE TO MONGODB
 ========================================================= */
 
-function getRecordId(
-    record
+async function createTeacherRecord(
+    type,
+    data
 ) {
 
-    if (!record) {
-        return "";
-    }
+    const result =
+        await apiRequest(
+            TEACHERS_API_URL,
+            {
 
-    return String(
-        record._id ||
-        record.id ||
-        ""
+                method:
+                    'POST',
+
+                headers: {
+
+                    'Content-Type':
+                        'application/json'
+
+                },
+
+                body:
+                    JSON.stringify({
+
+                        type:
+                            type,
+
+                        data:
+                            data
+
+                    })
+
+            }
+        );
+
+
+    return normalizeTeacherRecord(
+        result?.record ||
+        result?.data ||
+        result
     );
 
 }
 
 
 /* =========================================================
-   REMOVE DATABASE ID FROM DATA
-   يستخدم فقط عند إرسال البيانات للسيرفر
+   UPDATE MONGODB
 ========================================================= */
 
-function cleanRecordForDatabase(
-    record
+async function updateTeacherRecord(
+    id,
+    data
 ) {
 
-    const cleaned = {
-        ...record
-    };
+    const result =
+        await apiRequest(
 
+            `${TEACHERS_API_URL}/${encodeURIComponent(id)}`,
 
-    delete cleaned._id;
+            {
 
-    delete cleaned.id;
+                method:
+                    'PUT',
 
+                headers: {
 
-    return cleaned;
+                    'Content-Type':
+                        'application/json'
 
-}
+                },
 
+                body:
+                    JSON.stringify({
 
-/* =========================================================
-   SAVE DATA
-   لم يعد يستخدم localStorage.
-   أبقينا الدالة حتى لا تتعطل أي وظيفة قديمة
-   تعتمد عليها.
-========================================================= */
+                        data:
+                            data
 
-async function saveData() {
-
-    return true;
-
-}
-
-
-/* =========================================================
-   GENERATE ID
-   يستخدم فقط للعرض المحلي المؤقت.
-========================================================= */
-
-function generateId() {
-
-    return (
-        Date.now().toString(36) +
-        Math.random()
-            .toString(36)
-            .substring(2, 9)
-    );
-
-}
-
-
-/* =========================================================
-   DATE
-========================================================= */
-
-function getToday() {
-
-    const date =
-        new Date();
-
-
-    const year =
-        date.getFullYear();
-
-
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const day =
-        String(
-            date.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    return `${year}-${month}-${day}`;
-
-}
-
-
-/* =========================================================
-   CURRENT DATE + TIME
-========================================================= */
-
-function getCurrentDateTime() {
-
-    const now =
-        new Date();
-
-
-    return {
-
-        date:
-            getToday(),
-
-        time:
-            now.toLocaleTimeString(
-                "ar-PS",
-                {
-
-                    hour:
-                        "2-digit",
-
-                    minute:
-                        "2-digit"
-
-                }
-            ),
-
-        createdAt:
-            now.toISOString()
-
-    };
-
-}
-
-
-/* =========================================================
-   SET TODAY DATES
-========================================================= */
-
-function setTodayDates() {
-
-    const dateIds = [
-
-        "absence-date",
-
-        "written-date",
-
-        "tardiness-date",
-
-        "duty-date",
-
-        "notes-date"
-
-    ];
-
-
-    const today =
-        getToday();
-
-
-    dateIds.forEach(
-        function (id) {
-
-            const element =
-                document.getElementById(
-                    id
-                );
-
-
-            if (
-                element &&
-                !element.value
-            ) {
-
-                element.value =
-                    today;
+                    })
 
             }
 
-        }
+        );
+
+
+    return normalizeTeacherRecord(
+        result?.record ||
+        result?.data ||
+        result
     );
 
 }
 
 
 /* =========================================================
-   DATE FORMAT
+   DELETE FROM MONGODB
 ========================================================= */
 
-function formatDate(
-    dateString
+async function deleteTeacherRecord(
+    id
 ) {
 
-    if (!dateString) {
+    return await apiRequest(
 
-        return "";
+        `${TEACHERS_API_URL}/${encodeURIComponent(id)}`,
 
-    }
+        {
 
-
-    const parts =
-        dateString.split("-");
-
-
-    if (
-        parts.length !== 3
-    ) {
-
-        return dateString;
-
-    }
-
-
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-
-}
-
-
-/* =========================================================
-   DAY NAME
-========================================================= */
-
-function getDayName(
-    dateString
-) {
-
-    if (!dateString) {
-
-        return "";
-
-    }
-
-
-    const date =
-        new Date(
-            dateString +
-            "T00:00:00"
-        );
-
-
-    const days = [
-
-        "الأحد",
-
-        "الاثنين",
-
-        "الثلاثاء",
-
-        "الأربعاء",
-
-        "الخميس",
-
-        "الجمعة",
-
-        "السبت"
-
-    ];
-
-
-    return days[
-        date.getDay()
-    ];
-
-}
-
-
-/* =========================================================
-   FORMAT DATE WITH DAY
-========================================================= */
-
-function formatDateWithDay(
-    dateString
-) {
-
-    if (!dateString) {
-
-        return "";
-
-    }
-
-
-    return `
-        ${getDayName(dateString)}
-        -
-        ${formatDate(dateString)}
-    `;
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHtml(
-    value
-) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-/* =========================================================
-   TAB SYSTEM
-========================================================= */
-
-function switchTab(
-    tabName
-) {
-
-    const tabs =
-        document.querySelectorAll(
-            ".tab-content"
-        );
-
-
-    tabs.forEach(
-        function (tab) {
-
-            tab.classList.remove(
-                "active"
-            );
+            method:
+                'DELETE'
 
         }
+
     );
-
-
-    const buttons =
-        document.querySelectorAll(
-            ".nav-btn"
-        );
-
-
-    buttons.forEach(
-        function (button) {
-
-            button.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
-
-    const selectedTab =
-        document.getElementById(
-            "tab-" +
-            tabName
-        );
-
-
-    if (selectedTab) {
-
-        selectedTab.classList.add(
-            "active"
-        );
-
-    }
-
-
-    const selectedButton =
-        Array.from(buttons)
-            .find(
-                function (button) {
-
-                    return (
-                        button.getAttribute(
-                            "onclick"
-                        ) ===
-                        `switchTab('${tabName}')`
-                    );
-
-                }
-            );
-
-
-    if (selectedButton) {
-
-        selectedButton.classList.add(
-            "active"
-        );
-
-    }
-
-
-    window.scrollTo({
-
-        top: 0,
-
-        behavior: "smooth"
-
-    });
-
-
-    initializeIcons();
 
 }
 
 
 /* =========================================================
-   ABSENCE
+   ADD / UPDATE ABSENCE
 ========================================================= */
 
-async function saveAbsence(
-    event
-) {
+async function saveAbsence(event) {
 
-    event.preventDefault();
+    if (event) {
+
+        event.preventDefault();
+
+    }
 
 
     const name =
-        document.getElementById(
-            "absence-name"
-        ).value.trim();
-
+        getValue(
+            'absence-name'
+        );
 
     const date =
-        document.getElementById(
-            "absence-date"
-        ).value;
-
+        getValue(
+            'absence-date'
+        );
 
     const reason =
-        document.getElementById(
-            "absence-reason"
-        ).value;
-
+        getValue(
+            'absence-reason'
+        );
 
     const formStatus =
-        document.getElementById(
-            "absence-form-status"
-        ).value;
-
+        getValue(
+            'absence-form-status'
+        );
 
     const editId =
-        document.getElementById(
-            "absence-edit-id"
-        ).value;
+        getValue(
+            'absence-edit-id'
+        );
 
 
-    if (
-        !name ||
-        !date
-    ) {
+    if (!name) {
 
         alert(
-            "يرجى إدخال اسم المعلم والتاريخ."
+            'يرجى إدخال اسم المعلم'
         );
 
         return;
@@ -942,243 +582,111 @@ async function saveAbsence(
     }
 
 
-    if (editId) {
+    if (!date) {
 
-        const index =
-            teachersData.absence.findIndex(
-                item =>
-                    getRecordId(item) ===
-                    String(editId)
-            );
+        alert(
+            'يرجى اختيار التاريخ'
+        );
 
+        return;
 
-        if (index !== -1) {
-
-            const oldRecord =
-                teachersData.absence[index];
+    }
 
 
-            const data = {
-
-                ...oldRecord,
-
-                name,
-
-                date,
-
-                reason,
-
-                formStatus
-
-            };
+    const now =
+        getCurrentDateTime();
 
 
-            const saved =
+    const data = {
+
+        name:
+            name,
+
+        date:
+            date,
+
+        reason:
+            reason,
+
+        formStatus:
+            formStatus,
+
+        recordedDate:
+            now.date,
+
+        recordedTime:
+            now.time
+
+    };
+
+
+    try {
+
+        if (editId) {
+
+            const updated =
                 await updateTeacherRecord(
-
-                    getRecordId(
-                        oldRecord
-                    ),
-
-                    "absence",
-
-                    cleanRecordForDatabase(
-                        data
-                    )
-
+                    editId,
+                    data
                 );
 
 
-            if (!saved) {
+            const index =
+                teachersData.absence.findIndex(
+                    item =>
+                        item.id === editId
+                );
 
-                return;
+
+            if (index !== -1) {
+
+                teachersData.absence[
+                    index
+                ] = updated;
 
             }
 
+            alert(
+                'تم تعديل سجل الغياب بنجاح'
+            );
 
-            teachersData.absence[index] = {
+        } else {
 
-                ...saved,
-
-                _id:
-                    saved._id ||
-                    saved.id,
-
-                id:
-                    saved.id ||
-                    saved._id
-
-            };
-
-        }
-
-    } else {
-
-        const now =
-            getCurrentDateTime();
+            const saved =
+                await createTeacherRecord(
+                    'absence',
+                    data
+                );
 
 
-        const data = {
-
-            name,
-
-            date,
-
-            reason,
-
-            formStatus,
-
-            recordedDate:
-                now.date,
-
-            recordedTime:
-                now.time,
-
-            createdAt:
-                now.createdAt
-
-        };
-
-
-        const saved =
-            await addTeacherRecord(
-                "absence",
-                data
+            teachersData.absence.unshift(
+                saved
             );
 
 
-        if (!saved) {
-
-            return;
+            alert(
+                'تم حفظ غياب المعلم في MongoDB بنجاح'
+            );
 
         }
 
 
-        teachersData.absence.unshift({
+        renderAbsence();
 
-            ...saved,
+        updateDashboard();
 
-            _id:
-                saved._id ||
-                saved.id,
-
-            id:
-                saved.id ||
-                saved._id
-
-        });
-
-    }
-
-
-    renderAll();
-
-
-    resetForm(
-        "absence"
-    );
-
-
-    alert(
-
-        editId
-
-            ? "تم تعديل بيانات الغياب بنجاح."
-
-            : "تم حفظ بيانات الغياب بنجاح."
-
-    );
-
-}
-
-
-/* =========================================================
-   RENDER ABSENCE
-========================================================= */
-
-function renderAbsence() {
-
-    const tbody =
-        document.getElementById(
-            "absence-table-body"
+        resetForm(
+            'absence'
         );
 
+    } catch (error) {
 
-    if (!tbody) {
-
-        return;
-
-    }
-
-
-    if (
-        teachersData.absence.length ===
-        0
-    ) {
-
-        tbody.innerHTML =
-            emptyRow(
-                5,
-                "لا توجد بيانات غياب مسجلة."
-            );
-
-        return;
+        alert(
+            'تعذر حفظ سجل غياب المعلم.\n\n' +
+            error.message
+        );
 
     }
-
-
-    tbody.innerHTML =
-        teachersData.absence
-
-            .map(
-                function (item) {
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.name
-                                )}
-                            </td>
-
-                            <td>
-                                ${formatDateWithDay(
-                                    item.date
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.reason
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.formStatus
-                                )}
-                            </td>
-
-                            <td>
-                                ${actionButtons(
-                                    "absence",
-                                    getRecordId(item)
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-
-            .join("");
-
-
-    initializeIcons();
 
 }
 
@@ -1187,15 +695,12 @@ function renderAbsence() {
    EDIT ABSENCE
 ========================================================= */
 
-function editAbsence(
-    id
-) {
+function editAbsence(id) {
 
     const item =
         teachersData.absence.find(
             record =>
-                getRecordId(record) ===
-                String(id)
+                record.id === id
         );
 
 
@@ -1206,94 +711,86 @@ function editAbsence(
     }
 
 
-    document.getElementById(
-        "absence-edit-id"
-    ).value =
-        getRecordId(item);
+    setValue(
+        'absence-edit-id',
+        item.id
+    );
 
+    setValue(
+        'absence-name',
+        item.name
+    );
 
-    document.getElementById(
-        "absence-name"
-    ).value =
-        item.name || "";
+    setValue(
+        'absence-date',
+        item.date
+    );
 
+    setValue(
+        'absence-reason',
+        item.reason
+    );
 
-    document.getElementById(
-        "absence-date"
-    ).value =
-        item.date || "";
-
-
-    document.getElementById(
-        "absence-reason"
-    ).value =
-        item.reason || "";
-
-
-    document.getElementById(
-        "absence-form-status"
-    ).value =
-        item.formStatus || "";
-
-
-    document.getElementById(
-        "absence-btn"
-    ).innerHTML =
-        '<i data-lucide="save"></i> تحديث البيانات';
-
-
-    switchTab(
-        "absence"
+    setValue(
+        'absence-form-status',
+        item.formStatus
     );
 
 
-    initializeIcons();
+    const button =
+        document.getElementById(
+            'absence-btn'
+        );
+
+
+    if (button) {
+
+        button.textContent =
+            'تعديل السجل';
+
+    }
 
 }
 
 
 /* =========================================================
-   WRITTEN WORK
+   ADD / UPDATE WRITTEN
 ========================================================= */
 
-async function saveWritten(
-    event
-) {
+async function saveWritten(event) {
 
-    event.preventDefault();
+    if (event) {
+
+        event.preventDefault();
+
+    }
 
 
     const name =
-        document.getElementById(
-            "written-name"
-        ).value.trim();
-
+        getValue(
+            'written-name'
+        );
 
     const type =
-        document.getElementById(
-            "written-type"
-        ).value;
-
+        getValue(
+            'written-type'
+        );
 
     const date =
-        document.getElementById(
-            "written-date"
-        ).value;
-
+        getValue(
+            'written-date'
+        );
 
     const editId =
-        document.getElementById(
-            "written-edit-id"
-        ).value;
+        getValue(
+            'written-edit-id'
+        );
 
 
-    if (
-        !name ||
-        !date
-    ) {
+    if (!name) {
 
         alert(
-            "يرجى إدخال اسم المعلم وتاريخ التسليم."
+            'يرجى إدخال اسم المعلم'
         );
 
         return;
@@ -1301,233 +798,98 @@ async function saveWritten(
     }
 
 
-    if (editId) {
-
-        const index =
-            teachersData.written.findIndex(
-                item =>
-                    getRecordId(item) ===
-                    String(editId)
-            );
+    const now =
+        getCurrentDateTime();
 
 
-        if (index !== -1) {
+    const data = {
 
-            const oldRecord =
-                teachersData.written[index];
+        name:
+            name,
+
+        title:
+            type,
+
+        date:
+            date,
+
+        recordedDate:
+            now.date,
+
+        recordedTime:
+            now.time
+
+    };
 
 
-            const data = {
+    try {
 
-                ...oldRecord,
+        if (editId) {
 
-                name,
-
-                type,
-
-                date
-
-            };
-
-
-            const saved =
+            const updated =
                 await updateTeacherRecord(
-
-                    getRecordId(
-                        oldRecord
-                    ),
-
-                    "written",
-
-                    cleanRecordForDatabase(
-                        data
-                    )
-
+                    editId,
+                    data
                 );
 
 
-            if (!saved) {
+            const index =
+                teachersData.written.findIndex(
+                    item =>
+                        item.id === editId
+                );
 
-                return;
+
+            if (index !== -1) {
+
+                teachersData.written[
+                    index
+                ] = updated;
 
             }
 
 
-            teachersData.written[index] = {
+            alert(
+                'تم تعديل العمل الكتابي بنجاح'
+            );
 
-                ...saved,
+        } else {
 
-                _id:
-                    saved._id ||
-                    saved.id,
-
-                id:
-                    saved.id ||
-                    saved._id
-
-            };
-
-        }
-
-    } else {
-
-        const now =
-            getCurrentDateTime();
+            const saved =
+                await createTeacherRecord(
+                    'written',
+                    data
+                );
 
 
-        const data = {
-
-            name,
-
-            type,
-
-            date,
-
-            recordedDate:
-                now.date,
-
-            recordedTime:
-                now.time,
-
-            createdAt:
-                now.createdAt
-
-        };
-
-
-        const saved =
-            await addTeacherRecord(
-                "written",
-                data
+            teachersData.written.unshift(
+                saved
             );
 
 
-        if (!saved) {
-
-            return;
+            alert(
+                'تم حفظ العمل الكتابي في MongoDB بنجاح'
+            );
 
         }
 
 
-        teachersData.written.unshift({
+        renderWritten();
 
-            ...saved,
+        updateDashboard();
 
-            _id:
-                saved._id ||
-                saved.id,
-
-            id:
-                saved.id ||
-                saved._id
-
-        });
-
-    }
-
-
-    renderAll();
-
-
-    resetForm(
-        "written"
-    );
-
-
-    alert(
-
-        editId
-
-            ? "تم تعديل بيانات العمل الكتابي."
-
-            : "تم تسجيل العمل الكتابي بنجاح."
-
-    );
-
-}
-
-
-/* =========================================================
-   RENDER WRITTEN
-========================================================= */
-
-function renderWritten() {
-
-    const tbody =
-        document.getElementById(
-            "written-table-body"
+        resetForm(
+            'written'
         );
 
+    } catch (error) {
 
-    if (!tbody) {
-
-        return;
-
-    }
-
-
-    if (
-        teachersData.written.length ===
-        0
-    ) {
-
-        tbody.innerHTML =
-            emptyRow(
-                4,
-                "لا توجد أعمال كتابية مسجلة."
-            );
-
-        return;
+        alert(
+            'تعذر حفظ العمل الكتابي.\n\n' +
+            error.message
+        );
 
     }
-
-
-    tbody.innerHTML =
-        teachersData.written
-
-            .map(
-                function (item) {
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.name
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.type
-                                )}
-                            </td>
-
-                            <td>
-                                ${formatDateWithDay(
-                                    item.date
-                                )}
-                            </td>
-
-                            <td>
-                                ${actionButtons(
-                                    "written",
-                                    getRecordId(item)
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-
-            .join("");
-
-
-    initializeIcons();
 
 }
 
@@ -1536,15 +898,12 @@ function renderWritten() {
    EDIT WRITTEN
 ========================================================= */
 
-function editWritten(
-    id
-) {
+function editWritten(id) {
 
     const item =
         teachersData.written.find(
             record =>
-                getRecordId(record) ===
-                String(id)
+                record.id === id
         );
 
 
@@ -1555,115 +914,87 @@ function editWritten(
     }
 
 
-    document.getElementById(
-        "written-edit-id"
-    ).value =
-        getRecordId(item);
+    setValue(
+        'written-edit-id',
+        item.id
+    );
 
+    setValue(
+        'written-name',
+        item.name
+    );
 
-    document.getElementById(
-        "written-name"
-    ).value =
-        item.name || "";
+    setValue(
+        'written-type',
+        item.title
+    );
 
-
-    document.getElementById(
-        "written-type"
-    ).value =
-        item.type || "";
-
-
-    document.getElementById(
-        "written-date"
-    ).value =
-        item.date || "";
-
-
-    document.getElementById(
-        "written-btn"
-    ).innerHTML =
-        '<i data-lucide="save"></i> تحديث التسليم';
-
-
-    switchTab(
-        "written"
+    setValue(
+        'written-date',
+        item.date
     );
 
 
-    initializeIcons();
+    const button =
+        document.getElementById(
+            'written-btn'
+        );
+
+
+    if (button) {
+
+        button.textContent =
+            'تعديل السجل';
+
+    }
 
 }
 
 
 /* =========================================================
-   COMMITTEES
+   ADD / UPDATE COMMITTEE
 ========================================================= */
 
-async function saveCommittee(
-    event
-) {
+async function saveCommittee(event) {
 
-    event.preventDefault();
+    if (event) {
 
-
-    const id =
-        document.getElementById(
-            "committee-edit-id"
-        ).value;
-
-
-    const name =
-        document.getElementById(
-            "committee-name"
-        ).value.trim();
-
-
-    const title =
-        document.getElementById(
-            "committee-title"
-        ).value.trim();
-
-
-    const status =
-        document.getElementById(
-            "committee-status"
-        ).value;
-
-
-    const note =
-        document.getElementById(
-            "committee-note"
-        ).value.trim();
-
-
-    if (
-        !name ||
-        !title
-    ) {
-
-        alert(
-            "يرجى إدخال اسم المعلم واسم اللجنة."
-        );
-
-        return;
+        event.preventDefault();
 
     }
 
 
-    if (
-        status === "غير ملتزم" &&
-        !note
-    ) {
+    const name =
+        getValue(
+            'committee-name'
+        );
 
-        alert(
-            "يرجى كتابة الملاحظة أو سبب عدم الالتزام."
+    const title =
+        getValue(
+            'committee-title'
+        );
+
+    const status =
+        getValue(
+            'committee-status'
+        );
+
+    const note =
+        getValue(
+            'committee-note'
+        );
+
+    const editId =
+        getValue(
+            'committee-edit-id'
         );
 
 
-        document.getElementById(
-            "committee-note"
-        ).focus();
+    if (!name) {
 
+        alert(
+            'يرجى إدخال اسم المعلم'
+        );
 
         return;
 
@@ -1676,297 +1007,95 @@ async function saveCommittee(
 
     const data = {
 
-        name,
+        name:
+            name,
 
-        title,
+        title:
+            title,
 
-        status,
+        status:
+            status,
 
-        note,
+        note:
+            note,
 
-        date:
+        recordedDate:
             now.date,
 
-        time:
-            now.time,
-
-        createdAt:
-            now.createdAt
+        recordedTime:
+            now.time
 
     };
 
 
-    if (id) {
+    try {
 
-        const index =
-            teachersData.committees.findIndex(
-                item =>
-                    getRecordId(item) ===
-                    String(id)
-            );
+        if (editId) {
 
-
-        if (index !== -1) {
-
-            const oldRecord =
-                teachersData.committees[index];
-
-
-            const updatedData = {
-
-                ...oldRecord,
-
-                ...data
-
-            };
-
-
-            const saved =
+            const updated =
                 await updateTeacherRecord(
-
-                    getRecordId(
-                        oldRecord
-                    ),
-
-                    "committee",
-
-                    cleanRecordForDatabase(
-                        updatedData
-                    )
-
+                    editId,
+                    data
                 );
 
 
-            if (!saved) {
+            const index =
+                teachersData.committees.findIndex(
+                    item =>
+                        item.id === editId
+                );
 
-                return;
+
+            if (index !== -1) {
+
+                teachersData.committees[
+                    index
+                ] = updated;
 
             }
 
 
-            teachersData.committees[index] = {
+            alert(
+                'تم تعديل سجل اللجنة بنجاح'
+            );
 
-                ...saved,
+        } else {
 
-                _id:
-                    saved._id ||
-                    saved.id,
+            const saved =
+                await createTeacherRecord(
+                    'committee',
+                    data
+                );
 
-                id:
-                    saved.id ||
-                    saved._id
 
-            };
-
-        }
-
-    } else {
-
-        const saved =
-            await addTeacherRecord(
-                "committee",
-                data
+            teachersData.committees.unshift(
+                saved
             );
 
 
-        if (!saved) {
-
-            return;
+            alert(
+                'تم حفظ سجل اللجنة في MongoDB بنجاح'
+            );
 
         }
 
 
-        teachersData.committees.unshift({
+        renderCommittees();
 
-            ...saved,
+        updateDashboard();
 
-            _id:
-                saved._id ||
-                saved.id,
-
-            id:
-                saved.id ||
-                saved._id
-
-        });
-
-    }
-
-
-    renderAll();
-
-
-    resetForm(
-        "committee"
-    );
-
-
-    alert(
-
-        id
-
-            ? "تم تعديل تقييم اللجنة بنجاح."
-
-            : "تم حفظ تقييم اللجنة بنجاح."
-
-    );
-
-}
-
-
-/* =========================================================
-   TOGGLE COMMITTEE NOTE
-========================================================= */
-
-function toggleCommitteeNote() {
-
-    const statusElement =
-        document.getElementById(
-            "committee-status"
+        resetForm(
+            'committee'
         );
 
+    } catch (error) {
 
-    const group =
-        document.getElementById(
-            "committee-note-group"
+        alert(
+            'تعذر حفظ سجل اللجنة.\n\n' +
+            error.message
         );
 
-
-    const note =
-        document.getElementById(
-            "committee-note"
-        );
-
-
-    if (
-        !statusElement ||
-        !group ||
-        !note
-    ) {
-
-        return;
-
     }
-
-
-    const status =
-        statusElement.value;
-
-
-    if (
-        status === "غير ملتزم"
-    ) {
-
-        group.style.display =
-            "block";
-
-        note.required =
-            true;
-
-    } else {
-
-        group.style.display =
-            "none";
-
-        note.required =
-            false;
-
-        note.value =
-            "";
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER COMMITTEES
-========================================================= */
-
-function renderCommittees() {
-
-    const tbody =
-        document.getElementById(
-            "committee-table-body"
-        );
-
-
-    if (!tbody) {
-
-        return;
-
-    }
-
-
-    if (
-        teachersData.committees.length ===
-        0
-    ) {
-
-        tbody.innerHTML =
-            emptyRow(
-                5,
-                "لا توجد بيانات للجان."
-            );
-
-        return;
-
-    }
-
-
-    tbody.innerHTML =
-        teachersData.committees
-
-            .map(
-                function (item) {
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.name
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.title
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.status
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.note ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${actionButtons(
-                                    "committee",
-                                    getRecordId(item)
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-
-            .join("");
-
-
-    initializeIcons();
 
 }
 
@@ -1975,15 +1104,12 @@ function renderCommittees() {
    EDIT COMMITTEE
 ========================================================= */
 
-function editCommittee(
-    id
-) {
+function editCommittee(id) {
 
     const item =
         teachersData.committees.find(
             record =>
-                getRecordId(record) ===
-                String(id)
+                record.id === id
         );
 
 
@@ -1994,118 +1120,56 @@ function editCommittee(
     }
 
 
-    document.getElementById(
-        "committee-edit-id"
-    ).value =
-        getRecordId(item);
+    setValue(
+        'committee-edit-id',
+        item.id
+    );
 
+    setValue(
+        'committee-name',
+        item.name
+    );
 
-    document.getElementById(
-        "committee-name"
-    ).value =
-        item.name || "";
+    setValue(
+        'committee-title',
+        item.title
+    );
 
+    setValue(
+        'committee-status',
+        item.status
+    );
 
-    document.getElementById(
-        "committee-title"
-    ).value =
-        item.title || "";
-
-
-    document.getElementById(
-        "committee-status"
-    ).value =
-        item.status || "";
-
-
-    document.getElementById(
-        "committee-note"
-    ).value =
-        item.note || "";
-
-
-    toggleCommitteeNote();
-
-
-    document.getElementById(
-        "committee-btn"
-    ).innerHTML =
-        '<i data-lucide="save"></i> تحديث التقييم';
-
-
-    switchTab(
-        "committees"
+    setValue(
+        'committee-note',
+        item.note
     );
 
 
-    initializeIcons();
-
-}
-
-
-/* =========================================================
-   DUTY NOTE
-========================================================= */
-
-function toggleDutyNote() {
-
-    const statusElement =
+    const button =
         document.getElementById(
-            "duty-status"
+            'committee-btn'
         );
 
 
-    const group =
-        document.getElementById(
-            "duty-note-group"
-        );
+    if (button) {
 
-
-    const note =
-        document.getElementById(
-            "duty-note"
-        );
-
-
-    if (
-        !statusElement ||
-        !group ||
-        !note
-    ) {
-
-        return;
+        button.textContent =
+            'تعديل السجل';
 
     }
 
 
-    const status =
-        statusElement.value;
+    const noteGroup =
+        document.getElementById(
+            'committee-note-group'
+        );
 
 
-    if (
+    if (noteGroup) {
 
-        status === "غير ملتزم" ||
-
-        status === "تأخر عن موقع المناوبة"
-
-    ) {
-
-        group.style.display =
-            "block";
-
-        note.required =
-            true;
-
-    } else {
-
-        group.style.display =
-            "none";
-
-        note.required =
-            false;
-
-        note.value =
-            "";
+        noteGroup.style.display =
+            '';
 
     }
 
@@ -2113,53 +1177,48 @@ function toggleDutyNote() {
 
 
 /* =========================================================
-   TARDINESS
+   ADD / UPDATE TARDINESS
 ========================================================= */
 
-async function saveTardiness(
-    event
-) {
+async function saveTardiness(event) {
 
-    event.preventDefault();
+    if (event) {
 
+        event.preventDefault();
 
-    const id =
-        document.getElementById(
-            "tardiness-edit-id"
-        ).value;
+    }
 
 
     const name =
-        document.getElementById(
-            "tardiness-name"
-        ).value.trim();
+        getValue(
+            'tardiness-name'
+        );
 
+    const time =
+        getValue(
+            'tardiness-time'
+        );
 
-    const arrivalTime =
-        document.getElementById(
-            "tardiness-time"
-        ).value;
+    const note =
+        getValue(
+            'tardiness-note'
+        );
 
+    const date =
+        getValue(
+            'tardiness-date'
+        );
 
-    const noteElement =
-        document.getElementById(
-            "tardiness-note"
+    const editId =
+        getValue(
+            'tardiness-edit-id'
         );
 
 
-    const note =
-        noteElement
-            ? noteElement.value.trim()
-            : "";
-
-
-    if (
-        !name ||
-        !arrivalTime
-    ) {
+    if (!name) {
 
         alert(
-            "يرجى إدخال اسم المعلم ووقت الحضور."
+            'يرجى إدخال اسم المعلم'
         );
 
         return;
@@ -2173,234 +1232,95 @@ async function saveTardiness(
 
     const data = {
 
-        name,
-
-        date:
-            now.date,
+        name:
+            name,
 
         time:
-            arrivalTime,
+            time,
 
-        note,
+        note:
+            note,
+
+        date:
+            date,
 
         recordedDate:
             now.date,
 
         recordedTime:
-            now.time,
-
-        createdAt:
-            now.createdAt
+            now.time
 
     };
 
 
-    if (id) {
+    try {
 
-        const index =
-            teachersData.tardiness.findIndex(
-                item =>
-                    getRecordId(item) ===
-                    String(id)
-            );
+        if (editId) {
 
-
-        if (index !== -1) {
-
-            const oldRecord =
-                teachersData.tardiness[index];
-
-
-            const updatedData = {
-
-                ...oldRecord,
-
-                ...data
-
-            };
-
-
-            const saved =
+            const updated =
                 await updateTeacherRecord(
-
-                    getRecordId(
-                        oldRecord
-                    ),
-
-                    "tardiness",
-
-                    cleanRecordForDatabase(
-                        updatedData
-                    )
-
+                    editId,
+                    data
                 );
 
 
-            if (!saved) {
+            const index =
+                teachersData.tardiness.findIndex(
+                    item =>
+                        item.id === editId
+                );
 
-                return;
+
+            if (index !== -1) {
+
+                teachersData.tardiness[
+                    index
+                ] = updated;
 
             }
 
 
-            teachersData.tardiness[index] = {
+            alert(
+                'تم تعديل سجل التأخير بنجاح'
+            );
 
-                ...saved,
+        } else {
 
-                _id:
-                    saved._id ||
-                    saved.id,
+            const saved =
+                await createTeacherRecord(
+                    'tardiness',
+                    data
+                );
 
-                id:
-                    saved.id ||
-                    saved._id
 
-            };
-
-        }
-
-    } else {
-
-        const saved =
-            await addTeacherRecord(
-                "tardiness",
-                data
+            teachersData.tardiness.unshift(
+                saved
             );
 
 
-        if (!saved) {
-
-            return;
+            alert(
+                'تم حفظ سجل التأخير في MongoDB بنجاح'
+            );
 
         }
 
 
-        teachersData.tardiness.unshift({
+        renderTardiness();
 
-            ...saved,
+        updateDashboard();
 
-            _id:
-                saved._id ||
-                saved.id,
-
-            id:
-                saved.id ||
-                saved._id
-
-        });
-
-    }
-
-
-    renderAll();
-
-
-    resetForm(
-        "tardiness"
-    );
-
-
-    alert(
-
-        id
-
-            ? "تم تعديل حالة التأخير."
-
-            : "تم تسجيل حالة التأخير بنجاح."
-
-    );
-
-}
-
-
-/* =========================================================
-   RENDER TARDINESS
-========================================================= */
-
-function renderTardiness() {
-
-    const tbody =
-        document.getElementById(
-            "tardiness-table-body"
+        resetForm(
+            'tardiness'
         );
 
+    } catch (error) {
 
-    if (!tbody) {
-
-        return;
-
-    }
-
-
-    if (
-        teachersData.tardiness.length ===
-        0
-    ) {
-
-        tbody.innerHTML =
-            emptyRow(
-                5,
-                "لا توجد حالات تأخير مسجلة."
-            );
-
-        return;
+        alert(
+            'تعذر حفظ سجل التأخير.\n\n' +
+            error.message
+        );
 
     }
-
-
-    tbody.innerHTML =
-        teachersData.tardiness
-
-            .map(
-                function (item) {
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.name
-                                )}
-                            </td>
-
-                            <td>
-                                ${formatDateWithDay(
-                                    item.date
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.time
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.note ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${actionButtons(
-                                    "tardiness",
-                                    getRecordId(item)
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-
-            .join("");
-
-
-    initializeIcons();
 
 }
 
@@ -2409,15 +1329,12 @@ function renderTardiness() {
    EDIT TARDINESS
 ========================================================= */
 
-function editTardiness(
-    id
-) {
+function editTardiness(id) {
 
     const item =
         teachersData.tardiness.find(
             record =>
-                getRecordId(record) ===
-                String(id)
+                record.id === id
         );
 
 
@@ -2428,151 +1345,92 @@ function editTardiness(
     }
 
 
-    document.getElementById(
-        "tardiness-edit-id"
-    ).value =
-        getRecordId(item);
+    setValue(
+        'tardiness-edit-id',
+        item.id
+    );
 
+    setValue(
+        'tardiness-name',
+        item.name
+    );
 
-    document.getElementById(
-        "tardiness-name"
-    ).value =
-        item.name || "";
+    setValue(
+        'tardiness-time',
+        item.time
+    );
 
+    setValue(
+        'tardiness-note',
+        item.note
+    );
 
-    const dateElement =
-        document.getElementById(
-            "tardiness-date"
-        );
-
-
-    if (dateElement) {
-
-        dateElement.value =
-            item.date || "";
-
-    }
-
-
-    document.getElementById(
-        "tardiness-time"
-    ).value =
-        item.time || "";
-
-
-    const noteElement =
-        document.getElementById(
-            "tardiness-note"
-        );
-
-
-    if (noteElement) {
-
-        noteElement.value =
-            item.note || "";
-
-    }
-
-
-    document.getElementById(
-        "tardiness-btn"
-    ).innerHTML =
-        '<i data-lucide="save"></i> تحديث التأخير';
-
-
-    switchTab(
-        "tardiness"
+    setValue(
+        'tardiness-date',
+        item.date
     );
 
 
-    initializeIcons();
+    const button =
+        document.getElementById(
+            'tardiness-btn'
+        );
+
+
+    if (button) {
+
+        button.textContent =
+            'تعديل السجل';
+
+    }
 
 }
 
 
 /* =========================================================
-   DUTY
+   ADD / UPDATE DUTY
 ========================================================= */
 
-async function saveDuty(
-    event
-) {
+async function saveDuty(event) {
 
-    event.preventDefault();
+    if (event) {
 
+        event.preventDefault();
 
-    const id =
-        document.getElementById(
-            "duty-edit-id"
-        ).value;
+    }
 
 
     const name =
-        document.getElementById(
-            "duty-name"
-        ).value.trim();
-
-
-    const status =
-        document.getElementById(
-            "duty-status"
-        ).value;
-
-
-    const noteElement =
-        document.getElementById(
-            "duty-note"
+        getValue(
+            'duty-name'
         );
 
+    const status =
+        getValue(
+            'duty-status'
+        );
 
     const note =
-        noteElement
-            ? noteElement.value.trim()
-            : "";
+        getValue(
+            'duty-note'
+        );
+
+    const date =
+        getValue(
+            'duty-date'
+        );
+
+    const editId =
+        getValue(
+            'duty-edit-id'
+        );
 
 
     if (!name) {
 
         alert(
-            "يرجى إدخال اسم المعلم."
+            'يرجى إدخال اسم المعلم'
         );
-
-        return;
-
-    }
-
-
-    if (
-
-        (
-
-            status ===
-            "غير ملتزم"
-
-            ||
-
-            status ===
-            "تأخر عن موقع المناوبة"
-
-        )
-
-        &&
-
-        !note
-
-    ) {
-
-        alert(
-            "يرجى كتابة الملاحظة أو سبب المخالفة."
-        );
-
-
-        if (noteElement) {
-
-            noteElement.focus();
-
-        }
-
 
         return;
 
@@ -2585,236 +1443,95 @@ async function saveDuty(
 
     const data = {
 
-        name,
+        name:
+            name,
+
+        status:
+            status,
+
+        note:
+            note,
 
         date:
-            now.date,
-
-        time:
-            now.time,
-
-        status,
-
-        note,
+            date,
 
         recordedDate:
             now.date,
 
         recordedTime:
-            now.time,
-
-        createdAt:
-            now.createdAt
+            now.time
 
     };
 
 
-    if (id) {
+    try {
 
-        const index =
-            teachersData.duty.findIndex(
-                item =>
-                    getRecordId(item) ===
-                    String(id)
-            );
+        if (editId) {
 
-
-        if (index !== -1) {
-
-            const oldRecord =
-                teachersData.duty[index];
-
-
-            const updatedData = {
-
-                ...oldRecord,
-
-                ...data
-
-            };
-
-
-            const saved =
+            const updated =
                 await updateTeacherRecord(
-
-                    getRecordId(
-                        oldRecord
-                    ),
-
-                    "duty",
-
-                    cleanRecordForDatabase(
-                        updatedData
-                    )
-
+                    editId,
+                    data
                 );
 
 
-            if (!saved) {
+            const index =
+                teachersData.duty.findIndex(
+                    item =>
+                        item.id === editId
+                );
 
-                return;
+
+            if (index !== -1) {
+
+                teachersData.duty[
+                    index
+                ] = updated;
 
             }
 
 
-            teachersData.duty[index] = {
+            alert(
+                'تم تعديل سجل المناوبة بنجاح'
+            );
 
-                ...saved,
+        } else {
 
-                _id:
-                    saved._id ||
-                    saved.id,
+            const saved =
+                await createTeacherRecord(
+                    'duty',
+                    data
+                );
 
-                id:
-                    saved.id ||
-                    saved._id
 
-            };
-
-        }
-
-    } else {
-
-        const saved =
-            await addTeacherRecord(
-                "duty",
-                data
+            teachersData.duty.unshift(
+                saved
             );
 
 
-        if (!saved) {
-
-            return;
+            alert(
+                'تم حفظ سجل المناوبة في MongoDB بنجاح'
+            );
 
         }
 
 
-        teachersData.duty.unshift({
+        renderDuty();
 
-            ...saved,
+        updateDashboard();
 
-            _id:
-                saved._id ||
-                saved.id,
-
-            id:
-                saved.id ||
-                saved._id
-
-        });
-
-    }
-
-
-    renderAll();
-
-
-    resetForm(
-        "duty"
-    );
-
-
-    alert(
-
-        id
-
-            ? "تم تعديل سجل المناوبة بنجاح."
-
-            : "تم تسجيل المناوبة بنجاح."
-
-    );
-
-}
-
-
-/* =========================================================
-   RENDER DUTY
-========================================================= */
-
-function renderDuty() {
-
-    const tbody =
-        document.getElementById(
-            "duty-table-body"
+        resetForm(
+            'duty'
         );
 
+    } catch (error) {
 
-    if (!tbody) {
-
-        return;
-
-    }
-
-
-    if (
-        teachersData.duty.length ===
-        0
-    ) {
-
-        tbody.innerHTML =
-            emptyRow(
-                5,
-                "لا توجد سجلات مناوبة."
-            );
-
-        return;
+        alert(
+            'تعذر حفظ سجل المناوبة.\n\n' +
+            error.message
+        );
 
     }
-
-
-    tbody.innerHTML =
-        teachersData.duty
-
-            .map(
-                function (item) {
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.name
-                                )}
-                            </td>
-
-                            <td>
-                                ${formatDateWithDay(
-                                    item.date
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.status
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.note ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${actionButtons(
-                                    "duty",
-                                    getRecordId(item)
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-
-            .join("");
-
-
-    initializeIcons();
 
 }
 
@@ -2823,15 +1540,12 @@ function renderDuty() {
    EDIT DUTY
 ========================================================= */
 
-function editDuty(
-    id
-) {
+function editDuty(id) {
 
     const item =
         teachersData.duty.find(
             record =>
-                getRecordId(record) ===
-                String(id)
+                record.id === id
         );
 
 
@@ -2842,114 +1556,86 @@ function editDuty(
     }
 
 
-    document.getElementById(
-        "duty-edit-id"
-    ).value =
-        getRecordId(item);
+    setValue(
+        'duty-edit-id',
+        item.id
+    );
 
+    setValue(
+        'duty-name',
+        item.name
+    );
 
-    document.getElementById(
-        "duty-name"
-    ).value =
-        item.name || "";
+    setValue(
+        'duty-status',
+        item.status
+    );
 
+    setValue(
+        'duty-note',
+        item.note
+    );
 
-    const dateElement =
-        document.getElementById(
-            "duty-date"
-        );
-
-
-    if (dateElement) {
-
-        dateElement.value =
-            item.date || "";
-
-    }
-
-
-    document.getElementById(
-        "duty-status"
-    ).value =
-        item.status || "";
-
-
-    const noteElement =
-        document.getElementById(
-            "duty-note"
-        );
-
-
-    if (noteElement) {
-
-        noteElement.value =
-            item.note || "";
-
-    }
-
-
-    toggleDutyNote();
-
-
-    document.getElementById(
-        "duty-btn"
-    ).innerHTML =
-        '<i data-lucide="save"></i> تحديث المناوبة';
-
-
-    switchTab(
-        "duty"
+    setValue(
+        'duty-date',
+        item.date
     );
 
 
-    initializeIcons();
+    const button =
+        document.getElementById(
+            'duty-btn'
+        );
+
+
+    if (button) {
+
+        button.textContent =
+            'تعديل السجل';
+
+    }
 
 }
 
 
 /* =========================================================
-   NOTES
+   ADD / UPDATE NOTES
 ========================================================= */
 
-async function saveNote(
-    event
-) {
+async function saveNotes(event) {
 
-    event.preventDefault();
+    if (event) {
+
+        event.preventDefault();
+
+    }
 
 
     const name =
-        document.getElementById(
-            "notes-name"
-        ).value.trim();
-
+        getValue(
+            'notes-name'
+        );
 
     const date =
-        document.getElementById(
-            "notes-date"
-        ).value;
-
+        getValue(
+            'notes-date'
+        );
 
     const text =
-        document.getElementById(
-            "notes-text"
-        ).value.trim();
-
+        getValue(
+            'notes-text'
+        );
 
     const editId =
-        document.getElementById(
-            "notes-edit-id"
-        ).value;
+        getValue(
+            'notes-edit-id'
+        );
 
 
-    if (
-        !name ||
-        !date ||
-        !text
-    ) {
+    if (!name) {
 
         alert(
-            "يرجى إكمال جميع بيانات الملاحظة."
+            'يرجى إدخال اسم المعلم'
         );
 
         return;
@@ -2957,250 +1643,123 @@ async function saveNote(
     }
 
 
-    if (editId) {
+    if (!text) {
 
-        const index =
-            teachersData.notes.findIndex(
-                item =>
-                    getRecordId(item) ===
-                    String(editId)
-            );
+        alert(
+            'يرجى إدخال الملاحظة'
+        );
 
+        return;
 
-        if (index !== -1) {
-
-            const oldRecord =
-                teachersData.notes[index];
+    }
 
 
-            const data = {
-
-                ...oldRecord,
-
-                name,
-
-                date,
-
-                text
-
-            };
+    const now =
+        getCurrentDateTime();
 
 
-            const saved =
+    const data = {
+
+        name:
+            name,
+
+        date:
+            date,
+
+        text:
+            text,
+
+        recordedDate:
+            now.date,
+
+        recordedTime:
+            now.time
+
+    };
+
+
+    try {
+
+        if (editId) {
+
+            const updated =
                 await updateTeacherRecord(
-
-                    getRecordId(
-                        oldRecord
-                    ),
-
-                    "notes",
-
-                    cleanRecordForDatabase(
-                        data
-                    )
-
+                    editId,
+                    data
                 );
 
 
-            if (!saved) {
+            const index =
+                teachersData.notes.findIndex(
+                    item =>
+                        item.id === editId
+                );
 
-                return;
+
+            if (index !== -1) {
+
+                teachersData.notes[
+                    index
+                ] = updated;
 
             }
 
 
-            teachersData.notes[index] = {
+            alert(
+                'تم تعديل الملاحظة بنجاح'
+            );
 
-                ...saved,
+        } else {
 
-                _id:
-                    saved._id ||
-                    saved.id,
-
-                id:
-                    saved.id ||
-                    saved._id
-
-            };
-
-        }
-
-    } else {
-
-        const now =
-            getCurrentDateTime();
+            const saved =
+                await createTeacherRecord(
+                    'notes',
+                    data
+                );
 
 
-        const data = {
-
-            name,
-
-            date,
-
-            text,
-
-            recordedDate:
-                now.date,
-
-            recordedTime:
-                now.time,
-
-            createdAt:
-                now.createdAt
-
-        };
-
-
-        const saved =
-            await addTeacherRecord(
-                "notes",
-                data
+            teachersData.notes.unshift(
+                saved
             );
 
 
-        if (!saved) {
-
-            return;
+            alert(
+                'تم حفظ الملاحظة في MongoDB بنجاح'
+            );
 
         }
 
 
-        teachersData.notes.unshift({
+        renderNotes();
 
-            ...saved,
+        updateDashboard();
 
-            _id:
-                saved._id ||
-                saved.id,
-
-            id:
-                saved.id ||
-                saved._id
-
-        });
-
-    }
-
-
-    renderAll();
-
-
-    resetForm(
-        "notes"
-    );
-
-
-    alert(
-
-        editId
-
-            ? "تم تعديل الملاحظة."
-
-            : "تم حفظ الملاحظة بنجاح."
-
-    );
-
-}
-
-
-/* =========================================================
-   RENDER NOTES
-========================================================= */
-
-function renderNotes() {
-
-    const tbody =
-        document.getElementById(
-            "notes-table-body"
+        resetForm(
+            'notes'
         );
 
+    } catch (error) {
 
-    if (!tbody) {
-
-        return;
-
-    }
-
-
-    if (
-        teachersData.notes.length ===
-        0
-    ) {
-
-        tbody.innerHTML =
-            emptyRow(
-                4,
-                "لا توجد ملاحظات إدارية."
-            );
-
-        return;
+        alert(
+            'تعذر حفظ الملاحظة.\n\n' +
+            error.message
+        );
 
     }
-
-
-    tbody.innerHTML =
-        teachersData.notes
-
-            .map(
-                function (item) {
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.name
-                                )}
-                            </td>
-
-                            <td>
-                                ${formatDateWithDay(
-                                    item.date
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.text
-                                )}
-                            </td>
-
-                            <td>
-                                ${actionButtons(
-                                    "notes",
-                                    getRecordId(item)
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-
-            .join("");
-
-
-    initializeIcons();
 
 }
 
 
 /* =========================================================
-   EDIT NOTE
+   EDIT NOTES
 ========================================================= */
 
-function editNote(
-    id
-) {
+function editNotes(id) {
 
     const item =
         teachersData.notes.find(
             record =>
-                getRecordId(record) ===
-                String(id)
+                record.id === id
         );
 
 
@@ -3211,201 +1770,37 @@ function editNote(
     }
 
 
-    document.getElementById(
-        "notes-edit-id"
-    ).value =
-        getRecordId(item);
+    setValue(
+        'notes-edit-id',
+        item.id
+    );
 
+    setValue(
+        'notes-name',
+        item.name
+    );
 
-    document.getElementById(
-        "notes-name"
-    ).value =
-        item.name || "";
+    setValue(
+        'notes-date',
+        item.date
+    );
 
-
-    document.getElementById(
-        "notes-date"
-    ).value =
-        item.date || "";
-
-
-    document.getElementById(
-        "notes-text"
-    ).value =
-        item.text || "";
-
-
-    document.getElementById(
-        "notes-btn"
-    ).innerHTML =
-        '<i data-lucide="save"></i> تحديث الملاحظة';
-
-
-    switchTab(
-        "notes"
+    setValue(
+        'notes-text',
+        item.text
     );
 
 
-    initializeIcons();
-
-}
-
-
-/* =========================================================
-   EMPTY TABLE
-========================================================= */
-
-function emptyRow(
-    colspan,
-    message
-) {
-
-    return `
-
-        <tr>
-
-            <td
-                colspan="${colspan}"
-                style="
-                    text-align:center;
-                    padding:30px;
-                    color:#6c757d;
-                "
-            >
-
-                ${escapeHtml(
-                    message
-                )}
-
-            </td>
-
-        </tr>
-
-    `;
-
-}
+    const button =
+        document.getElementById(
+            'notes-btn'
+        );
 
 
-/* =========================================================
-   ACTION BUTTONS
-========================================================= */
+    if (button) {
 
-function actionButtons(
-    type,
-    id
-) {
-
-    const safeType =
-        escapeHtml(type);
-
-
-    const safeId =
-        escapeHtml(id);
-
-
-    return `
-
-        <div
-            style="
-                display:flex;
-                gap:6px;
-                justify-content:center;
-                align-items:center;
-            "
-        >
-
-            <button
-                type="button"
-                class="btn btn-outline"
-                onclick="editRecord('${safeType}','${safeId}')"
-                title="تعديل"
-                style="
-                    min-width:42px;
-                    padding:8px 10px;
-                "
-            >
-
-                <i data-lucide="edit-3"></i>
-
-            </button>
-
-
-            <button
-                type="button"
-                class="btn"
-                onclick="deleteRecord('${safeType}','${safeId}')"
-                title="حذف"
-                style="
-                    min-width:42px;
-                    padding:8px 10px;
-                    color:#fff;
-                    background:#dc3545;
-                    border-color:#dc3545;
-                "
-            >
-
-                <i data-lucide="trash-2"></i>
-
-            </button>
-
-        </div>
-
-    `;
-
-}
-
-
-/* =========================================================
-   EDIT RECORD ROUTER
-========================================================= */
-
-function editRecord(
-    type,
-    id
-) {
-
-    switch (type) {
-
-        case "absence":
-
-            editAbsence(id);
-
-            break;
-
-
-        case "written":
-
-            editWritten(id);
-
-            break;
-
-
-        case "committee":
-
-            editCommittee(id);
-
-            break;
-
-
-        case "tardiness":
-
-            editTardiness(id);
-
-            break;
-
-
-        case "duty":
-
-            editDuty(id);
-
-            break;
-
-
-        case "notes":
-
-            editNote(id);
-
-            break;
+        button.textContent =
+            'تعديل الملاحظة';
 
     }
 
@@ -3421,24 +1816,7 @@ async function deleteRecord(
     id
 ) {
 
-    const dataType =
-        type === "committee"
-            ? "committees"
-            : type;
-
-
-    if (!teachersData[dataType]) {
-
-        console.error(
-            "نوع السجل غير موجود:",
-            type
-        );
-
-
-        alert(
-            "تعذر العثور على نوع السجل."
-        );
-
+    if (!id) {
 
         return;
 
@@ -3447,7 +1825,7 @@ async function deleteRecord(
 
     const confirmed =
         confirm(
-            "هل أنت متأكد من حذف هذا السجل؟\n\nلا يمكن التراجع عن عملية الحذف."
+            'هل أنت متأكد من حذف هذا السجل؟'
         );
 
 
@@ -3458,280 +1836,581 @@ async function deleteRecord(
     }
 
 
-    const index =
-        teachersData[dataType].findIndex(
-            function (item) {
+    try {
 
-                return (
-                    getRecordId(item) ===
-                    String(id)
+        await deleteTeacherRecord(
+            id
+        );
+
+
+        const arrayName =
+            getArrayName(
+                type
+            );
+
+
+        if (
+            arrayName &&
+            teachersData[arrayName]
+        ) {
+
+            teachersData[arrayName] =
+                teachersData[
+                    arrayName
+                ].filter(
+                    item =>
+                        item.id !== id
                 );
 
-            }
-        );
+        }
 
 
-    if (index === -1) {
-
-        alert(
-            "لم يتم العثور على السجل المطلوب حذفه."
-        );
-
-
-        return;
-
-    }
-
-
-    const record =
-        teachersData[dataType][index];
-
-
-    const recordId =
-        getRecordId(record);
-
-
-    if (!recordId) {
+        renderAll();
 
         alert(
-            "السجل لا يحتوي على معرف قاعدة بيانات صحيح."
+            'تم حذف السجل بنجاح'
         );
 
+    } catch (error) {
 
-        return;
-
-    }
-
-
-    const deleted =
-        await deleteTeacherRecord(
-            recordId
+        alert(
+            'تعذر حذف السجل.\n\n' +
+            error.message
         );
 
-
-    if (!deleted) {
-
-        return;
-
     }
-
-
-    teachersData[dataType].splice(
-        index,
-        1
-    );
-
-
-    renderAll();
-
-
-    initializeIcons();
-
-
-    alert(
-        "تم حذف السجل بنجاح."
-    );
 
 }
 
 
 /* =========================================================
-   RESET FORM
+   RENDER ABSENCE
 ========================================================= */
 
-function resetForm(
-    type
-) {
+function renderAbsence() {
 
-    let formId = "";
-
-    let editId = "";
-
-    let buttonId = "";
-
-
-    switch (type) {
-
-        case "absence":
-
-            formId =
-                "absence-form";
-
-            editId =
-                "absence-edit-id";
-
-            buttonId =
-                "absence-btn";
-
-            break;
-
-
-        case "written":
-
-            formId =
-                "written-form";
-
-            editId =
-                "written-edit-id";
-
-            buttonId =
-                "written-btn";
-
-            break;
-
-
-        case "committee":
-
-            formId =
-                "committees-form";
-
-            editId =
-                "committee-edit-id";
-
-            buttonId =
-                "committee-btn";
-
-            break;
-
-
-        case "tardiness":
-
-            formId =
-                "tardiness-form";
-
-            editId =
-                "tardiness-edit-id";
-
-            buttonId =
-                "tardiness-btn";
-
-            break;
-
-
-        case "duty":
-
-            formId =
-                "duty-form";
-
-            editId =
-                "duty-edit-id";
-
-            buttonId =
-                "duty-btn";
-
-            break;
-
-
-        case "notes":
-
-            formId =
-                "notes-form";
-
-            editId =
-                "notes-edit-id";
-
-            buttonId =
-                "notes-btn";
-
-            break;
-
-    }
-
-
-    const form =
+    const tbody =
         document.getElementById(
-            formId
+            'absence-table-body'
         );
 
 
-    if (form) {
+    if (!tbody) {
 
-        form.reset();
-
-    }
-
-
-    const hidden =
-        document.getElementById(
-            editId
-        );
-
-
-    if (hidden) {
-
-        hidden.value =
-            "";
+        return;
 
     }
 
 
-    const button =
-        document.getElementById(
-            buttonId
-        );
+    if (
+        teachersData.absence.length === 0
+    ) {
 
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    لا توجد سجلات
+                </td>
+            </tr>
+        `;
 
-    const buttonTexts = {
-
-        absence:
-            '<i data-lucide="plus"></i> حفظ البيانات',
-
-        written:
-            '<i data-lucide="plus"></i> تسجيل التسليم',
-
-        committee:
-            '<i data-lucide="plus"></i> حفظ التقييم',
-
-        tardiness:
-            '<i data-lucide="plus"></i> تسجيل التأخير',
-
-        duty:
-            '<i data-lucide="plus"></i> رصد المناوبة',
-
-        notes:
-            '<i data-lucide="plus"></i> حفظ الملاحظة'
-
-    };
-
-
-    if (button) {
-
-        button.innerHTML =
-            buttonTexts[type];
+        return;
 
     }
 
 
-    setTodayDates();
+    tbody.innerHTML =
+        teachersData.absence
+            .map(
+                (item, index) => `
 
-    toggleCommitteeNote();
+                <tr>
 
-    toggleDutyNote();
+                    <td>
+                        ${index + 1}
+                    </td>
 
-    initializeIcons();
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.reason)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.formStatus)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            onclick="editAbsence('${item.id}')"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteRecord('absence','${item.id}')"
+                        >
+                            حذف
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `
+            )
+            .join('');
 
 }
 
 
 /* =========================================================
-   BACK TO SECTION SELECTION
+   RENDER WRITTEN
 ========================================================= */
 
-function backToSectionSelection() {
+function renderWritten() {
 
-    localStorage.setItem(
-        "schoolLoggedIn",
-        "true"
-    );
-
-
-    localStorage.removeItem(
-        "schoolSection"
-    );
+    const tbody =
+        document.getElementById(
+            'written-table-body'
+        );
 
 
-    window.location.href =
-        "index.html";
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    if (
+        teachersData.written.length === 0
+    ) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    لا توجد سجلات
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        teachersData.written
+            .map(
+                (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.title)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            onclick="editWritten('${item.id}')"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteRecord('written','${item.id}')"
+                        >
+                            حذف
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `
+            )
+            .join('');
+
+}
+
+
+/* =========================================================
+   RENDER COMMITTEES
+========================================================= */
+
+function renderCommittees() {
+
+    const tbody =
+        document.getElementById(
+            'committee-table-body'
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    if (
+        teachersData.committees.length === 0
+    ) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    لا توجد سجلات
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        teachersData.committees
+            .map(
+                (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.title)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.status)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.note)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            onclick="editCommittee('${item.id}')"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteRecord('committee','${item.id}')"
+                        >
+                            حذف
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `
+            )
+            .join('');
+
+}
+
+
+/* =========================================================
+   RENDER TARDINESS
+========================================================= */
+
+function renderTardiness() {
+
+    const tbody =
+        document.getElementById(
+            'tardiness-table-body'
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    if (
+        teachersData.tardiness.length === 0
+    ) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    لا توجد سجلات
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        teachersData.tardiness
+            .map(
+                (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.time)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.note)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            onclick="editTardiness('${item.id}')"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteRecord('tardiness','${item.id}')"
+                        >
+                            حذف
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `
+            )
+            .join('');
+
+}
+
+
+/* =========================================================
+   RENDER DUTY
+========================================================= */
+
+function renderDuty() {
+
+    const tbody =
+        document.getElementById(
+            'duty-table-body'
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    if (
+        teachersData.duty.length === 0
+    ) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    لا توجد سجلات
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        teachersData.duty
+            .map(
+                (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.status)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.note)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            onclick="editDuty('${item.id}')"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteRecord('duty','${item.id}')"
+                        >
+                            حذف
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `
+            )
+            .join('');
+
+}
+
+
+/* =========================================================
+   RENDER NOTES
+========================================================= */
+
+function renderNotes() {
+
+    const tbody =
+        document.getElementById(
+            'notes-table-body'
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    if (
+        teachersData.notes.length === 0
+    ) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    لا توجد سجلات
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        teachersData.notes
+            .map(
+                (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.text)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            onclick="editNotes('${item.id}')"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteRecord('notes','${item.id}')"
+                        >
+                            حذف
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `
+            )
+            .join('');
 
 }
 
@@ -3756,7 +2435,257 @@ function renderAll() {
 
     updateDashboard();
 
-    initializeIcons();
+}
+
+
+/* =========================================================
+   RESET FORM
+========================================================= */
+
+function resetForm(
+    type
+) {
+
+    let formId = '';
+
+    let editId = '';
+
+    let buttonId = '';
+
+
+    switch (type) {
+
+        case 'absence':
+
+            formId =
+                'absence-form';
+
+            editId =
+                'absence-edit-id';
+
+            buttonId =
+                'absence-btn';
+
+            break;
+
+
+        case 'written':
+
+            formId =
+                'written-form';
+
+            editId =
+                'written-edit-id';
+
+            buttonId =
+                'written-btn';
+
+            break;
+
+
+        case 'committee':
+
+            formId =
+                'committees-form';
+
+            editId =
+                'committee-edit-id';
+
+            buttonId =
+                'committee-btn';
+
+            break;
+
+
+        case 'tardiness':
+
+            formId =
+                'tardiness-form';
+
+            editId =
+                'tardiness-edit-id';
+
+            buttonId =
+                'tardiness-btn';
+
+            break;
+
+
+        case 'duty':
+
+            formId =
+                'duty-form';
+
+            editId =
+                'duty-edit-id';
+
+            buttonId =
+                'duty-btn';
+
+            break;
+
+
+        case 'notes':
+
+            formId =
+                'notes-form';
+
+            editId =
+                'notes-edit-id';
+
+            buttonId =
+                'notes-btn';
+
+            break;
+
+    }
+
+
+    const form =
+        document.getElementById(
+            formId
+        );
+
+
+    if (form) {
+
+        form.reset();
+
+    }
+
+
+    const edit =
+        document.getElementById(
+            editId
+        );
+
+
+    if (edit) {
+
+        edit.value = '';
+
+    }
+
+
+    const button =
+        document.getElementById(
+            buttonId
+        );
+
+
+    if (button) {
+
+        if (
+            type === 'notes'
+        ) {
+
+            button.textContent =
+                'حفظ الملاحظة';
+
+        } else {
+
+            button.textContent =
+                'حفظ';
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   TAB SWITCHING
+========================================================= */
+
+function switchTab(
+    tabName
+) {
+
+    document
+        .querySelectorAll(
+            '.tab-content'
+        )
+        .forEach(
+            tab => {
+
+                tab.classList.remove(
+                    'active'
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            '.tab-btn'
+        )
+        .forEach(
+            button => {
+
+                button.classList.remove(
+                    'active'
+                );
+
+            }
+        );
+
+
+    const target =
+        document.getElementById(
+            tabName
+        );
+
+
+    if (target) {
+
+        target.classList.add(
+            'active'
+        );
+
+    }
+
+
+    const buttons =
+        document.querySelectorAll(
+            '.tab-btn'
+        );
+
+
+    buttons.forEach(
+        button => {
+
+            const onclick =
+                button.getAttribute(
+                    'onclick'
+                );
+
+
+            if (
+                onclick &&
+                onclick.includes(
+                    `switchTab('${tabName}')`
+                )
+            ) {
+
+                button.classList.add(
+                    'active'
+                );
+
+            }
+
+        }
+    );
+
+
+    if (
+        tabName === 'dashboard'
+    ) {
+
+        updateDashboard();
+
+    }
 
 }
 
@@ -3765,166 +2694,90 @@ function renderAll() {
    DASHBOARD
 ========================================================= */
 
+let absenceChart = null;
+
+let writtenChart = null;
+
+
 function updateDashboard() {
 
-    const absenceCount =
+    const absence =
         teachersData.absence.length;
 
 
-    const writtenCount =
+    const written =
         teachersData.written.length;
 
 
-    const tardinessCount =
+    const tardiness =
         teachersData.tardiness.length;
 
 
-    const issuesCount =
-
-        teachersData.committees.filter(
-            item =>
-                item.status ===
-                "غير ملتزم"
-        ).length
-
-        +
-
-        teachersData.duty.filter(
-            item =>
-
-                item.status ===
-                "غير ملتزم"
-
-                ||
-
-                item.status ===
-                "تأخر عن موقع المناوبة"
-
-        ).length;
+    const issues =
+        teachersData.committees.length +
+        teachersData.duty.length +
+        teachersData.notes.length;
 
 
-    setText(
-        "stat-absence",
-        absenceCount
-    );
-
-
-    setText(
-        "stat-written",
-        writtenCount
-    );
-
-
-    setText(
-        "stat-tardiness",
-        tardinessCount
-    );
-
-
-    setText(
-        "stat-issues",
-        issuesCount
-    );
-
-
-    updateAbsenceChart();
-
-    updateWrittenChart();
-
-}
-
-
-/* =========================================================
-   SET TEXT
-========================================================= */
-
-function setText(
-    id,
-    value
-) {
-
-    const element =
+    const statAbsence =
         document.getElementById(
-            id
+            'stat-absence'
         );
 
 
-    if (element) {
-
-        element.textContent =
-            value;
-
-    }
-
-}
-
-
-/* =========================================================
-   ABSENCE CHART
-========================================================= */
-
-function updateAbsenceChart() {
-
-    const canvas =
+    const statWritten =
         document.getElementById(
-            "absenceChart"
+            'stat-written'
         );
 
 
-    if (!canvas) {
+    const statTardiness =
+        document.getElementById(
+            'stat-tardiness'
+        );
 
-        return;
+
+    const statIssues =
+        document.getElementById(
+            'stat-issues'
+        );
+
+
+    if (statAbsence) {
+
+        statAbsence.textContent =
+            absence;
 
     }
 
 
-    const reasons = {
+    if (statWritten) {
 
-        "مرضي":
-            0,
+        statWritten.textContent =
+            written;
 
-        "عارض":
-            0,
-
-        "بدون عذر":
-            0
-
-    };
+    }
 
 
-    teachersData.absence.forEach(
-        function (item) {
+    if (statTardiness) {
 
-            if (
+        statTardiness.textContent =
+            tardiness;
 
-                Object.prototype.hasOwnProperty
-                    .call(
-                        reasons,
-                        item.reason
-                    )
-
-            ) {
-
-                reasons[
-                    item.reason
-                ]++;
-
-            }
-
-        }
-    );
+    }
 
 
-    if (absenceChart) {
+    if (statIssues) {
 
-        absenceChart.destroy();
+        statIssues.textContent =
+            issues;
 
     }
 
 
     if (
         typeof Chart ===
-        "undefined"
+        'undefined'
     ) {
 
         return;
@@ -3932,233 +2785,136 @@ function updateAbsenceChart() {
     }
 
 
-    absenceChart =
-        new Chart(
-            canvas,
-            {
-
-                type:
-                    "doughnut",
-
-                data: {
-
-                    labels:
-                        Object.keys(
-                            reasons
-                        ),
-
-                    datasets: [
-
-                        {
-
-                            data:
-                                Object.values(
-                                    reasons
-                                ),
-
-                            borderWidth:
-                                2
-
-                        }
-
-                    ]
-
-                },
-
-                options: {
-
-                    responsive:
-                        true,
-
-                    maintainAspectRatio:
-                        false,
-
-                    plugins: {
-
-                        legend: {
-
-                            position:
-                                "bottom",
-
-                            labels: {
-
-                                font: {
-
-                                    family:
-                                        "Tajawal"
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   WRITTEN CHART
-========================================================= */
-
-function updateWrittenChart() {
-
-    const canvas =
+    const absenceCanvas =
         document.getElementById(
-            "writtenChart"
+            'absenceChart'
         );
 
 
-    if (!canvas) {
+    if (absenceCanvas) {
 
-        return;
+        if (absenceChart) {
 
-    }
-
-
-    const types = {
-
-        "الخطط السنوية":
-            0,
-
-        "التحضير اليومي":
-            0,
-
-        "الحضور والغياب للطلبة":
-            0,
-
-        "خطط علاجية":
-            0,
-
-        "تحليل اختبار":
-            0
-
-    };
-
-
-    teachersData.written.forEach(
-        function (item) {
-
-            if (
-
-                Object.prototype.hasOwnProperty
-                    .call(
-                        types,
-                        item.type
-                    )
-
-            ) {
-
-                types[
-                    item.type
-                ]++;
-
-            }
+            absenceChart.destroy();
 
         }
-    );
 
 
-    if (writtenChart) {
+        absenceChart =
+            new Chart(
 
-        writtenChart.destroy();
+                absenceCanvas,
 
-    }
+                {
 
+                    type:
+                        'doughnut',
 
-    if (
-        typeof Chart ===
-        "undefined"
-    ) {
+                    data: {
 
-        return;
+                        labels: [
+                            'غياب',
+                            'بدون غياب'
+                        ],
 
-    }
+                        datasets: [{
 
+                            data: [
 
-    writtenChart =
-        new Chart(
-            canvas,
-            {
+                                absence,
 
-                type:
-                    "bar",
+                                Math.max(
+                                    0,
+                                    1
+                                )
 
-                data: {
+                            ]
 
-                    labels:
-                        Object.keys(
-                            types
-                        ),
-
-                    datasets: [
-
-                        {
-
-                            label:
-                                "عدد الأعمال",
-
-                            data:
-                                Object.values(
-                                    types
-                                ),
-
-                            borderWidth:
-                                1
-
-                        }
-
-                    ]
-
-                },
-
-                options: {
-
-                    responsive:
-                        true,
-
-                    maintainAspectRatio:
-                        false,
-
-                    scales: {
-
-                        y: {
-
-                            beginAtZero:
-                                true,
-
-                            ticks: {
-
-                                precision:
-                                    0
-
-                            }
-
-                        }
+                        }]
 
                     },
 
-                    plugins: {
+                    options: {
 
-                        legend: {
+                        responsive:
+                            true,
 
-                            display:
-                                false
-
-                        }
+                        maintainAspectRatio:
+                            false
 
                     }
 
                 }
 
-            }
+            );
+
+    }
+
+
+    const writtenCanvas =
+        document.getElementById(
+            'writtenChart'
         );
+
+
+    if (writtenCanvas) {
+
+        if (writtenChart) {
+
+            writtenChart.destroy();
+
+        }
+
+
+        writtenChart =
+            new Chart(
+
+                writtenCanvas,
+
+                {
+
+                    type:
+                        'doughnut',
+
+                    data: {
+
+                        labels: [
+                            'أعمال كتابية',
+                            'أخرى'
+                        ],
+
+                        datasets: [{
+
+                            data: [
+
+                                written,
+
+                                Math.max(
+                                    0,
+                                    1
+                                )
+
+                            ]
+
+                        }]
+
+                    },
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false
+
+                    }
+
+                }
+
+            );
+
+    }
 
 }
 
@@ -4169,43 +2925,21 @@ function updateWrittenChart() {
 
 function exportData() {
 
-    const exportObject = {
-
-        app:
-            "نظام متابعة وإدارة المعلمين",
-
-        version:
-            "2.0",
-
-        exportedAt:
-            new Date().toISOString(),
-
-        data:
-            teachersData
-
-    };
-
-
-    const json =
+    const data =
         JSON.stringify(
-            exportObject,
+            teachersData,
             null,
-            4
+            2
         );
 
 
     const blob =
         new Blob(
-
-            [json],
-
+            [data],
             {
-
                 type:
-                    "application/json;charset=utf-8"
-
+                    'application/json;charset=utf-8'
             }
-
         );
 
 
@@ -4217,20 +2951,15 @@ function exportData() {
 
     const link =
         document.createElement(
-            "a"
+            'a'
         );
-
-
-    const today =
-        getToday();
 
 
     link.href =
         url;
 
-
     link.download =
-        `بيانات_المعلمين_${today}.json`;
+        'teachers-management-backup.json';
 
 
     document.body.appendChild(
@@ -4243,45 +2972,15 @@ function exportData() {
 
     link.remove();
 
-
     URL.revokeObjectURL(
         url
     );
 
-
-    alert(
-        "تم تصدير بيانات المعلمين بنجاح."
-    );
-
 }
 
 
 /* =========================================================
-   TRIGGER IMPORT
-========================================================= */
-
-function triggerImport() {
-
-    const input =
-        document.getElementById(
-            "importFile"
-        );
-
-
-    if (input) {
-
-        input.value =
-            "";
-
-        input.click();
-
-    }
-
-}
-
-
-/* =========================================================
-   IMPORT DATA TO MONGODB
+   IMPORT DATA
 ========================================================= */
 
 async function importData(
@@ -4289,8 +2988,7 @@ async function importData(
 ) {
 
     const file =
-        event.target.files &&
-        event.target.files[0];
+        event?.target?.files?.[0];
 
 
     if (!file) {
@@ -4300,727 +2998,238 @@ async function importData(
     }
 
 
-    if (
-
-        !file.name
-            .toLowerCase()
-            .endsWith(".json")
-
-    ) {
-
-        alert(
-            "يرجى اختيار ملف JSON تم تصديره من نظام المعلمين."
-        );
-
-        return;
-
-    }
-
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload =
-        async function (e) {
-
-            try {
-
-                const imported =
-                    JSON.parse(
-                        e.target.result
-                    );
-
-
-                const importedData =
-                    imported.data ||
-                    imported;
-
-
-                if (
-
-                    !importedData ||
-
-                    typeof importedData !==
-                        "object"
-
-                ) {
-
-                    throw new Error(
-                        "صيغة البيانات غير صحيحة"
-                    );
-
-                }
-
-
-                const confirmed =
-                    confirm(
-                        "هل تريد استبدال البيانات الحالية في قاعدة البيانات بالبيانات الموجودة في الملف؟"
-                    );
-
-
-                if (!confirmed) {
-
-                    return;
-
-                }
-
-
-                const categories = [
-
-                    {
-                        key: "absence",
-                        type: "absence"
-                    },
-
-                    {
-                        key: "written",
-                        type: "written"
-                    },
-
-                    {
-                        key: "committees",
-                        type: "committee"
-                    },
-
-                    {
-                        key: "tardiness",
-                        type: "tardiness"
-                    },
-
-                    {
-                        key: "duty",
-                        type: "duty"
-                    },
-
-                    {
-                        key: "notes",
-                        type: "notes"
-                    }
-
-                ];
-
-
-                /*
-                 * حذف السجلات الحالية
-                 * من MongoDB
-                 */
-
-                const existingResponse =
-                    await fetch(
-                        TEACHERS_API_URL
-                    );
-
-
-                if (
-                    !existingResponse.ok
-                ) {
-
-                    throw new Error(
-                        "تعذر جلب البيانات الحالية"
-                    );
-
-                }
-
-
-                const existingResult =
-                    await existingResponse.json();
-
-
-                if (
-                    !existingResult.success
-                ) {
-
-                    throw new Error(
-                        existingResult.message ||
-                        "تعذر جلب البيانات الحالية"
-                    );
-
-                }
-
-
-                for (
-                    const category
-                    of categories
-                ) {
-
-                    const records =
-                        Array.isArray(
-                            existingResult.data[
-                                category.key
-                            ]
-                        )
-                            ? existingResult.data[
-                                category.key
-                            ]
-                            : [];
-
-
-                    for (
-                        const record
-                        of records
-                    ) {
-
-                        const id =
-                            getRecordId(
-                                record
-                            );
-
-
-                        if (id) {
-
-                            const deleted =
-                                await deleteTeacherRecord(
-                                    id
-                                );
-
-
-                            if (!deleted) {
-
-                                throw new Error(
-                                    "تعذر حذف البيانات القديمة"
-                                );
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-
-                /*
-                 * إعادة بناء البيانات
-                 * ورفعها إلى MongoDB
-                 */
-
-                const newData = {
-
-                    absence: [],
-
-                    written: [],
-
-                    committees: [],
-
-                    tardiness: [],
-
-                    duty: [],
-
-                    notes: []
-
-                };
-
-
-                for (
-                    const category
-                    of categories
-                ) {
-
-                    const records =
-                        Array.isArray(
-                            importedData[
-                                category.key
-                            ]
-                        )
-                            ? importedData[
-                                category.key
-                            ]
-                            : [];
-
-
-                    for (
-                        const record
-                        of records
-                    ) {
-
-                        const cleanData =
-                            cleanRecordForDatabase(
-                                record
-                            );
-
-
-                        const saved =
-                            await addTeacherRecord(
-
-                                category.type,
-
-                                cleanData
-
-                            );
-
-
-                        if (!saved) {
-
-                            throw new Error(
-                                "تعذر استيراد أحد السجلات"
-                            );
-
-                        }
-
-
-                        const normalized = {
-
-                            ...saved,
-
-                            _id:
-                                saved._id ||
-                                saved.id,
-
-                            id:
-                                saved.id ||
-                                saved._id
-
-                        };
-
-
-                        newData[
-                            category.key
-                        ].push(
-                            normalized
-                        );
-
-                    }
-
-                }
-
-
-                teachersData =
-                    newData;
-
-
-                renderAll();
-
-                setTodayDates();
-
-
-                alert(
-                    "تم استيراد البيانات إلى قاعدة البيانات بنجاح."
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Import error:",
-                    error
-                );
-
-
-                /*
-                 * إعادة تحميل البيانات
-                 * من قاعدة البيانات بعد أي خطأ
-                 */
-
-                await loadData();
-
-                renderAll();
-
-                setTodayDates();
-
-
-                alert(
-                    "تعذر استيراد الملف. تأكد من صحة الملف واتصال قاعدة البيانات."
-                );
-
-            }
+    try {
+
+        const text =
+            await file.text();
+
+
+        const imported =
+            JSON.parse(
+                text
+            );
+
+
+        const arrays = {
+
+            absence:
+                Array.isArray(
+                    imported.absence
+                )
+                    ? imported.absence
+                    : [],
+
+            written:
+                Array.isArray(
+                    imported.written
+                )
+                    ? imported.written
+                    : [],
+
+            committees:
+                Array.isArray(
+                    imported.committees
+                )
+                    ? imported.committees
+                    : [],
+
+            tardiness:
+                Array.isArray(
+                    imported.tardiness
+                )
+                    ? imported.tardiness
+                    : [],
+
+            duty:
+                Array.isArray(
+                    imported.duty
+                )
+                    ? imported.duty
+                    : [],
+
+            notes:
+                Array.isArray(
+                    imported.notes
+                )
+                    ? imported.notes
+                    : []
 
         };
 
 
-    reader.readAsText(
-        file,
-        "UTF-8"
-    );
-
-}
-
-
-/* =========================================================
-   PRINT CURRENT TAB
-========================================================= */
-
-function printCurrentTab() {
-
-    window.print();
-
-}
+        const total =
+            arrays.absence.length +
+            arrays.written.length +
+            arrays.committees.length +
+            arrays.tardiness.length +
+            arrays.duty.length +
+            arrays.notes.length;
 
 
-/* =========================================================
-   BUILD PRINT SECTION
-========================================================= */
+        if (total === 0) {
 
-function buildPrintSection(
-    title,
-    data,
-    columns
-) {
+            alert(
+                'ملف الاستيراد لا يحتوي على بيانات.'
+            );
 
-    if (
-        !Array.isArray(data) ||
-        data.length === 0
-    ) {
+            return;
 
-        return `
+        }
 
-            <div class="section">
 
-                <div class="section-title">
-                    ${escapeHtml(title)}
-                </div>
+        const confirmed =
+            confirm(
+                `سيتم استيراد ${total} سجل إلى قاعدة بيانات المعلمين.\n\n` +
+                'سيتم إضافة السجلات الجديدة دون حذف السجلات الحالية.\n\n' +
+                'هل تريد المتابعة؟'
+            );
 
-                <div
-                    style="
-                        padding:15px;
-                        text-align:center;
-                        border:1px solid #CBD5E1;
-                        color:#64748B;
-                    "
-                >
-                    لا توجد بيانات مسجلة في هذا القسم.
-                </div>
 
-            </div>
+        if (!confirmed) {
 
-        `;
+            return;
+
+        }
+
+
+        const groups = [
+
+            {
+                type:
+                    'absence',
+
+                records:
+                    arrays.absence
+            },
+
+            {
+                type:
+                    'written',
+
+                records:
+                    arrays.written
+            },
+
+            {
+                type:
+                    'committee',
+
+                records:
+                    arrays.committees
+            },
+
+            {
+                type:
+                    'tardiness',
+
+                records:
+                    arrays.tardiness
+            },
+
+            {
+                type:
+                    'duty',
+
+                records:
+                    arrays.duty
+            },
+
+            {
+                type:
+                    'notes',
+
+                records:
+                    arrays.notes
+            }
+
+        ];
+
+
+        let importedCount =
+            0;
+
+
+        for (
+            const group
+            of groups
+        ) {
+
+            for (
+                const item
+                of group.records
+            ) {
+
+                const data =
+                    {
+                        ...item
+                    };
+
+
+                delete data.id;
+
+                delete data._id;
+
+                delete data.type;
+
+                delete data.createdAt;
+
+                delete data.updatedAt;
+
+
+                await createTeacherRecord(
+                    group.type,
+                    data
+                );
+
+
+                importedCount++;
+
+            }
+
+        }
+
+
+        await loadData();
+
+        renderAll();
+
+
+        alert(
+            `تم استيراد ${importedCount} سجل بنجاح إلى MongoDB.`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            'Import error:',
+            error
+        );
+
+
+        alert(
+            'تعذر استيراد البيانات.\n\n' +
+            error.message
+        );
 
     }
 
 
-    let rows = "";
+    if (event?.target) {
 
+        event.target.value =
+            '';
 
-    data.forEach(
-        function (item) {
-
-            let cells = "";
-
-
-            if (
-                title ===
-                "رصد غياب المعلمين"
-            ) {
-
-                cells = `
-
-                    <td>
-                        ${escapeHtml(
-                            item.name
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            formatDateWithDay(
-                                item.date
-                            )
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.reason
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.formStatus
-                        )}
-                    </td>
-
-                `;
-
-            }
-
-
-            else if (
-                title ===
-                "الأعمال الكتابية"
-            ) {
-
-                cells = `
-
-                    <td>
-                        ${escapeHtml(
-                            item.name
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.type
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            formatDateWithDay(
-                                item.date
-                            )
-                        )}
-                    </td>
-
-                `;
-
-            }
-
-
-            else if (
-                title ===
-                "أعمال اللجان"
-            ) {
-
-                cells = `
-
-                    <td>
-                        ${escapeHtml(
-                            item.name
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.title
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.status
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.note ||
-                            "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.time ||
-                            item.recordedTime ||
-                            "-"
-                        )}
-                    </td>
-
-                `;
-
-            }
-
-
-            else if (
-                title ===
-                "الحضور والتأخير"
-            ) {
-
-                cells = `
-
-                    <td>
-                        ${escapeHtml(
-                            item.name
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            formatDateWithDay(
-                                item.date
-                            )
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.time ||
-                            "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.note ||
-                            "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.recordedTime ||
-                            item.recordedAt ||
-                            "-"
-                        )}
-                    </td>
-
-                `;
-
-            }
-
-
-            else if (
-                title ===
-                "المناوبة اليومية"
-            ) {
-
-                cells = `
-
-                    <td>
-                        ${escapeHtml(
-                            item.name
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            formatDateWithDay(
-                                item.date
-                            )
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.status
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.note ||
-                            "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.recordedTime ||
-                            item.time ||
-                            "-"
-                        )}
-                    </td>
-
-                `;
-
-            }
-
-
-            else if (
-                title ===
-                "الملاحظات الإدارية"
-            ) {
-
-                cells = `
-
-                    <td>
-                        ${escapeHtml(
-                            item.name
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            formatDateWithDay(
-                                item.date
-                            )
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.text
-                        )}
-                    </td>
-
-                `;
-
-            }
-
-
-            rows += `
-
-                <tr>
-
-                    ${cells}
-
-                </tr>
-
-            `;
-
-        }
-    );
-
-
-    const headerCells =
-        columns
-
-            .map(
-                function (column) {
-
-                    return `
-
-                        <th>
-                            ${escapeHtml(
-                                column
-                            )}
-                        </th>
-
-                    `;
-
-                }
-            )
-
-            .join("");
-
-
-    return `
-
-        <div class="section">
-
-            <div class="section-title">
-
-                ${escapeHtml(
-                    title
-                )}
-
-            </div>
-
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        ${headerCells}
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${rows}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    `;
+    }
 
 }
 
 
 /* =========================================================
-   PRINT FULL REPORT
+   PRINT REPORT
 ========================================================= */
 
-function printTeachersReport() {
+function printReport() {
 
     const now =
         new Date();
@@ -5028,101 +3237,271 @@ function printTeachersReport() {
 
     const reportDate =
         now.toLocaleDateString(
-            "ar-PS"
-        );
-
-
-    const reportTime =
-        now.toLocaleTimeString(
-            "ar-PS",
+            'ar-PS',
             {
+                year:
+                    'numeric',
 
-                hour:
-                    "2-digit",
+                month:
+                    'long',
 
-                minute:
-                    "2-digit"
+                day:
+                    'numeric',
 
+                timeZone:
+                    'Asia/Gaza'
             }
         );
 
 
-    const totalAbsence =
-        teachersData.absence.length;
+    const section =
+        (
+            title,
+            headers,
+            rows
+        ) => {
+
+            if (
+                !rows ||
+                rows.length === 0
+            ) {
+
+                return `
+                    <section>
+                        <h2>${title}</h2>
+                        <p>لا توجد سجلات.</p>
+                    </section>
+                `;
+
+            }
 
 
-    const totalWritten =
-        teachersData.written.length;
+            return `
+
+                <section>
+
+                    <h2>
+                        ${title}
+                    </h2>
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                ${headers
+                                    .map(
+                                        header =>
+                                            `<th>${header}</th>`
+                                    )
+                                    .join('')
+                                }
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            ${rows.join('')}
+
+                        </tbody>
+
+                    </table>
+
+                </section>
+
+            `;
+
+        };
 
 
-    const totalCommittees =
-        teachersData.committees.length;
+    const absenceRows =
+        teachersData.absence.map(
+            (item, index) => `
 
+                <tr>
 
-    const totalTardiness =
-        teachersData.tardiness.length;
+                    <td>
+                        ${index + 1}
+                    </td>
 
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
 
-    const totalDuty =
-        teachersData.duty.length;
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
 
+                    <td>
+                        ${escapeHtml(item.reason)}
+                    </td>
 
-    const totalNotes =
-        teachersData.notes.length;
+                    <td>
+                        ${escapeHtml(item.formStatus)}
+                    </td>
 
+                </tr>
 
-    const totalCommitteeViolations =
-        teachersData.committees.filter(
-            item =>
-                item.status ===
-                "غير ملتزم"
-        ).length;
-
-
-    const totalDutyViolations =
-        teachersData.duty.filter(
-            item =>
-
-                item.status ===
-                "غير ملتزم"
-
-                ||
-
-                item.status ===
-                "تأخر عن موقع المناوبة"
-
-        ).length;
-
-
-    const totalViolations =
-
-        totalCommitteeViolations +
-
-        totalDutyViolations +
-
-        totalTardiness;
-
-
-    const printWindow =
-        window.open(
-            "",
-            "_blank",
-            "width=1200,height=900"
+            `
         );
 
 
-    if (!printWindow) {
+    const writtenRows =
+        teachersData.written.map(
+            (item, index) => `
 
-        alert(
-            "يرجى السماح بالنوافذ المنبثقة حتى يتم فتح التقرير."
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.title)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                </tr>
+
+            `
         );
 
-        return;
 
-    }
+    const committeeRows =
+        teachersData.committees.map(
+            (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.title)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.status)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.note)}
+                    </td>
+
+                </tr>
+
+            `
+        );
 
 
-    printWindow.document.write(`
+    const tardinessRows =
+        teachersData.tardiness.map(
+            (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.time)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.note)}
+                    </td>
+
+                </tr>
+
+            `
+        );
+
+
+    const dutyRows =
+        teachersData.duty.map(
+            (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.status)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.note)}
+                    </td>
+
+                </tr>
+
+            `
+        );
+
+
+    const notesRows =
+        teachersData.notes.map(
+            (item, index) => `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.date)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.text)}
+                    </td>
+
+                </tr>
+
+            `
+        );
+
+
+    const html = `
 
 <!DOCTYPE html>
 
@@ -5136,654 +3515,558 @@ function printTeachersReport() {
 <meta charset="UTF-8">
 
 <title>
-    التقرير الإداري للمعلمين
+    تقرير إدارة المعلمين
 </title>
-
 
 <style>
 
-* {
-    box-sizing: border-box;
-}
-
-
-body {
-
-    font-family:
-        Arial,
-        Tahoma,
-        sans-serif;
-
-    margin: 0;
-
-    padding: 25px;
-
-    color:
-        #1E293B;
-
-    background:
-        #fff;
-
-}
-
-
-.header {
-
-    text-align:
-        center;
-
-    border-bottom:
-        3px solid #D97706;
-
-    padding-bottom:
-        18px;
-
-    margin-bottom:
-        25px;
-
-}
-
-
-.header h1 {
-
-    margin:
-        0 0 8px;
-
-    font-size:
-        28px;
-
-    color:
-        #0F172A;
-
-}
-
-
-.header h2 {
-
-    margin:
-        0;
-
-    font-size:
-        19px;
-
-    color:
-        #475569;
-
-}
-
-
-.header p {
-
-    margin:
-        8px 0 0;
-
-    color:
-        #64748B;
-
-}
-
-
-.summary {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap:
-        12px;
-
-    margin-bottom:
-        25px;
-
-}
-
-
-.summary-box {
-
-    border:
-        1px solid #CBD5E1;
-
-    border-radius:
-        8px;
-
-    padding:
-        15px;
-
-    text-align:
-        center;
-
-}
-
-
-.summary-box strong {
-
-    display:
-        block;
-
-    font-size:
-        26px;
-
-    color:
-        #D97706;
-
-    margin-bottom:
-        5px;
-
-}
-
-
-.summary-box span {
-
-    font-size:
-        13px;
-
-}
-
-
-.section {
-
-    margin-top:
-        25px;
-
-    page-break-inside:
-        avoid;
-
-}
-
-
-.section-title {
-
-    background:
-        #0F172A;
-
-    color:
-        white;
-
-    padding:
-        10px 14px;
-
-    font-size:
-        18px;
-
-    font-weight:
-        bold;
-
-    margin-bottom:
-        8px;
-
-}
-
-
-table {
-
-    width:
-        100%;
-
-    border-collapse:
-        collapse;
-
-}
-
-
-th {
-
-    background:
-        #F1F5F9;
-
-    font-weight:
-        bold;
-
-}
-
-
-th,
-td {
-
-    border:
-        1px solid #CBD5E1;
-
-    padding:
-        8px;
-
-    text-align:
-        center;
-
-    font-size:
-        12px;
-
-}
-
-
-.footer {
-
-    margin-top:
-        60px;
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    border-top:
-        1px solid #CBD5E1;
-
-    padding-top:
-        20px;
-
-}
-
-
-.print-button {
-
-    position:
-        fixed;
-
-    left:
-        20px;
-
-    top:
-        20px;
-
-    border:
-        none;
-
-    border-radius:
-        6px;
-
-    background:
-        #D97706;
-
-    color:
-        white;
-
-    padding:
-        10px 18px;
-
-    cursor:
-        pointer;
-
-}
-
-
-@media print {
-
     body {
+
+        font-family:
+            Arial,
+            Tahoma,
+            sans-serif;
+
+        direction:
+            rtl;
+
+        margin:
+            30px;
+
+        color:
+            #222;
+
+    }
+
+    h1 {
+
+        text-align:
+            center;
+
+        margin-bottom:
+            5px;
+
+    }
+
+    .date {
+
+        text-align:
+            center;
+
+        margin-bottom:
+            30px;
+
+        color:
+            #666;
+
+    }
+
+    h2 {
+
+        background:
+            #f1f1f1;
+
         padding:
             10px;
+
+        border-right:
+            5px solid #333;
+
+        margin-top:
+            30px;
+
     }
 
+    table {
 
-    .print-button {
-        display:
-            none;
+        width:
+            100%;
+
+        border-collapse:
+            collapse;
+
+        margin-top:
+            10px;
+
     }
 
+    th,
+    td {
 
-    .section {
-        page-break-inside:
-            avoid;
+        border:
+            1px solid #aaa;
+
+        padding:
+            8px;
+
+        text-align:
+            center;
+
     }
 
+    th {
+
+        background:
+            #eeeeee;
+
+    }
 
     .summary {
+
+        display:
+            grid;
+
         grid-template-columns:
             repeat(4, 1fr);
+
+        gap:
+            10px;
+
+        margin-bottom:
+            20px;
+
     }
 
-}
+    .card {
+
+        border:
+            1px solid #ccc;
+
+        padding:
+            15px;
+
+        text-align:
+            center;
+
+    }
+
+    .number {
+
+        font-size:
+            25px;
+
+        font-weight:
+            bold;
+
+    }
+
+    @media print {
+
+        body {
+
+            margin:
+                10mm;
+
+        }
+
+        h2 {
+
+            break-after:
+                avoid;
+
+        }
+
+        table {
+
+            break-inside:
+                auto;
+
+        }
+
+        tr {
+
+            break-inside:
+                avoid;
+
+        }
+
+    }
 
 </style>
 
 </head>
 
-
 <body>
 
+<h1>
+    تقرير إدارة المعلمين
+</h1>
 
-<button
-    class="print-button"
-    onclick="window.print()"
->
-    🖨️ طباعة
-</button>
-
-
-<div class="header">
-
-    <h1>
-        نظام متابعة وإدارة المعلمين
-    </h1>
-
-    <h2>
-        التقرير الإداري الشامل
-    </h2>
-
-    <p>
-
-        تاريخ التقرير:
-        ${escapeHtml(
-            reportDate
-        )}
-
-        |
-
-        وقت إعداد التقرير:
-        ${escapeHtml(
-            reportTime
-        )}
-
-    </p>
-
+<div class="date">
+    تاريخ التقرير:
+    ${escapeHtml(reportDate)}
 </div>
 
 
 <div class="summary">
 
+    <div class="card">
 
-    <div class="summary-box">
+        <div>
+            الغياب
+        </div>
 
-        <strong>
-            ${totalAbsence}
-        </strong>
-
-        <span>
-            حالات الغياب
-        </span>
+        <div class="number">
+            ${teachersData.absence.length}
+        </div>
 
     </div>
 
 
-    <div class="summary-box">
+    <div class="card">
 
-        <strong>
-            ${totalWritten}
-        </strong>
-
-        <span>
+        <div>
             الأعمال الكتابية
-        </span>
+        </div>
+
+        <div class="number">
+            ${teachersData.written.length}
+        </div>
 
     </div>
 
 
-    <div class="summary-box">
+    <div class="card">
 
-        <strong>
-            ${totalCommittees}
-        </strong>
+        <div>
+            التأخير
+        </div>
 
-        <span>
-            أعمال اللجان
-        </span>
-
-    </div>
-
-
-    <div class="summary-box">
-
-        <strong>
-            ${totalTardiness}
-        </strong>
-
-        <span>
-            حالات التأخير
-        </span>
+        <div class="number">
+            ${teachersData.tardiness.length}
+        </div>
 
     </div>
 
 
-    <div class="summary-box">
+    <div class="card">
 
-        <strong>
-            ${totalDuty}
-        </strong>
+        <div>
+            اللجان والملاحظات
+        </div>
 
-        <span>
-            سجلات المناوبة
-        </span>
-
-    </div>
-
-
-    <div class="summary-box">
-
-        <strong>
-            ${totalNotes}
-        </strong>
-
-        <span>
-            الملاحظات
-        </span>
-
-    </div>
-
-
-    <div class="summary-box">
-
-        <strong>
-            ${totalViolations}
-        </strong>
-
-        <span>
-            إجمالي الحالات والمخالفات
-        </span>
-
-    </div>
-
-
-</div>
-
-
-${buildPrintSection(
-
-    "رصد غياب المعلمين",
-
-    teachersData.absence,
-
-    [
-        "المعلم",
-        "التاريخ",
-        "سبب الغياب",
-        "النموذج"
-    ]
-
-)}
-
-
-${buildPrintSection(
-
-    "الأعمال الكتابية",
-
-    teachersData.written,
-
-    [
-        "المعلم",
-        "نوع العمل",
-        "تاريخ التسليم"
-    ]
-
-)}
-
-
-${buildPrintSection(
-
-    "أعمال اللجان",
-
-    teachersData.committees,
-
-    [
-        "المعلم",
-        "اللجنة",
-        "الحالة",
-        "الملاحظة",
-        "وقت التسجيل"
-    ]
-
-)}
-
-
-${buildPrintSection(
-
-    "الحضور والتأخير",
-
-    teachersData.tardiness,
-
-    [
-        "المعلم",
-        "التاريخ",
-        "وقت الحضور",
-        "الملاحظة",
-        "وقت التسجيل"
-    ]
-
-)}
-
-
-${buildPrintSection(
-
-    "المناوبة اليومية",
-
-    teachersData.duty,
-
-    [
-        "المعلم",
-        "التاريخ",
-        "الحالة",
-        "الملاحظة",
-        "وقت التسجيل"
-    ]
-
-)}
-
-
-${buildPrintSection(
-
-    "الملاحظات الإدارية",
-
-    teachersData.notes,
-
-    [
-        "المعلم",
-        "التاريخ",
-        "الملاحظة"
-    ]
-
-)}
-
-
-<div class="footer">
-
-    <div>
-
-        توقيع مدير المدرسة:
-
-        ............................................
-
-    </div>
-
-
-    <div>
-
-        ختم المدرسة:
-
-        ............................................
+        <div class="number">
+            ${
+                teachersData.committees.length +
+                teachersData.duty.length +
+                teachersData.notes.length
+            }
+        </div>
 
     </div>
 
 </div>
 
+
+${section(
+    'رصد غياب المعلمين',
+
+    [
+        '#',
+        'اسم المعلم',
+        'التاريخ',
+        'السبب',
+        'حالة النموذج'
+    ],
+
+    absenceRows
+)}
+
+
+${section(
+    'الأعمال الكتابية',
+
+    [
+        '#',
+        'اسم المعلم',
+        'نوع العمل',
+        'التاريخ'
+    ],
+
+    writtenRows
+)}
+
+
+${section(
+    'أعمال اللجان',
+
+    [
+        '#',
+        'اسم المعلم',
+        'اللجنة',
+        'الحالة',
+        'ملاحظات'
+    ],
+
+    committeeRows
+)}
+
+
+${section(
+    'الحضور والتأخير',
+
+    [
+        '#',
+        'اسم المعلم',
+        'وقت التأخير',
+        'التاريخ',
+        'ملاحظات'
+    ],
+
+    tardinessRows
+)}
+
+
+${section(
+    'المناوبة اليومية',
+
+    [
+        '#',
+        'اسم المعلم',
+        'الحالة',
+        'التاريخ',
+        'ملاحظات'
+    ],
+
+    dutyRows
+)}
+
+
+${section(
+    'الملاحظات الإدارية',
+
+    [
+        '#',
+        'اسم المعلم',
+        'التاريخ',
+        'الملاحظة'
+    ],
+
+    notesRows
+)}
+
+
+<script>
+
+    window.onload =
+        function() {
+
+            window.print();
+
+        };
+
+</script>
 
 </body>
 
 </html>
 
-    `);
+`;
 
 
-    printWindow.document.close();
-
-
-    setTimeout(
-        function () {
-
-            printWindow.focus();
-
-        },
-        300
-    );
-
-}
-
-
-/* =========================================================
-   KEYBOARD SHORTCUT
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (
-
-            (
-                event.ctrlKey ||
-                event.metaKey
-            )
-
-            &&
-
-            event.key.toLowerCase() ===
-                "s"
-
-        ) {
-
-            event.preventDefault();
-
-            /*
-             * لم يعد هناك حفظ محلي.
-             * الحفظ يتم مباشرة مع كل عملية
-             * إضافة / تعديل / حذف.
-             */
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   LOG OUT
-========================================================= */
-
-function teachersLogout() {
-
-    const confirmed =
-        confirm(
-            "هل أنت متأكد من تسجيل الخروج؟"
+    const printWindow =
+        window.open(
+            '',
+            '_blank'
         );
 
 
-    if (!confirmed) {
+    if (!printWindow) {
+
+        alert(
+            'يرجى السماح بالنوافذ المنبثقة لطباعة التقرير.'
+        );
 
         return;
 
     }
 
 
-    localStorage.removeItem(
-        "schoolLoggedIn"
+    printWindow.document.open();
+
+    printWindow.document.write(
+        html
+    );
+
+    printWindow.document.close();
+
+}
+
+
+/* =========================================================
+   BACK TO SECTION SELECTION
+========================================================= */
+
+function backToSectionSelection() {
+
+    localStorage.setItem(
+        'schoolLoggedIn',
+        'true'
     );
 
 
     localStorage.removeItem(
-        "schoolSection"
+        'schoolSection'
     );
 
 
     window.location.href =
-        "index.html";
+        'index.html';
 
 }
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function teachersLogout() {
+
+    localStorage.removeItem(
+        'schoolLoggedIn'
+    );
+
+
+    localStorage.removeItem(
+        'schoolSection'
+    );
+
+
+    window.location.href =
+        'index.html';
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    async function() {
+
+        console.log(
+            'بدء تحميل نظام إدارة المعلمين...'
+        );
+
+
+        const loaded =
+            await loadData();
+
+
+        if (loaded) {
+
+            renderAll();
+
+        }
+
+
+        /* =================================================
+           IMPORT INPUT
+        ================================================= */
+
+        const importInput =
+            document.getElementById(
+                'importFile'
+            );
+
+
+        if (importInput) {
+
+            importInput.addEventListener(
+                'change',
+                importData
+            );
+
+        }
+
+
+        /* =================================================
+           DEFAULT DATES
+        ================================================= */
+
+        const today =
+            new Date()
+                .toLocaleDateString(
+                    'en-CA',
+                    {
+                        timeZone:
+                            'Asia/Gaza'
+                    }
+                );
+
+
+        const dateFields = [
+
+            'absence-date',
+
+            'written-date',
+
+            'tardiness-date',
+
+            'duty-date',
+
+            'notes-date'
+
+        ];
+
+
+        dateFields.forEach(
+            id => {
+
+                const field =
+                    document.getElementById(
+                        id
+                    );
+
+
+                if (
+                    field &&
+                    !field.value
+                ) {
+
+                    field.value =
+                        today;
+
+                }
+
+            }
+        );
+
+
+        console.log(
+            'تم تشغيل نظام إدارة المعلمين'
+        );
+
+    }
+);
+
+
+/* =========================================================
+   PREVENT OLD LOCAL SAVE SHORTCUT
+========================================================= */
+
+document.addEventListener(
+    'keydown',
+    function(event) {
+
+        if (
+            (
+                event.ctrlKey ||
+                event.metaKey
+            ) &&
+            event.key.toLowerCase() === 's'
+        ) {
+
+            /*
+             * لا نستخدم localStorage للحفظ.
+             * كل عملية حفظ تتم مباشرة في MongoDB.
+             */
+
+            event.preventDefault();
+
+        }
+
+    }
+);
