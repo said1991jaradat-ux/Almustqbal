@@ -507,311 +507,6 @@ app.delete(
 
 
 /* =========================================================
-   SETTINGS
-========================================================= */
-
-const settingSchema =
-    new mongoose.Schema({
-
-        key: {
-            type: String,
-            unique: true,
-            required: true
-        },
-
-        value: {
-            type: String,
-            required: true
-        }
-
-    });
-
-
-const Setting =
-    mongoose.model(
-        'Setting',
-        settingSchema
-    );
-
-
-/* =========================================================
-   PASSWORD
-========================================================= */
-
-const DEFAULT_PASSWORD =
-    '1234';
-
-
-async function getCurrentPassword() {
-
-    let setting =
-        await Setting.findOne({
-
-            key:
-                'loginPassword'
-
-        });
-
-
-    if (!setting) {
-
-        setting =
-            await Setting.create({
-
-                key:
-                    'loginPassword',
-
-                value:
-                    DEFAULT_PASSWORD
-
-            });
-
-    }
-
-
-    return setting.value;
-
-}
-
-
-async function setCurrentPassword(
-    newPassword
-) {
-
-    await Setting.findOneAndUpdate(
-
-        {
-            key:
-                'loginPassword'
-        },
-
-        {
-            key:
-                'loginPassword',
-
-            value:
-                newPassword
-        },
-
-        {
-            upsert:
-                true,
-
-            new:
-                true
-        }
-
-    );
-
-}
-
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-app.post(
-    '/api/login',
-    async (req, res) => {
-
-        try {
-
-            const password =
-                String(
-                    req.body.password || ''
-                ).trim();
-
-
-            const currentPassword =
-                await getCurrentPassword();
-
-
-            if (
-                password &&
-                password ===
-                    currentPassword
-            ) {
-
-                return res.json({
-
-                    success:
-                        true,
-
-                    message:
-                        'تم تسجيل الدخول بنجاح'
-
-                });
-
-            }
-
-
-            return res.status(401).json({
-
-                success:
-                    false,
-
-                message:
-                    'كلمة السر غير صحيحة'
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            res.status(500).json({
-
-                success:
-                    false,
-
-                message:
-                    'حدث خطأ أثناء تسجيل الدخول'
-
-            });
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   SECURITY QUESTION
-========================================================= */
-
-const FAVORITE_NUMBER =
-    process.env.FAVORITE_NUMBER ||
-    '7';
-
-
-/* =========================================================
-   FORGOT PASSWORD
-========================================================= */
-
-app.post(
-    '/api/forgot-password',
-    async (req, res) => {
-
-        try {
-
-            const answer =
-                String(
-                    req.body.answer || ''
-                ).trim();
-
-
-            if (!answer) {
-
-                return res.status(400).json({
-
-                    success:
-                        false,
-
-                    message:
-                        'يرجى إدخال الإجابة'
-
-                });
-
-            }
-
-
-            if (
-                answer !==
-                String(
-                    FAVORITE_NUMBER
-                ).trim()
-            ) {
-
-                return res.status(401).json({
-
-                    success:
-                        false,
-
-                    message:
-                        'الإجابة غير صحيحة'
-
-                });
-
-            }
-
-
-            const newPassword =
-                Math.floor(
-                    1000 +
-                    Math.random() *
-                    9000
-                ).toString();
-
-
-            await setCurrentPassword(
-                newPassword
-            );
-
-
-            console.log(
-                'تم التحقق من سؤال الأمان وإنشاء كلمة مرور جديدة'
-            );
-
-
-            return res.json({
-
-                success:
-                    true,
-
-                password:
-                    newPassword
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                'Forgot password error:',
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success:
-                    false,
-
-                message:
-                    'تعذر معالجة طلب استعادة كلمة المرور'
-
-            });
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   SERVER
-========================================================= */
-
-const PORT =
-    process.env.PORT ||
-    3000;
-
-
-app.listen(
-    PORT,
-    () => {
-
-        console.log(
-            `Server running on port ${PORT}`
-        );
-
-    }
-);
-
-
-/* =========================================================
    TEACHERS RECORDS SCHEMA
 ========================================================= */
 
@@ -1156,6 +851,310 @@ app.delete(
             });
 
         }
+
+    }
+);
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+const settingSchema =
+    new mongoose.Schema({
+
+        key: {
+            type: String,
+            unique: true,
+            required: true
+        },
+
+        value: {
+            type: String,
+            required: true
+        }
+
+    });
+
+
+const Setting =
+    mongoose.model(
+        'Setting',
+        settingSchema
+    );
+
+
+/* =========================================================
+   PASSWORD
+========================================================= */
+
+const DEFAULT_PASSWORD =
+    '1234';
+
+
+async function getCurrentPassword() {
+
+    let setting =
+        await Setting.findOne({
+
+            key:
+                'loginPassword'
+
+        });
+
+
+    if (!setting) {
+
+        setting =
+            await Setting.create({
+
+                key:
+                    'loginPassword',
+
+                value:
+                    DEFAULT_PASSWORD
+
+            });
+
+    }
+
+
+    return setting.value;
+
+}
+
+
+async function setCurrentPassword(
+    newPassword
+) {
+
+    await Setting.findOneAndUpdate(
+
+        {
+            key:
+                'loginPassword'
+        },
+
+        {
+            key:
+                'loginPassword',
+
+            value:
+                newPassword
+        },
+
+        {
+            upsert:
+                true,
+
+            new:
+                true
+        }
+
+    );
+
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+app.post(
+    '/api/login',
+    async (req, res) => {
+
+        try {
+
+            const password =
+                String(
+                    req.body.password || ''
+                ).trim();
+
+
+            const currentPassword =
+                await getCurrentPassword();
+
+
+            if (
+                password &&
+                password ===
+                    currentPassword
+            ) {
+
+                return res.json({
+
+                    success:
+                        true,
+
+                    message:
+                        'تم تسجيل الدخول بنجاح'
+
+                });
+
+            }
+
+
+            return res.status(401).json({
+
+                success:
+                    false,
+
+                message:
+                    'كلمة السر غير صحيحة'
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    'حدث خطأ أثناء تسجيل الدخول'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SECURITY QUESTION
+========================================================= */
+
+const FAVORITE_NUMBER =
+    process.env.FAVORITE_NUMBER ||
+    '7';
+
+
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
+
+app.post(
+    '/api/forgot-password',
+    async (req, res) => {
+
+        try {
+
+            const answer =
+                String(
+                    req.body.answer || ''
+                ).trim();
+
+
+            if (!answer) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        'يرجى إدخال الإجابة'
+
+                });
+
+            }
+
+
+            if (
+                answer !==
+                String(
+                    FAVORITE_NUMBER
+                ).trim()
+            ) {
+
+                return res.status(401).json({
+
+                    success:
+                        false,
+
+                    message:
+                        'الإجابة غير صحيحة'
+
+                });
+
+            }
+
+
+            const newPassword =
+                Math.floor(
+                    1000 +
+                    Math.random() *
+                    9000
+                ).toString();
+
+
+            await setCurrentPassword(
+                newPassword
+            );
+
+
+            console.log(
+                'تم التحقق من سؤال الأمان وإنشاء كلمة مرور جديدة'
+            );
+
+
+            return res.json({
+
+                success:
+                    true,
+
+                password:
+                    newPassword
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Forgot password error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    'تعذر معالجة طلب استعادة كلمة المرور'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SERVER
+========================================================= */
+
+const PORT =
+    process.env.PORT ||
+    3000;
+
+
+app.listen(
+    PORT,
+    () => {
+
+        console.log(
+            `Server running on port ${PORT}`
+        );
 
     }
 );
