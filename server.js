@@ -809,3 +809,355 @@ app.listen(
 
     }
 );
+
+
+/* =========================================================
+   TEACHERS RECORDS SCHEMA
+========================================================= */
+
+const teacherRecordSchema =
+    new mongoose.Schema({
+
+        type: {
+            type: String,
+            required: true
+        },
+
+        data: {
+            type: mongoose.Schema.Types.Mixed,
+            required: true
+        },
+
+        createdAt: {
+            type: Date,
+            default: Date.now
+        },
+
+        updatedAt: {
+            type: Date,
+            default: Date.now
+        }
+
+    });
+
+
+const TeacherRecord =
+    mongoose.model(
+        'TeacherRecord',
+        teacherRecordSchema
+    );
+
+
+/* =========================================================
+   GET TEACHER RECORDS
+========================================================= */
+
+app.get(
+    '/api/teachers',
+    async (req, res) => {
+
+        try {
+
+            const records =
+                await TeacherRecord
+                    .find()
+                    .sort({
+                        createdAt: -1
+                    });
+
+
+            return res.json(
+                records
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Get teacher records error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'حدث خطأ أثناء جلب بيانات المعلمين'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ADD TEACHER RECORD
+========================================================= */
+
+app.post(
+    '/api/teachers',
+    async (req, res) => {
+
+        try {
+
+            const type =
+                String(
+                    req.body.type || ''
+                ).trim();
+
+
+            const data =
+                req.body.data;
+
+
+            if (!type) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        'نوع سجل المعلم مطلوب'
+
+                });
+
+            }
+
+
+            if (
+                !data ||
+                typeof data !== 'object'
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        'بيانات سجل المعلم مطلوبة'
+
+                });
+
+            }
+
+
+            const record =
+                new TeacherRecord({
+
+                    type: type,
+
+                    data: data,
+
+                    createdAt:
+                        new Date(),
+
+                    updatedAt:
+                        new Date()
+
+                });
+
+
+            const savedRecord =
+                await record.save();
+
+
+            return res.status(201).json({
+
+                success: true,
+
+                record:
+                    savedRecord
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Add teacher record error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'حدث خطأ أثناء حفظ بيانات المعلم'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   UPDATE TEACHER RECORD
+========================================================= */
+
+app.put(
+    '/api/teachers/:id',
+    async (req, res) => {
+
+        try {
+
+            const data =
+                req.body.data;
+
+
+            if (
+                !data ||
+                typeof data !== 'object'
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        'بيانات التعديل مطلوبة'
+
+                });
+
+            }
+
+
+            const updatedRecord =
+                await TeacherRecord.findByIdAndUpdate(
+
+                    req.params.id,
+
+                    {
+
+                        data: data,
+
+                        updatedAt:
+                            new Date()
+
+                    },
+
+                    {
+
+                        new: true,
+
+                        runValidators: true
+
+                    }
+
+                );
+
+
+            if (!updatedRecord) {
+
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        'سجل المعلم غير موجود'
+
+                });
+
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                record:
+                    updatedRecord
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Update teacher record error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'حدث خطأ أثناء تعديل بيانات المعلم'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DELETE TEACHER RECORD
+========================================================= */
+
+app.delete(
+    '/api/teachers/:id',
+    async (req, res) => {
+
+        try {
+
+            const deleted =
+                await TeacherRecord
+                    .findByIdAndDelete(
+                        req.params.id
+                    );
+
+
+            if (!deleted) {
+
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        'سجل المعلم غير موجود'
+
+                });
+
+            }
+
+
+            return res.json({
+
+                success: true,
+
+                message:
+                    'تم حذف سجل المعلم بنجاح'
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Delete teacher record error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'حدث خطأ أثناء حذف سجل المعلم'
+
+            });
+
+        }
+
+    }
+);
+
+
