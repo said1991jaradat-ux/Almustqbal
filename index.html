@@ -676,6 +676,19 @@
                     📊 الإدارة والتقارير
 
                 </button>
+          
+<button
+    type="button"
+    class="btn-back-home"
+    onclick="backToSectionSelection()">
+
+    <i data-lucide="arrow-right"></i>
+
+    العودة إلى متابعة المعلمين
+
+</button>
+
+
 
 
                 <button
@@ -2093,10 +2106,30 @@ async function checkPassword() {
 }
 
 function continueTeachers() {
-    alert('سيتم برمجة قسم المعلمين لاحقًا.');
+
+const password = prompt(
+    '🔐 قسم متابعة المعلمين\n\nأدخل كلمة المرور:'
+);
+
+if (password === null) {
+    return;
 }
 
+if (password !== '240625') {
 
+    alert('❌ كلمة المرور غير صحيحة.');
+    return;
+}
+
+// حفظ الدخول للمعلمين
+localStorage.setItem(
+    'schoolSection',
+    'teachers'
+);
+
+// فتح صفحة المعلمين
+window.location.href = 'teachers.html';
+}
     /* ==================================================
        LOGOUT
     ================================================== */
@@ -2290,50 +2323,85 @@ function continueTeachers() {
             }
 
 
-            /* مسجل دخول - الطلاب */
+    
+        
+/* مسجل دخول - الطلاب */
 
-            if (savedSection === 'students') {
+if (savedSection === 'students') {
 
-                if (loginScreen) {
+    if (loginScreen) {
+        loginScreen.style.display = 'none';
+    }
 
-                    loginScreen.style.display =
-                        'none';
-                }
+    if (loginBox) {
+        loginBox.style.display = 'none';
+    }
 
-                if (loginBox) {
+    if (sectionSelection) {
+        sectionSelection.style.display = 'none';
+    }
 
-                    loginBox.style.display =
-                        'none';
-                }
+    if (mainContent) {
+        mainContent.style.display = 'block';
+    }
 
-                if (sectionSelection) {
-
-                    sectionSelection.style.display =
-                        'none';
-                }
-
-                if (mainContent) {
-
-                    mainContent.style.display =
-                        'block';
-                }
-
-                return;
-            }
+    return;
+}
 
 
-            /* مسجل دخول - المعلمين */
+/* مسجل دخول - بدون اختيار قسم */
 
-            if (savedSection === 'teachers') {
+if (!savedSection) {
 
-                window.location.href =
-                    'teachers.html';
+    if (loginScreen) {
+        loginScreen.style.display = 'none';
+    }
 
-                return;
-            }
+    if (loginBox) {
+        loginBox.style.display = 'none';
+    }
+
+    if (sectionSelection) {
+        sectionSelection.style.display = 'flex';
+    }
+
+    if (mainContent) {
+        mainContent.style.display = 'none';
+    }
+
+    return;
+}
 
 
-            /* حالة دخول غير مكتملة */
+/* ==================================================
+   حالة دخول غير مكتملة
+================================================== */
+
+localStorage.removeItem(
+    'schoolLoggedIn'
+);
+
+localStorage.removeItem(
+    'schoolSection'
+);
+
+if (loginScreen) {
+    loginScreen.style.display = 'flex';
+}
+
+if (loginBox) {
+    loginBox.style.display = 'block';
+}
+
+if (sectionSelection) {
+    sectionSelection.style.display = 'none';
+}
+
+if (mainContent) {
+    mainContent.style.display = 'none';
+}
+
+
 
             localStorage.removeItem(
                 'schoolLoggedIn'
