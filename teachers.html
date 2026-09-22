@@ -1,0 +1,1538 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>نظام متابعة المعلمين الإداري</title>
+
+    <!-- الخطوط -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- الأيقونات -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- CSS -->
+    <link
+        rel="stylesheet"
+        href="teachers.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     الهيدر الرئيسي
+===================================================== -->
+
+<header class="app-header">
+
+    <div class="header-container">
+
+        <div class="brand-info">
+
+            <div class="brand-icon">
+                <i data-lucide="shield-check"></i>
+            </div>
+
+            <div>
+
+                <h1>
+                    نظام متابعة وإدارة المعلمين
+                </h1>
+
+                <p>
+                    الإدارة المدرسيّة الحكيمة والدقيقة
+                </p>
+
+            </div>
+
+        </div>
+
+        
+      
+<button
+    type="button"
+    class="btn-back-home"
+    onclick="backToSectionSelection()">
+
+    <i data-lucide="arrow-right"></i>
+
+    العودة إلى متابعة الطلاب
+
+</button>
+
+
+        
+        
+        <div class="header-actions">
+
+            <!-- طباعة التقارير -->
+
+            <button
+                type="button"
+                class="btn btn-gold"
+                onclick="printTeachersReport()"
+            >
+
+                <i data-lucide="printer"></i>
+
+                طباعة التقارير
+
+            </button>
+
+
+            <!-- تصدير -->
+
+            <button
+                type="button"
+                class="btn btn-gold"
+                onclick="exportData()"
+            >
+
+                <i data-lucide="download"></i>
+
+                تصدير البيانات
+
+            </button>
+
+
+            <!-- استيراد -->
+
+            <button
+                type="button"
+                class="btn btn-outline"
+                onclick="triggerImport()"
+            >
+
+                <i data-lucide="upload"></i>
+
+                استيراد
+
+            </button>
+
+
+            <input
+                type="file"
+                id="importFile"
+                accept=".json,application/json"
+                style="display:none;"
+                onchange="importData(event)"
+            >
+
+            <button type="button" class="btn-teachers-logout" onclick="teachersLogout()"> <i data-lucide="log-out"></i> تسجيل خروج </button>
+            
+        </div>
+
+    </div>
+
+</header>
+
+
+
+
+<!-- =====================================================
+     التخطيط الرئيسي
+===================================================== -->
+
+<div class="main-layout">
+
+
+
+   
+
+    <!-- =================================================
+         القائمة الجانبية
+    ================================================== -->
+
+    <aside class="sidebar">
+
+        <nav class="nav-menu">
+
+
+            <button
+                type="button"
+                class="nav-btn active"
+                onclick="switchTab('dashboard')"
+            >
+
+                <i data-lucide="layout-dashboard"></i>
+
+                لوحة التحكم
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                onclick="switchTab('absence')"
+            >
+
+                <i data-lucide="user-x"></i>
+
+                رصد الغياب
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                onclick="switchTab('written')"
+            >
+
+                <i data-lucide="file-text"></i>
+
+                الأعمال الكتابية
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                onclick="switchTab('committees')"
+            >
+
+                <i data-lucide="users"></i>
+
+                أعمال اللجان
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                onclick="switchTab('tardiness')"
+            >
+
+                <i data-lucide="clock"></i>
+
+                الحضور والتأخير
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                onclick="switchTab('duty')"
+            >
+
+                <i data-lucide="shield-alert"></i>
+
+                المناوبة اليومية
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                onclick="switchTab('notes')"
+            >
+
+                <i data-lucide="sticky-note"></i>
+
+                الملاحظات الإدارية
+
+            </button>
+
+
+        </nav>
+
+    </aside>
+
+
+
+    <!-- =================================================
+         المحتوى الرئيسي
+    ================================================== -->
+
+    <main class="content-area">
+
+
+        <!-- =================================================
+             لوحة التحكم
+        ================================================== -->
+
+        <section
+            id="tab-dashboard"
+            class="tab-content active"
+        >
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-title">
+                        إجمالي حالات الغياب
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="stat-absence"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-title">
+                        الأعمال الكتابية المسلمة
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="stat-written"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-title">
+                        حالات التأخير المسجلة
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="stat-tardiness"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-title">
+                        ملاحظات اللجان والمناوبة
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="stat-issues"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="dashboard-charts">
+
+
+                <div class="card">
+
+                    <h3>
+
+                        <i data-lucide="pie-chart"></i>
+
+                        توزيع أسباب الغياب
+
+                    </h3>
+
+
+                    <canvas
+                        id="absenceChart"
+                        style="max-height:280px;"
+                    ></canvas>
+
+                </div>
+
+
+
+                <div class="card">
+
+                    <h3>
+
+                        <i data-lucide="bar-chart-3"></i>
+
+                        تسليم الأعمال الكتابية حسب النوع
+
+                    </h3>
+
+
+                    <canvas
+                        id="writtenChart"
+                        style="max-height:280px;"
+                    ></canvas>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             رصد الغياب
+        ================================================== -->
+
+        <section
+            id="tab-absence"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+
+                <h2 class="section-title">
+
+                    <i data-lucide="user-x"></i>
+
+                    رصد غياب المعلمين
+
+                </h2>
+
+
+                <form
+                    id="absence-form"
+                    onsubmit="saveAbsence(event)"
+                >
+
+                    <input
+                        type="hidden"
+                        id="absence-edit-id"
+                    >
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم المعلم
+                            </label>
+
+                            <input
+                                type="text"
+                                id="absence-name"
+                                required
+                                placeholder="أدخل اسم المعلم"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                التاريخ
+                            </label>
+
+                            <input
+                                type="date"
+                                id="absence-date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                سبب الغياب
+                            </label>
+
+                            <select
+                                id="absence-reason"
+                                required
+                            >
+
+                                <option value="مرضي">
+                                    مرضي
+                                </option>
+
+                                <option value="عارض">
+                                    عارض
+                                </option>
+
+                                <option value="بدون عذر">
+                                    بدون عذر
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                النموذج الإلكتروني
+                            </label>
+
+                            <select
+                                id="absence-form-status"
+                                required
+                            >
+
+                                <option value="تم">
+                                    تم
+                                </option>
+
+                                <option value="لم يتم">
+                                    لم يتم
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-navy"
+                            id="absence-btn"
+                        >
+
+                            <i data-lucide="plus"></i>
+
+                            حفظ البيانات
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="resetForm('absence')"
+                        >
+
+                            إلغاء
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    اسم المعلم
+                                </th>
+
+                                <th>
+                                    اليوم والتاريخ
+                                </th>
+
+                                <th>
+                                    سبب الغياب
+                                </th>
+
+                                <th>
+                                    النموذج الإلكتروني
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="absence-table-body"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             الأعمال الكتابية
+        ================================================== -->
+
+        <section
+            id="tab-written"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+
+                <h2 class="section-title">
+
+                    <i data-lucide="file-text"></i>
+
+                    توثيق الأعمال الكتابية
+
+                </h2>
+
+
+                <form
+                    id="written-form"
+                    onsubmit="saveWritten(event)"
+                >
+
+                    <input
+                        type="hidden"
+                        id="written-edit-id"
+                    >
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم المعلم
+                            </label>
+
+                            <input
+                                type="text"
+                                id="written-name"
+                                required
+                                placeholder="أدخل اسم المعلم"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                نوع العمل الكتابي
+                            </label>
+
+                            <select
+                                id="written-type"
+                                required
+                            >
+
+                                <option value="الخطط السنوية">
+                                    الخطط السنوية
+                                </option>
+
+                                <option value="التحضير اليومي">
+                                    التحضير اليومي
+                                </option>
+
+                                <option value="الحضور والغياب للطلبة">
+                                    الحضور والغياب للطلبة
+                                </option>
+
+                                <option value="خطط علاجية">
+                                    خطط علاجية
+                                </option>
+
+                                <option value="تحليل اختبار">
+                                    تحليل اختبار
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                تاريخ التسليم
+                            </label>
+
+                            <input
+                                type="date"
+                                id="written-date"
+                                required
+                            >
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-navy"
+                            id="written-btn"
+                        >
+
+                            <i data-lucide="plus"></i>
+
+                            تسجيل التسليم
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="resetForm('written')"
+                        >
+
+                            إلغاء
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    اسم المعلم
+                                </th>
+
+                                <th>
+                                    نوع العمل الكتابي
+                                </th>
+
+                                <th>
+                                    اليوم والتاريخ
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="written-table-body"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             أعمال اللجان
+        ================================================== -->
+
+        <section
+            id="tab-committees"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+
+                <h2 class="section-title">
+
+                    <i data-lucide="users"></i>
+
+                    متابعة أعمال اللجان
+
+                </h2>
+
+
+                <form
+                    id="committees-form"
+                    onsubmit="saveCommittee(event)"
+                >
+
+                    <input
+                        type="hidden"
+                        id="committee-edit-id"
+                    >
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم المعلم
+                            </label>
+
+                            <input
+                                type="text"
+                                id="committee-name"
+                                required
+                                placeholder="أدخل اسم المعلم"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم اللجنة
+                            </label>
+
+                            <input
+                                type="text"
+                                id="committee-title"
+                                required
+                                placeholder="مثال: لجنة النظام، المشتريات..."
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                مدى الالتزام
+                            </label>
+
+                            <select
+                                id="committee-status"
+                                onchange="toggleCommitteeNote()"
+                                required
+                            >
+
+                                <option value="ملتزم">
+                                    ملتزم
+                                </option>
+
+                                <option value="غير ملتزم">
+                                    غير ملتزم
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- الملاحظة تظهر فقط عند عدم الالتزام -->
+
+                        <div
+                            class="form-group full-width"
+                            id="committee-note-group"
+                            style="display:none;"
+                        >
+
+                            <label>
+                                الملاحظة / سبب عدم الالتزام
+                            </label>
+
+                            <textarea
+                                id="committee-note"
+                                rows="3"
+                                placeholder="اكتب سبب عدم الالتزام أو الملاحظة..."
+                            ></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-navy"
+                            id="committee-btn"
+                        >
+
+                            <i data-lucide="plus"></i>
+
+                            حفظ التقييم
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="resetForm('committee')"
+                        >
+
+                            إلغاء
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    اسم المعلم
+                                </th>
+
+                                <th>
+                                    اللجنة
+                                </th>
+
+                                <th>
+                                    حالة الالتزام
+                                </th>
+
+                                <th>
+                                    سبب عدم الالتزام / ملاحظات
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="committee-table-body"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             الحضور والتأخير
+        ================================================== -->
+
+        <section
+            id="tab-tardiness"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+
+                <h2 class="section-title">
+
+                    <i data-lucide="clock"></i>
+
+                    رصد التأخير والحضور
+
+                </h2>
+
+
+                <form
+                    id="tardiness-form"
+                    onsubmit="saveTardiness(event)"
+                >
+
+                    <input
+                        type="hidden"
+                        id="tardiness-edit-id"
+                    >
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم المعلم
+                            </label>
+
+                            <input
+                                type="text"
+                                id="tardiness-name"
+                                required
+                                placeholder="أدخل اسم المعلم"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                التاريخ
+                            </label>
+
+                            <input
+                                type="date"
+                                id="tardiness-date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                وقت الحضور الفعلي
+                            </label>
+
+                            <input
+                                type="time"
+                                id="tardiness-time"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group full-width">
+
+                            <label>
+                                الملاحظة
+                            </label>
+
+                            <textarea
+                                id="tardiness-note"
+                                rows="3"
+                                placeholder="اكتب ملاحظة حول حالة التأخير..."
+                            ></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-navy"
+                            id="tardiness-btn"
+                        >
+
+                            <i data-lucide="plus"></i>
+
+                            تسجيل التأخير
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="resetForm('tardiness')"
+                        >
+
+                            إلغاء
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    اسم المعلم
+                                </th>
+
+                                <th>
+                                    اليوم والتاريخ
+                                </th>
+
+                                <th>
+                                    وقت الحضور
+                                </th>
+
+                                <th>
+                                    الملاحظة
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="tardiness-table-body"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             المناوبة اليومية
+        ================================================== -->
+
+        <section
+            id="tab-duty"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+
+                <h2 class="section-title">
+
+                    <i data-lucide="shield-alert"></i>
+
+                    متابعة المناوبة اليومية
+
+                </h2>
+
+
+                <form
+                    id="duty-form"
+                    onsubmit="saveDuty(event)"
+                >
+
+                    <input
+                        type="hidden"
+                        id="duty-edit-id"
+                    >
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم المعلم
+                            </label>
+
+                            <input
+                                type="text"
+                                id="duty-name"
+                                required
+                                placeholder="أدخل اسم المعلم"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                التاريخ
+                            </label>
+
+                            <input
+                                type="date"
+                                id="duty-date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                مدى الالتزام بالمناوبة
+                            </label>
+
+                            <select
+                                id="duty-status"
+                                onchange="toggleDutyNote()"
+                                required
+                            >
+
+                                <option value="ملتزم">
+                                    ملتزم
+                                </option>
+
+                                <option value="غير ملتزم">
+                                    غير ملتزم
+                                </option>
+
+                                <option value="تأخر عن موقع المناوبة">
+                                    تأخر عن موقع المناوبة
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- الملاحظة تظهر عند المخالفة أو التأخر -->
+
+                        <div
+                            class="form-group full-width"
+                            id="duty-note-group"
+                            style="display:none;"
+                        >
+
+                            <label>
+                                الملاحظة / سبب المخالفة
+                            </label>
+
+                            <textarea
+                                id="duty-note"
+                                rows="3"
+                                placeholder="اكتب سبب عدم الالتزام أو التأخر..."
+                            ></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-navy"
+                            id="duty-btn"
+                        >
+
+                            <i data-lucide="plus"></i>
+
+                            رصد المناوبة
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="resetForm('duty')"
+                        >
+
+                            إلغاء
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    اسم المعلم
+                                </th>
+
+                                <th>
+                                    اليوم والتاريخ
+                                </th>
+
+                                <th>
+                                    حالة الالتزام
+                                </th>
+
+                                <th>
+                                    الملاحظة
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="duty-table-body"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             الملاحظات الإدارية
+        ================================================== -->
+
+        <section
+            id="tab-notes"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+
+                <h2 class="section-title">
+
+                    <i data-lucide="sticky-note"></i>
+
+                    الملاحظات الإدارية والسلوكية
+
+                </h2>
+
+
+                <form
+                    id="notes-form"
+                    onsubmit="saveNote(event)"
+                >
+
+                    <input
+                        type="hidden"
+                        id="notes-edit-id"
+                    >
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم المعلم
+                            </label>
+
+                            <input
+                                type="text"
+                                id="notes-name"
+                                required
+                                placeholder="أدخل اسم المعلم"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                التاريخ
+                            </label>
+
+                            <input
+                                type="date"
+                                id="notes-date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group full-width">
+
+                            <label>
+                                الملاحظة الإدارية
+                            </label>
+
+                            <textarea
+                                id="notes-text"
+                                rows="3"
+                                required
+                                placeholder="أدخل الملاحظة أو التوجيه الإداري للعمل..."
+                            ></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-navy"
+                            id="notes-btn"
+                        >
+
+                            <i data-lucide="plus"></i>
+
+                            حفظ الملاحظة
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="resetForm('notes')"
+                        >
+
+                            إلغاء
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    اسم المعلم
+                                </th>
+
+                                <th>
+                                    اليوم والتاريخ
+                                </th>
+
+                                <th>
+                                    الملاحظة الإدارية
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="notes-table-body"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     JavaScript
+===================================================== -->
+
+<script src="teachers.js"></script>
+
+</body>
+
+</html>
+
+
