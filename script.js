@@ -4897,3 +4897,21 @@ async function importData(
     }
 
 }
+
+function backToSectionSelection() {
+
+    // نبقي تسجيل الدخول محفوظًا
+    localStorage.setItem(
+        'schoolLoggedIn',
+        'true'
+    );
+
+    // إلغاء اختيار قسم الطلاب فقط
+    localStorage.removeItem(
+        'schoolSection'
+    );
+
+    // العودة إلى شاشة اختيار القسم
+    window.location.href = 'index.html';
+}
+
