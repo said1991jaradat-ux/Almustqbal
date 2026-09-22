@@ -6,1597 +6,1668 @@
 ========================================================= */
 
 :root {
-    --navy: #0b1d3a;
-    --navy-light: #162c50;
-    --navy-soft: #203b67;
+   --navy: #0b1d3a;
+   --navy-light: #162c50;
+   --navy-soft: #203b67;
 
-    --gold: #d4af37;
-    --gold-hover: #b89528;
+   --gold: #d4af37;
+   --gold-hover: #b89528;
 
-    --white: #ffffff;
-    --gray-bg: #f4f6f9;
-    --gray-light: #eef1f5;
-    --gray-border: #d7dce2;
-    --gray-text: #6c757d;
-    --dark: #212529;
+   --white: #ffffff;
+   --gray-bg: #f4f6f9;
+   --gray-light: #eef1f5;
+   --gray-border: #d7dce2;
+   --gray-text: #6c757d;
+   --dark: #212529;
 
-    --red: #c0392b;
-    --red-dark: #a93226;
+   --red: #c0392b;
+   --red-dark: #a93226;
 
-    --orange: #e67e22;
-    --purple: #8e44ad;
-    --green: #27ae60;
-    --blue: #2980b9;
+   --orange: #e67e22;
+   --purple: #8e44ad;
+   --green: #27ae60;
+   --blue: #2980b9;
 
-    --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+   --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+   --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
 
-    --radius: 10px;
+   --radius: 10px;
 }
 
 
 /* =========================================================
-   RESET
+  RESET
 ========================================================= */
 
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family:
-        "Segoe UI",
-        Tahoma,
-        Arial,
-        sans-serif;
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+   font-family:
+       "Segoe UI",
+       Tahoma,
+       Arial,
+       sans-serif;
 }
 
 html {
-    direction: rtl;
-    scroll-behavior: smooth;
+   direction: rtl;
+   scroll-behavior: smooth;
 }
 
 body {
-    direction: rtl;
-    background: var(--gray-bg);
-    color: var(--dark);
-    min-height: 100vh;
-    line-height: 1.5;
+   direction: rtl;
+   background: var(--gray-bg);
+   color: var(--dark);
+   min-height: 100vh;
+   line-height: 1.5;
 }
 
 
 /* =========================================================
-   LOGIN
+  LOGIN
 ========================================================= */
 
 .login-container {
-    min-height: 100vh;
+   min-height: 100vh;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+   display: flex;
+   align-items: center;
+   justify-content: center;
 
-    padding: 25px;
+   padding: 25px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #0b1d3a 0%,
-            #162c50 55%,
-            #203b67 100%
-        );
+   background:
+       linear-gradient(
+           135deg,
+           #0b1d3a 0%,
+           #162c50 55%,
+           #203b67 100%
+       );
 }
 
 .login-box {
-    width: 100%;
-    max-width: 430px;
+   width: 100%;
+   max-width: 430px;
 
-    background: var(--white);
+   background: var(--white);
 
-    padding: 35px 30px;
+   padding: 35px 30px;
 
-    border-radius: 16px;
+   border-radius: 16px;
 
-    box-shadow:
-        0 15px 45px rgba(0, 0, 0, 0.25);
+   box-shadow:
+       0 15px 45px rgba(0, 0, 0, 0.25);
 
-    text-align: center;
+   text-align: center;
 }
 
 .login-box h1 {
-    color: var(--navy);
-    font-size: 26px;
-    margin-bottom: 8px;
+   color: var(--navy);
+   font-size: 26px;
+   margin-bottom: 8px;
 }
 
 .login-box h2 {
-    color: var(--gray-text);
-    font-size: 17px;
-    font-weight: normal;
-    margin-bottom: 25px;
+   color: var(--gray-text);
+   font-size: 17px;
+   font-weight: normal;
+   margin-bottom: 25px;
 }
 
 .login-box label {
-    text-align: right;
+   text-align: right;
 }
 
 .login-box input {
-    text-align: center;
-    font-size: 18px;
-    letter-spacing: 2px;
+   text-align: center;
+   font-size: 18px;
+   letter-spacing: 2px;
 }
 
 .login-btn {
-    margin-top: 18px;
+   margin-top: 18px;
 }
 
 .forgot-password {
-    display: block;
+   display: block;
 
-    margin-top: 18px;
+   margin-top: 18px;
 
-    color: var(--blue);
+   color: var(--blue);
 
-    cursor: pointer;
+   cursor: pointer;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    text-decoration: none;
+   text-decoration: none;
 }
 
 .forgot-password:hover {
-    text-decoration: underline;
+   text-decoration: underline;
 }
 
 
 /* =========================================================
-   MAIN HEADER
+  MAIN HEADER
 ========================================================= */
 
 .header {
-    background:
-        linear-gradient(
-            135deg,
-            var(--navy),
-            var(--navy-light)
-        );
+   background:
+       linear-gradient(
+           135deg,
+           var(--navy),
+           var(--navy-light)
+       );
 
-    color: var(--white);
+   color: var(--white);
 
-    padding: 18px 25px;
+   padding: 18px 25px;
 
-    display: flex;
+   display: flex;
 
-    justify-content: space-between;
+   justify-content: space-between;
 
-    align-items: center;
+   align-items: center;
 
-    gap: 20px;
+   gap: 20px;
 
-    border-bottom: 4px solid var(--gold);
+   border-bottom: 4px solid var(--gold);
 
-    flex-wrap: wrap;
+   flex-wrap: wrap;
 
-    box-shadow:
-        0 3px 12px rgba(0, 0, 0, 0.12);
+   box-shadow:
+       0 3px 12px rgba(0, 0, 0, 0.12);
 }
 
 .school-info {
-    flex: 1;
-    min-width: 260px;
+   flex: 1;
+   min-width: 260px;
 }
 
 .school-info h1 {
-    color: var(--gold);
+   color: var(--gold);
 
-    font-size: 24px;
+   font-size: 24px;
 
-    margin-bottom: 4px;
+   margin-bottom: 4px;
 }
 
 .school-info h2 {
-    color: var(--white);
+   color: var(--white);
 
-    font-size: 16px;
+   font-size: 16px;
 
-    font-weight: normal;
+   font-weight: normal;
 
-    margin-bottom: 8px;
+   margin-bottom: 8px;
 }
 
 .live-date {
-    display: inline-block;
+   display: inline-block;
 
-    background: var(--gold);
+   background: var(--gold);
 
-    color: var(--navy);
+   color: var(--navy);
 
-    padding: 5px 12px;
+   padding: 5px 12px;
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    font-size: 14px;
+   font-size: 14px;
 }
 
 
 /* =========================================================
-   HEADER ACTIONS
+  HEADER ACTIONS
 ========================================================= */
 
 .header-actions {
-    display: flex;
+   display: flex;
 
-    flex-direction: column;
+   flex-direction: column;
 
-    gap: 9px;
+   gap: 9px;
 
-    min-width: 320px;
+   min-width: 320px;
 }
 
 .search-box {
-    display: flex;
+   display: flex;
 
-    gap: 8px;
+   gap: 8px;
 
-    width: 100%;
+   width: 100%;
 }
 
 .search-box input {
-    flex: 1;
+   flex: 1;
 
-    min-width: 0;
+   min-width: 0;
 
-    padding: 10px 12px;
+   padding: 10px 12px;
 
-    border: 2px solid var(--gold);
+   border: 2px solid var(--gold);
 
-    border-radius: 7px;
+   border-radius: 7px;
 
-    background: var(--white);
+   background: var(--white);
 
-    color: var(--dark);
+   color: var(--dark);
 
-    outline: none;
+   outline: none;
 }
 
 .search-box input:focus {
-    box-shadow:
-        0 0 0 3px rgba(212, 175, 55, 0.2);
+   box-shadow:
+       0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .btn-gold {
-    background: var(--gold);
+   background: var(--gold);
 
-    color: var(--navy);
+   color: var(--navy);
 
-    border: none;
+   border: none;
 
-    padding: 10px 16px;
+   padding: 10px 16px;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    border-radius: 7px;
+   border-radius: 7px;
 
-    cursor: pointer;
+   cursor: pointer;
 
-    transition: 0.2s;
+   transition: 0.2s;
 }
 
 .btn-gold:hover {
-    background: var(--gold-hover);
+   background: var(--gold-hover);
 
-    transform: translateY(-1px);
+   transform: translateY(-1px);
 }
 
 .backup-btns {
-    display: flex;
+   display: flex;
 
-    gap: 7px;
+   gap: 7px;
 
-    justify-content: flex-end;
+   justify-content: flex-end;
 
-    flex-wrap: wrap;
+   flex-wrap: wrap;
 }
 
 .btn-sub {
-    background: transparent;
+   background: transparent;
 
-    border: 1px solid var(--gold);
+   border: 1px solid var(--gold);
 
-    color: var(--gold);
+   color: var(--gold);
 
-    padding: 7px 10px;
+   padding: 7px 10px;
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    cursor: pointer;
+   cursor: pointer;
 
-    font-size: 13px;
+   font-size: 13px;
 
-    transition: 0.2s;
+   transition: 0.2s;
 }
 
 .btn-sub:hover {
-    background: var(--gold);
+   background: var(--gold);
 
-    color: var(--navy);
+   color: var(--navy);
 }
 
 
 /* =========================================================
-   MAIN CONTAINER
+  MAIN CONTAINER
 ========================================================= */
 
 .container { width: 100%; max-width: 100%; margin: 0 auto; padding: 25px; display: block; }
 
 
 /* =========================================================
-   CARDS
+  CARDS
 ========================================================= */
 
 .card {
-    background: var(--white);
+   background: var(--white);
 
-    border-radius: 12px;
+   border-radius: 12px;
 
-    padding: 22px;
+   padding: 22px;
 
-    box-shadow: var(--shadow);
+   box-shadow: var(--shadow);
 
-    border-top: 5px solid var(--navy);
+   border-top: 5px solid var(--navy);
 
-    transition:
-        transform 0.2s,
-        box-shadow 0.2s;
+   transition:
+       transform 0.2s,
+       box-shadow 0.2s;
 }
 
 .card:hover {
-    transform: translateY(-2px);
+   transform: translateY(-2px);
 
-    box-shadow: var(--shadow-hover);
+   box-shadow: var(--shadow-hover);
 }
 
 .card h3 {
-    color: var(--navy);
+   color: var(--navy);
 
-    margin-bottom: 18px;
+   margin-bottom: 18px;
 
-    padding-bottom: 9px;
+   padding-bottom: 9px;
 
-    border-bottom: 2px solid var(--gold);
+   border-bottom: 2px solid var(--gold);
 
-    font-size: 20px;
+   font-size: 20px;
 }
 
 
 /* =========================================================
-   FORM
+  FORM
 ========================================================= */
 
 .form-group {
-    margin-bottom: 14px;
+   margin-bottom: 14px;
 }
 
 .form-row {
-    display: flex;
+   display: flex;
 
-    gap: 12px;
+   gap: 12px;
 
-    width: 100%;
+   width: 100%;
 }
 
 .form-row .form-group {
-    flex: 1;
+   flex: 1;
 }
 
 label {
-    display: block;
+   display: block;
 
-    margin-bottom: 6px;
+   margin-bottom: 6px;
 
-    color: var(--navy);
+   color: var(--navy);
 
-    font-weight: bold;
+   font-weight: bold;
 
-    font-size: 14px;
+   font-size: 14px;
 }
 
 input,
 select {
-    width: 100%;
+   width: 100%;
 
-    padding: 10px 11px;
+   padding: 10px 11px;
 
-    border: 1px solid var(--gray-border);
+   border: 1px solid var(--gray-border);
 
-    border-radius: 7px;
+   border-radius: 7px;
 
-    background: var(--white);
+   background: var(--white);
 
-    color: var(--dark);
+   color: var(--dark);
 
-    font-size: 15px;
+   font-size: 15px;
 
-    outline: none;
+   outline: none;
 
-    transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
+   transition:
+       border-color 0.2s,
+       box-shadow 0.2s;
 }
 
 input:focus,
 select:focus {
-    border-color: var(--navy-light);
+   border-color: var(--navy-light);
 
-    box-shadow:
-        0 0 0 3px rgba(22, 44, 80, 0.1);
+   box-shadow:
+       0 0 0 3px rgba(22, 44, 80, 0.1);
 }
 
 input::placeholder {
-    color: #999;
+   color: #999;
 }
 
 .auto-date {
-    background: var(--gray-light);
+   background: var(--gray-light);
 
-    color: var(--navy);
+   color: var(--navy);
 
-    font-weight: bold;
+   font-weight: bold;
 
-    cursor: default;
+   cursor: default;
 }
 
 
 /* =========================================================
-   BUTTONS
+  BUTTONS
 ========================================================= */
 
 .btn {
-    width: 100%;
+   width: 100%;
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--navy),
-            var(--navy-light)
-        );
+   background:
+       linear-gradient(
+           135deg,
+           var(--navy),
+           var(--navy-light)
+       );
 
-    color: var(--gold);
+   color: var(--gold);
 
-    border: 1px solid var(--gold);
+   border: 1px solid var(--gold);
 
-    padding: 11px;
+   padding: 11px;
 
-    font-size: 15px;
+   font-size: 15px;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    border-radius: 7px;
+   border-radius: 7px;
 
-    cursor: pointer;
+   cursor: pointer;
 
-    margin-top: 8px;
+   margin-top: 8px;
 
-    transition: 0.2s;
+   transition: 0.2s;
 }
 
 .btn:hover {
-    transform: translateY(-1px);
+   transform: translateY(-1px);
 
-    box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.12);
+   box-shadow:
+       0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 .btn-danger {
-    background: var(--red);
+   background: var(--red);
 
-    color: var(--white);
+   color: var(--white);
 
-    border-color: var(--red);
+   border-color: var(--red);
 }
 
 .btn-danger:hover {
-    background: var(--red-dark);
+   background: var(--red-dark);
 }
 
 .btn-report {
-    margin-top: 15px;
+   margin-top: 15px;
 
-    background: var(--gray-text);
+   background: var(--gray-text);
 
-    border-color: var(--gray-text);
+   border-color: var(--gray-text);
 
-    color: var(--white);
+   color: var(--white);
 }
 
 
 /* =========================================================
-   HIDDEN
+  HIDDEN
 ========================================================= */
 
 .hidden {
-    display: none !important;
+   display: none !important;
 }
 
 
 /* =========================================================
-   LIVE LOGS
+  LIVE LOGS
 ========================================================= */
 
 .logs-section {
-    margin-top: 20px;
+   margin-top: 20px;
 
-    border-top: 1px solid #eee;
+   border-top: 1px solid #eee;
 
-    padding-top: 13px;
+   padding-top: 13px;
 }
 
 .logs-section h4 {
-    font-size: 14px;
+   font-size: 14px;
 
-    color: var(--navy);
+   color: var(--navy);
 
-    margin-bottom: 9px;
+   margin-bottom: 9px;
 }
 
 .logs-list {
-    max-height: 180px;
+   max-height: 180px;
 
-    overflow-y: auto;
+   overflow-y: auto;
 
-    font-size: 13px;
+   font-size: 13px;
 }
 
 .log-item {
-    background: #f8f9fa;
+   background: #f8f9fa;
 
-    border-right: 4px solid var(--gold);
+   border-right: 4px solid var(--gold);
 
-    padding: 8px 10px;
+   padding: 8px 10px;
 
-    margin-bottom: 7px;
+   margin-bottom: 7px;
 
-    display: flex;
+   display: flex;
 
-    justify-content: space-between;
+   justify-content: space-between;
 
-    align-items: center;
+   align-items: center;
 
-    gap: 10px;
+   gap: 10px;
 
-    border-radius: 5px;
+   border-radius: 5px;
 }
 
 .delete-btn {
-    color: var(--red);
+   color: var(--red);
 
-    cursor: pointer;
+   cursor: pointer;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    border: none;
+   border: none;
 
-    background: none;
+   background: none;
 
-    padding: 3px 7px;
+   padding: 3px 7px;
 }
 
 
 /* =========================================================
-   ADMIN DASHBOARD OVERLAY
+  ADMIN DASHBOARD OVERLAY
 ========================================================= */
 
 .admin-modal {
-    position: fixed;
+   position: fixed;
 
-    inset: 0;
+   inset: 0;
 
-    z-index: 99999;
+   z-index: 99999;
 
-    background:
-        rgba(0, 0, 0, 0.75);
+   background:
+       rgba(0, 0, 0, 0.75);
 
-    display: flex;
+   display: flex;
 
-    align-items: stretch;
+   align-items: stretch;
 
-    justify-content: center;
+   justify-content: center;
 
-    padding: 0;
+   padding: 0;
 }
 
 
 /* =========================================================
-   ADMIN PAGE
+  ADMIN PAGE
 ========================================================= */
 
 .admin-page {
-    width: 100%;
+   width: 100%;
 
-    height: 100%;
+   height: 100%;
 
-    overflow-y: auto;
+   overflow-y: auto;
 
-    background: #f4f6f9;
+   background: #f4f6f9;
 
-    direction: rtl;
+   direction: rtl;
 }
 
 
 /* =========================================================
-   ADMIN HEADER
+  ADMIN HEADER
 ========================================================= */
 
 .admin-header {
-    background:
-        linear-gradient(
-            135deg,
-            #102a43,
-            #163d63
-        );
+   background:
+       linear-gradient(
+           135deg,
+           #102a43,
+           #163d63
+       );
 
-    color: white;
+   color: white;
 
-    padding: 20px 30px;
+   padding: 20px 30px;
 
-    display: flex;
+   display: flex;
 
-    justify-content: space-between;
+   justify-content: space-between;
 
-    align-items: center;
+   align-items: center;
 
-    gap: 20px;
+   gap: 20px;
 }
 
 .admin-header h2 {
-    margin: 0 0 7px;
+   margin: 0 0 7px;
 
-    font-size: 26px;
+   font-size: 26px;
 }
 
 .admin-header p {
-    margin: 0;
+   margin: 0;
 
-    opacity: 0.85;
+   opacity: 0.85;
 }
 
 .admin-close-btn {
-    background: var(--red);
+   background: var(--red);
 
-    color: white;
+   color: white;
 
-    border: none;
+   border: none;
 
-    padding: 12px 20px;
+   padding: 12px 20px;
 
-    border-radius: 8px;
+   border-radius: 8px;
 
-    cursor: pointer;
+   cursor: pointer;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    transition: 0.2s;
+   transition: 0.2s;
 }
 
 .admin-close-btn:hover {
-    background: var(--red-dark);
+   background: var(--red-dark);
 }
 
 
 /* =========================================================
-   ADMIN OPEN BUTTON
+  ADMIN OPEN BUTTON
 ========================================================= */
 
 .admin-open-btn {
-    background: #163d63 !important;
 
-    color: white !important;
-
-    border: none !important;
-
-    font-weight: bold;
-}
-
-
-/* =========================================================
-   ADMIN TABS
-========================================================= */
-
-.admin-tabs {
-    background: white;
-
-    display: flex;
-
-    justify-content: center;
-
-    gap: 10px;
-
-    padding: 15px;
-
-    border-bottom: 1px solid #ddd;
-
-    flex-wrap: wrap;
-}
-
-.admin-tab {
-    border: 1px solid #d5dbe1;
-
-    background: #f5f7f9;
-
-    color: #333;
-
-    padding: 13px 25px;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    font-weight: bold;
-
-    font-size: 15px;
-
-    transition: 0.2s;
-}
-
-.admin-tab:hover {
-    background: #e9eef3;
-}
-
-.admin-tab.active {
-    background: #163d63;
-
-    color: white;
-
-    border-color: #163d63;
-}
-
-
-/* =========================================================
-   ADMIN CONTROLS
-========================================================= */
-
-.admin-controls {
-    margin: 20px;
-
-    padding: 18px;
-
-    background: white;
-
-    border-radius: 12px;
-
-    box-shadow:
-        0 2px 10px rgba(0,0,0,0.06);
-
-    display: flex;
+    display: inline-flex;
 
     align-items: center;
 
-    gap: 15px;
+    justify-content: center;
 
-    flex-wrap: wrap;
+    gap: 9px;
+
+    padding: 11px 20px;
+
+    background: linear-gradient(
+        135deg,
+        #0b1d3a,
+        #162c50
+    );
+
+    color: #ffffff;
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    border-radius: 10px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(11,29,58,0.20);
+
+    transition:
+        all 0.25s ease;
+
+    white-space: nowrap;
 }
 
-.admin-controls label {
-    display: block;
 
-    font-weight: bold;
+.admin-open-btn:hover {
 
-    margin-bottom: 6px;
+    transform: translateY(-2px);
+
+    background: linear-gradient(
+        135deg,
+        #162c50,
+        #0b1d3a
+    );
+
+    box-shadow:
+        0 7px 18px rgba(11,29,58,0.30);
 }
 
-.admin-controls input[type="date"] {
-    padding: 10px;
 
-    border: 1px solid #ccc;
+.admin-open-btn:active {
 
-    border-radius: 7px;
+    transform: translateY(0);
 
-    font-size: 15px;
+    box-shadow:
+        0 3px 8px rgba(11,29,58,0.20);
 }
 
-.admin-period {
-    flex: 1;
 
-    display: flex;
+.admin-btn-icon {
 
-    flex-direction: column;
+    display: inline-flex;
 
-    gap: 5px;
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 17px;
+
+    line-height: 1;
 }
 
-.admin-period strong {
-    font-size: 20px;
 
-    color: #163d63;
+
+
+/* =========================================================
+  ADMIN TABS
+========================================================= */
+
+.admin-tabs {
+   background: white;
+
+   display: flex;
+
+   justify-content: center;
+
+   gap: 10px;
+
+   padding: 15px;
+
+   border-bottom: 1px solid #ddd;
+
+   flex-wrap: wrap;
 }
 
-.admin-period span {
-    color: #777;
+.admin-tab {
+   border: 1px solid #d5dbe1;
+
+   background: #f5f7f9;
+
+   color: #333;
+
+   padding: 13px 25px;
+
+   border-radius: 8px;
+
+   cursor: pointer;
+
+   font-weight: bold;
+
+   font-size: 15px;
+
+   transition: 0.2s;
+}
+
+.admin-tab:hover {
+   background: #e9eef3;
+}
+
+.admin-tab.active {
+   background: #163d63;
+
+   color: white;
+
+   border-color: #163d63;
 }
 
 
 /* =========================================================
-   ADMIN BUTTONS
+  ADMIN CONTROLS
+========================================================= */
+
+.admin-controls {
+   margin: 20px;
+
+   padding: 18px;
+
+   background: white;
+
+   border-radius: 12px;
+
+   box-shadow:
+       0 2px 10px rgba(0,0,0,0.06);
+
+   display: flex;
+
+   align-items: center;
+
+   gap: 15px;
+
+   flex-wrap: wrap;
+}
+
+.admin-controls label {
+   display: block;
+
+   font-weight: bold;
+
+   margin-bottom: 6px;
+}
+
+.admin-controls input[type="date"] {
+   padding: 10px;
+
+   border: 1px solid #ccc;
+
+   border-radius: 7px;
+
+   font-size: 15px;
+}
+
+.admin-period {
+   flex: 1;
+
+   display: flex;
+
+   flex-direction: column;
+
+   gap: 5px;
+}
+
+.admin-period strong {
+   font-size: 20px;
+
+   color: #163d63;
+}
+
+.admin-period span {
+   color: #777;
+}
+
+
+/* =========================================================
+  ADMIN BUTTONS
 ========================================================= */
 
 .admin-refresh-btn,
 .admin-print-btn {
-    border: none;
+   border: none;
 
-    padding: 11px 18px;
+   padding: 11px 18px;
 
-    border-radius: 7px;
+   border-radius: 7px;
 
-    color: white;
+   color: white;
 
-    cursor: pointer;
+   cursor: pointer;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    transition: 0.2s;
+   transition: 0.2s;
 }
 
 .admin-refresh-btn {
-    background: var(--blue);
+   background: var(--blue);
 }
 
 .admin-print-btn {
-    background: var(--green);
+   background: var(--green);
 }
 
 .admin-refresh-btn:hover {
-    background: #2471a3;
+   background: #2471a3;
 }
 
 .admin-print-btn:hover {
-    background: #229954;
+   background: #229954;
 }
 
 
 /* =========================================================
-   ADMIN SUMMARY
+  ADMIN SUMMARY
 ========================================================= */
 
 .admin-summary {
-    display: grid;
+   display: grid;
 
-    grid-template-columns:
-        repeat(4, 1fr);
+   grid-template-columns:
+       repeat(4, 1fr);
 
-    gap: 15px;
+   gap: 15px;
 
-    margin: 20px;
+   margin: 20px;
 }
 
 .summary-card {
-    background: white;
+   background: white;
 
-    border-radius: 12px;
+   border-radius: 12px;
 
-    padding: 20px;
+   padding: 20px;
 
-    display: flex;
+   display: flex;
 
-    align-items: center;
+   align-items: center;
 
-    gap: 15px;
+   gap: 15px;
 
-    box-shadow:
-        0 2px 10px rgba(0,0,0,0.06);
+   box-shadow:
+       0 2px 10px rgba(0,0,0,0.06);
 
-    border-right: 5px solid #163d63;
+   border-right: 5px solid #163d63;
 }
 
 .summary-card.total {
-    border-right-color: #163d63;
+   border-right-color: #163d63;
 }
 
 .summary-card.lateness {
-    border-right-color: var(--orange);
+   border-right-color: var(--orange);
 }
 
 .summary-card.uniform {
-    border-right-color: var(--purple);
+   border-right-color: var(--purple);
 }
 
 .summary-card.escape {
-    border-right-color: var(--red);
+   border-right-color: var(--red);
 }
 
 .summary-icon {
-    font-size: 30px;
+   font-size: 30px;
 }
 
 .summary-card span {
-    display: block;
+   display: block;
 
-    color: #777;
+   color: #777;
 
-    font-size: 14px;
+   font-size: 14px;
 
-    margin-bottom: 5px;
+   margin-bottom: 5px;
 }
 
 .summary-card strong {
-    display: block;
+   display: block;
 
-    font-size: 30px;
+   font-size: 30px;
 
-    color: #163d63;
+   color: #163d63;
 }
 
 
 /* =========================================================
-   ADMIN TABLE
+  ADMIN TABLE
 ========================================================= */
 
 .admin-table-container {
-    margin: 20px;
+   margin: 20px;
 
-    background: white;
+   background: white;
 
-    border-radius: 12px;
+   border-radius: 12px;
 
-    overflow-x: auto;
+   overflow-x: auto;
 
-    box-shadow:
-        0 2px 10px rgba(0,0,0,0.06);
+   box-shadow:
+       0 2px 10px rgba(0,0,0,0.06);
 }
 
 .admin-table {
-    width: 100%;
+   width: 100%;
 
-    border-collapse: collapse;
+   border-collapse: collapse;
 
-    min-width: 850px;
+   min-width: 850px;
 }
 
 .admin-table th {
-    background: #163d63;
+   background: #163d63;
 
-    color: white;
+   color: white;
 
-    padding: 14px 10px;
+   padding: 14px 10px;
 
-    text-align: center;
+   text-align: center;
 
-    white-space: nowrap;
+   white-space: nowrap;
 
-    position: sticky;
+   position: sticky;
 
-    top: 0;
+   top: 0;
 
-    z-index: 2;
+   z-index: 2;
 }
 
 .admin-table td {
-    padding: 12px 10px;
+   padding: 12px 10px;
 
-    border-bottom:
-        1px solid #e5e5e5;
+   border-bottom:
+       1px solid #e5e5e5;
 
-    text-align: center;
+   text-align: center;
 }
 
 .admin-table tbody tr:hover {
-    background: #f8fafc;
+   background: #f8fafc;
 }
 
 .admin-table small {
-    color: #777;
+   color: #777;
 }
 
 .report-type {
-    display: inline-block;
+   display: inline-block;
 
-    padding: 5px 9px;
+   padding: 5px 9px;
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    background: #eef3f8;
+   background: #eef3f8;
 
-    color: #163d63;
+   color: #163d63;
 
-    font-size: 13px;
+   font-size: 13px;
 
-    font-weight: bold;
+   font-weight: bold;
 }
 
 .admin-delete-btn {
-    background: var(--red);
+   background: var(--red);
 
-    color: white;
+   color: white;
 
-    border: none;
+   border: none;
 
-    padding: 7px 12px;
+   padding: 7px 12px;
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    cursor: pointer;
+   cursor: pointer;
 }
 
 .admin-delete-btn:hover {
-    background: var(--red-dark);
+   background: var(--red-dark);
 }
 
 .no-data {
-    padding: 40px !important;
+   padding: 40px !important;
 
-    color: #777;
+   color: #777;
 
-    font-size: 16px;
+   font-size: 16px;
 }
 
 
 /* =========================================================
-   OLD ADMIN CLASSES - COMPATIBILITY
+  OLD ADMIN CLASSES - COMPATIBILITY
 ========================================================= */
 
 .admin-box {
-    background: var(--white);
+   background: var(--white);
 
-    max-width: 1000px;
+   max-width: 1000px;
 
-    margin: 30px auto;
+   margin: 30px auto;
 
-    padding: 20px;
+   padding: 20px;
 
-    border-radius: 8px;
+   border-radius: 8px;
 
-    position: relative;
+   position: relative;
 }
 
 .admin-box h2 {
-    color: var(--navy);
+   color: var(--navy);
 
-    margin-bottom: 10px;
+   margin-bottom: 10px;
 }
 
 .admin-close {
-    float: left;
+   float: left;
 
-    background: #dc3545;
+   background: #dc3545;
 
-    color: var(--white);
+   color: var(--white);
 
-    border: none;
+   border: none;
 
-    padding: 6px 12px;
+   padding: 6px 12px;
 
-    cursor: pointer;
+   cursor: pointer;
 
-    border-radius: 4px;
+   border-radius: 4px;
 }
 
 .admin-table-wrap {
-    overflow-x: auto;
+   overflow-x: auto;
 
-    max-height: 400px;
+   max-height: 400px;
 
-    margin-top: 15px;
+   margin-top: 15px;
 }
 
 .admin-del-btn {
-    background: #dc3545;
+   background: #dc3545;
 
-    color: var(--white);
+   color: var(--white);
 
-    border: none;
+   border: none;
 
-    padding: 5px 10px;
+   padding: 5px 10px;
 
-    cursor: pointer;
+   cursor: pointer;
 
-    border-radius: 3px;
+   border-radius: 3px;
 }
 
 
 /* =========================================================
-   PRINT
+  PRINT
 ========================================================= */
 
 @media print {
 
-    body {
-        background: white;
-    }
+   body {
+       background: white;
+   }
 
-    .admin-modal {
-        position: static;
+   .admin-modal {
+       position: static;
 
-        background: white;
+       background: white;
 
-        display: block !important;
-    }
+       display: block !important;
+   }
 
-    .admin-close-btn,
-    .admin-tabs,
-    .admin-controls,
-    .admin-delete-btn {
-        display: none !important;
-    }
+   .admin-close-btn,
+   .admin-tabs,
+   .admin-controls,
+   .admin-delete-btn {
+       display: none !important;
+   }
 
-    .admin-page {
-        height: auto;
+   .admin-page {
+       height: auto;
 
-        overflow: visible;
-    }
+       overflow: visible;
+   }
 
-    .admin-summary {
-        grid-template-columns:
-            repeat(4, 1fr);
-    }
+   .admin-summary {
+       grid-template-columns:
+           repeat(4, 1fr);
+   }
 
-    .admin-table-container {
-        box-shadow: none;
+   .admin-table-container {
+       box-shadow: none;
 
-        margin: 10px 0;
-    }
+       margin: 10px 0;
+   }
 }
 
 
 /* =========================================================
-   TABLET
+  TABLET
 ========================================================= */
 
 @media (max-width: 1100px) {
 
-    .container {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
+   .container {
+       grid-template-columns:
+           repeat(2, minmax(0, 1fr));
+   }
 
-    .admin-summary {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
+   .admin-summary {
+       grid-template-columns:
+           repeat(2, 1fr);
+   }
 }
 
 
 /* =========================================================
-   MOBILE
+  MOBILE
 ========================================================= */
 
 @media (max-width: 700px) {
 
-    .header {
-        flex-direction: column;
+   .header {
+       flex-direction: column;
 
-        align-items: stretch;
+       align-items: stretch;
 
-        text-align: center;
+       text-align: center;
 
-        padding: 16px;
-    }
+       padding: 16px;
+   }
 
-    .school-info {
-        min-width: 0;
-    }
+   .school-info {
+       min-width: 0;
+   }
 
-    .school-info h1 {
-        font-size: 20px;
-    }
+   .school-info h1 {
+       font-size: 20px;
+   }
 
-    .school-info h2 {
-        font-size: 14px;
-    }
+   .school-info h2 {
+       font-size: 14px;
+   }
 
-    .header-actions {
-        min-width: 0;
+   .header-actions {
+       min-width: 0;
 
-        width: 100%;
-    }
+       width: 100%;
+   }
 
-    .search-box {
-        flex-direction: column;
-    }
+   .search-box {
+       flex-direction: column;
+   }
 
-    .search-box input {
-        width: 100%;
-    }
+   .search-box input {
+       width: 100%;
+   }
 
-    .backup-btns {
-        justify-content: center;
-    }
+   .backup-btns {
+       justify-content: center;
+   }
 
-    .container {
-        grid-template-columns: 1fr;
+   .container {
+       grid-template-columns: 1fr;
 
-        padding: 14px;
+       padding: 14px;
 
-        gap: 15px;
-    }
+       gap: 15px;
+   }
 
-    .card {
-        padding: 17px;
-    }
+   .card {
+       padding: 17px;
+   }
 
-    .form-row {
-        flex-direction: column;
+   .form-row {
+       flex-direction: column;
 
-        gap: 0;
-    }
+       gap: 0;
+   }
 
-    .admin-header {
-        flex-direction: column;
+   .admin-header {
+       flex-direction: column;
 
-        align-items: stretch;
+       align-items: stretch;
 
-        text-align: center;
+       text-align: center;
 
-        padding: 17px;
-    }
+       padding: 17px;
+   }
 
-    .admin-header h2 {
-        font-size: 21px;
-    }
+   .admin-header h2 {
+       font-size: 21px;
+   }
 
-    .admin-tabs {
-        flex-direction: column;
+   .admin-tabs {
+       flex-direction: column;
 
-        padding: 10px;
-    }
+       padding: 10px;
+   }
 
-    .admin-tab {
-        width: 100%;
-    }
+   .admin-tab {
+       width: 100%;
+   }
 
-    .admin-controls {
-        margin: 12px;
+   .admin-controls {
+       margin: 12px;
 
-        flex-direction: column;
+       flex-direction: column;
 
-        align-items: stretch;
+       align-items: stretch;
 
-        text-align: center;
-    }
+       text-align: center;
+   }
 
-    .admin-period {
-        text-align: center;
+   .admin-period {
+       text-align: center;
 
-        width: 100%;
-    }
+       width: 100%;
+   }
 
-    .admin-refresh-btn,
-    .admin-print-btn {
-        width: 100%;
-    }
+   .admin-refresh-btn,
+   .admin-print-btn {
+       width: 100%;
+   }
 
-    .admin-summary {
-        grid-template-columns: 1fr;
+   .admin-summary {
+       grid-template-columns: 1fr;
 
-        margin: 12px;
-    }
+       margin: 12px;
+   }
 
-    .admin-table-container {
-        margin: 12px;
+   .admin-table-container {
+       margin: 12px;
 
-        border-radius: 8px;
-    }
+       border-radius: 8px;
+   }
 
-    .summary-card {
-        padding: 16px;
-    }
+   .summary-card {
+       padding: 16px;
+   }
 
-    .login-box {
-        padding: 28px 20px;
-    }
+   .login-box {
+       padding: 28px 20px;
+   }
 }
 
 
 /* =========================================================
-   VERY SMALL SCREENS
+  VERY SMALL SCREENS
 ========================================================= */
 
 @media (max-width: 400px) {
 
-    .school-info h1 {
-        font-size: 18px;
-    }
+   .school-info h1 {
+       font-size: 18px;
+   }
 
-    .card h3 {
-        font-size: 18px;
-    }
+   .card h3 {
+       font-size: 18px;
+   }
 
-    .btn {
-        font-size: 14px;
-    }
+   .btn {
+       font-size: 14px;
+   }
 
-    .admin-header h2 {
-        font-size: 19px;
-    }
+   .admin-header h2 {
+       font-size: 19px;
+   }
 }
 /* =========================================================
-   FINAL COLOR FIX
-   إصلاح نهائي لألوان وشكل الصفحة الرئيسية
+  FINAL COLOR FIX
+  إصلاح نهائي لألوان وشكل الصفحة الرئيسية
 ========================================================= */
 
 /* الصفحة */
 body {
-    background: #f4f6f9 !important;
-    color: #212529 !important;
+   background: #f4f6f9 !important;
+   color: #212529 !important;
 }
 
 /* =========================
-   HEADER
+  HEADER
 ========================= */
 
 .header {
-    background: linear-gradient(
-        135deg,
-        #0b1d3a 0%,
-        #162c50 100%
-    ) !important;
+   background: linear-gradient(
+       135deg,
+       #0b1d3a 0%,
+       #162c50 100%
+   ) !important;
 
-    color: #ffffff !important;
+   color: #ffffff !important;
 
-    border-bottom: 4px solid #d4af37 !important;
+   border-bottom: 4px solid #d4af37 !important;
 
-    box-shadow:
-        0 4px 15px rgba(0,0,0,0.15) !important;
+   box-shadow:
+       0 4px 15px rgba(0,0,0,0.15) !important;
 }
 
 .school-info h1 {
-    color: #d4af37 !important;
+   color: #d4af37 !important;
 }
 
 .school-info h2 {
-    color: #ffffff !important;
+   color: #ffffff !important;
 }
 
 .live-date {
-    background: #d4af37 !important;
-    color: #0b1d3a !important;
+   background: #d4af37 !important;
+   color: #0b1d3a !important;
 }
 
 /* =========================
-   SEARCH
+  SEARCH
 ========================= */
 
 .search-box input {
-    background: #ffffff !important;
-    color: #222222 !important;
+   background: #ffffff !important;
+   color: #222222 !important;
 
-    border: 2px solid #d4af37 !important;
+   border: 2px solid #d4af37 !important;
 }
 
 .btn-gold {
-    background: #d4af37 !important;
-    color: #0b1d3a !important;
+   background: #d4af37 !important;
+   color: #0b1d3a !important;
 }
 
 .btn-gold:hover {
-    background: #b89528 !important;
+   background: #b89528 !important;
 }
 
 .btn-sub {
-    background: transparent !important;
-    color: #d4af37 !important;
-    border: 1px solid #d4af37 !important;
+   background: transparent !important;
+   color: #d4af37 !important;
+   border: 1px solid #d4af37 !important;
 }
 
 .btn-sub:hover {
-    background: #d4af37 !important;
-    color: #0b1d3a !important;
+   background: #d4af37 !important;
+   color: #0b1d3a !important;
 }
 
 
 /* =========================
-   MAIN CARDS
+  MAIN CARDS
 ========================= */
 
 .container {
-    background: #f4f6f9 !important;
+   background: #f4f6f9 !important;
 }
 
 .card {
-    background: #ffffff !important;
+   background: #ffffff !important;
 
-    border-top: 5px solid #0b1d3a !important;
+   border-top: 5px solid #0b1d3a !important;
 
-    border-radius: 12px !important;
+   border-radius: 12px !important;
 
-    box-shadow:
-        0 4px 18px rgba(0,0,0,0.10) !important;
+   box-shadow:
+       0 4px 18px rgba(0,0,0,0.10) !important;
 }
 
 .card h3 {
-    color: #0b1d3a !important;
+   color: #0b1d3a !important;
 
-    border-bottom: 2px solid #d4af37 !important;
+   border-bottom: 2px solid #d4af37 !important;
 }
 
 
 /* =========================
-   LABELS
+  LABELS
 ========================= */
 
 label {
-    color: #0b1d3a !important;
+   color: #0b1d3a !important;
 }
 
 
 /* =========================
-   INPUTS
+  INPUTS
 ========================= */
 
 input,
 select {
-    background: #ffffff !important;
+   background: #ffffff !important;
 
-    color: #212529 !important;
+   color: #212529 !important;
 
-    border: 1px solid #cfd5dc !important;
+   border: 1px solid #cfd5dc !important;
 }
 
 input:focus,
 select:focus {
-    border-color: #162c50 !important;
+   border-color: #162c50 !important;
 
-    box-shadow:
-        0 0 0 3px rgba(22,44,80,0.12) !important;
+   box-shadow:
+       0 0 0 3px rgba(22,44,80,0.12) !important;
 }
 
 .auto-date {
-    background: #eef1f5 !important;
-    color: #0b1d3a !important;
+   background: #eef1f5 !important;
+   color: #0b1d3a !important;
 }
 
 
 /* =========================
-   MAIN BUTTONS
+  MAIN BUTTONS
 ========================= */
 
 .btn {
-    background:
-        linear-gradient(
-            135deg,
-            #0b1d3a,
-            #162c50
-        ) !important;
+   background:
+       linear-gradient(
+           135deg,
+           #0b1d3a,
+           #162c50
+       ) !important;
 
-    color: #d4af37 !important;
+   color: #d4af37 !important;
 
-    border: 1px solid #d4af37 !important;
+   border: 1px solid #d4af37 !important;
 }
 
 .btn:hover {
-    background:
-        linear-gradient(
-            135deg,
-            #162c50,
-            #203b67
-        ) !important;
+   background:
+       linear-gradient(
+           135deg,
+           #162c50,
+           #203b67
+       ) !important;
 }
 
 
 /* زر التقرير */
 .btn-report {
-    background: #6c757d !important;
+   background: #6c757d !important;
 
-    color: #ffffff !important;
+   color: #ffffff !important;
 
-    border-color: #6c757d !important;
+   border-color: #6c757d !important;
 }
 
 
 /* =========================
-   LIVE LOGS
+  LIVE LOGS
 ========================= */
 
 .logs-section {
-    border-top: 1px solid #e1e5e9 !important;
+   border-top: 1px solid #e1e5e9 !important;
 }
 
 .log-item {
-    background: #f8f9fa !important;
+   background: #f8f9fa !important;
 
-    border-right: 4px solid #d4af37 !important;
+   border-right: 4px solid #d4af37 !important;
 }
 
 
 /* =========================
-   ADMIN BUTTON
+  ADMIN BUTTON
 ========================= */
 
 .admin-open-btn {
-    background: #163d63 !important;
-    color: #ffffff !important;
+   background: #163d63 !important;
+   color: #ffffff !important;
 }
 
 
 /* =========================
-   DELETE
+  DELETE
 ========================= */
 
 .delete-btn {
-    color: #c0392b !important;
+   color: #c0392b !important;
 }
 
 .btn-danger {
-    background: #c0392b !important;
-    color: #ffffff !important;
+   background: #c0392b !important;
+   color: #ffffff !important;
 }
 
 
 /* =========================
-   ADMIN DASHBOARD
+  ADMIN DASHBOARD
 ========================= */
 
 .admin-page {
-    background: #f4f6f9 !important;
+   background: #f4f6f9 !important;
 }
 
 .admin-header {
-    background:
-        linear-gradient(
-            135deg,
-            #102a43,
-            #163d63
-        ) !important;
+   background:
+       linear-gradient(
+           135deg,
+           #102a43,
+           #163d63
+       ) !important;
 
-    color: #ffffff !important;
+   color: #ffffff !important;
 }
 
 .admin-tabs {
-    background: #ffffff !important;
+   background: #ffffff !important;
 }
 
 .admin-tab.active {
-    background: #163d63 !important;
-    color: #ffffff !important;
+   background: #163d63 !important;
+   color: #ffffff !important;
 }
 
 .admin-controls {
-    background: #ffffff !important;
+   background: #ffffff !important;
 }
 
 .summary-card {
-    background: #ffffff !important;
+   background: #ffffff !important;
 }
 
 .admin-table-container {
-    background: #ffffff !important;
+   background: #ffffff !important;
 }
 
 .admin-table th {
-    background: #163d63 !important;
-    color: #ffffff !important;
+   background: #163d63 !important;
+   color: #ffffff !important;
 }
 
 /* =========================================================
-   
+  
 حالات الانضباط - أربعة بطاقات في صف واحد
 ========================================================= */
 
 /* الحاوية الرئيسية */
 .container {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
-    padding: 25px !important;
-    display: block !important;
+   width: 100% !important;
+   max-width: 100% !important;
+   margin: 0 auto !important;
+   padding: 25px !important;
+   display: block !important;
 }
 
 
 /* شبكة البطاقات */
 .cases-grid {
-    width: 100% !important;
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 22px !important;
-    align-items: stretch !important;
+   width: 100% !important;
+   display: grid !important;
+   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+   gap: 22px !important;
+   align-items: stretch !important;
 }
 
 
 /* البطاقات */
 .cases-grid > .card {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    margin: 0 !important;
+   width: 100% !important;
+   min-width: 0 !important;
+   max-width: none !important;
+   margin: 0 !important;
 }
 
 
@@ -1604,353 +1675,353 @@ select:focus {
 .cases-grid input,
 .cases-grid select,
 .cases-grid button {
-    width: 100% !important;
-    max-width: 100% !important;
+   width: 100% !important;
+   max-width: 100% !important;
 }
 
 
 /* الصف والشعبة */
 .cases-grid .form-row {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
+   display: grid !important;
+   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+   gap: 12px !important;
 }
 
 
 /* =========================================================
-   شاشة متوسطة
+  شاشة متوسطة
 ========================================================= */
 
 @media (max-width: 1200px) {
 
-    .cases-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
+   .cases-grid {
+       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+   }
 
 }
 
 
 /* =========================================================
-   الهاتف
+  الهاتف
 ========================================================= */
 
 @media (max-width: 700px) {
 
-    .container {
-        padding: 14px !important;
-    }
+   .container {
+       padding: 14px !important;
+   }
 
-    .cases-grid {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-    }
+   .cases-grid {
+       grid-template-columns: 1fr !important;
+       gap: 15px !important;
+   }
 
-    .cases-grid .form-row {
-        grid-template-columns: 1fr 1fr !important;
-    }
+   .cases-grid .form-row {
+       grid-template-columns: 1fr 1fr !important;
+   }
 
 }
 
 
 
 /* =========================================
-   شاشة متوسطة
+  شاشة متوسطة
 ========================================= */
 
 @media (max-width: 1200px) {
 
-    .cases-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr)) !important;
-    }
+   .cases-grid {
+       grid-template-columns:
+           repeat(2, minmax(0, 1fr)) !important;
+   }
 
 }
 
 
 /* =========================================
-   الهاتف
+  الهاتف
 ========================================= */
 
 @media (max-width: 700px) {
 
-    main.container {
-        padding: 12px !important;
-    }
+   main.container {
+       padding: 12px !important;
+   }
 
-    .cases-grid {
-        grid-template-columns:
-            1fr !important;
+   .cases-grid {
+       grid-template-columns:
+           1fr !important;
 
-        gap: 15px !important;
-    }
+       gap: 15px !important;
+   }
 
 }
 
 /* =========================================================
-   شريط مدير المدرسة - مثل شريط الأخبار
+  شريط مدير المدرسة - مثل شريط الأخبار
 ========================================================= */
 
 .manager-ticker {
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
+   width: 100%;
+   max-width: 100%;
+   overflow: hidden;
 
-    margin-top: 8px;
+   margin-top: 8px;
 
-    background: rgba(255, 255, 255, 0.10);
+   background: rgba(255, 255, 255, 0.10);
 
-    border-right: 4px solid var(--gold);
+   border-right: 4px solid var(--gold);
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    padding: 5px 0;
+   padding: 5px 0;
 
-    direction: rtl;
+   direction: rtl;
 }
 
 .manager-ticker-track {
-    display: flex;
-    width: max-content;
+   display: flex;
+   width: max-content;
 
-    animation: managerTicker 12s linear infinite;
+   animation: managerTicker 12s linear infinite;
 }
 
 .manager-ticker-track span {
-    color: #ffffff;
+   color: #ffffff;
 
-    font-size: 14px;
+   font-size: 14px;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    white-space: nowrap;
+   white-space: nowrap;
 
-    padding: 0 30px;
+   padding: 0 30px;
 }
 
 
 
 /* =========================================================
-   شريط مدير المدرسة - مثل شريط الأخبار
+  شريط مدير المدرسة - مثل شريط الأخبار
 ========================================================= */
 
 .manager-ticker {
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
+   width: 100%;
+   max-width: 100%;
+   overflow: hidden;
 
-    margin-top: 8px;
+   margin-top: 8px;
 
-    background: rgba(255, 255, 255, 0.10);
+   background: rgba(255, 255, 255, 0.10);
 
-    border-right: 4px solid var(--gold);
+   border-right: 4px solid var(--gold);
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    padding: 5px 0;
+   padding: 5px 0;
 
-    direction: rtl;
+   direction: rtl;
 }
 
 .manager-ticker-track {
-    display: flex;
-    width: max-content;
+   display: flex;
+   width: max-content;
 
-    animation: managerTicker 12s linear infinite;
+   animation: managerTicker 12s linear infinite;
 }
 
 .manager-ticker-track span {
-    color: #ffffff;
+   color: #ffffff;
 
-    font-size: 14px;
+   font-size: 14px;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    white-space: nowrap;
+   white-space: nowrap;
 
-    padding: 0 30px;
+   padding: 0 30px;
 }
 
 
 /* =========================================================
-   شريط مدير المدرسة - مثل شريط الأخبار
+  شريط مدير المدرسة - مثل شريط الأخبار
 ========================================================= */
 
 .manager-ticker {
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
+   width: 100%;
+   max-width: 100%;
+   overflow: hidden;
 
-    margin-top: 8px;
+   margin-top: 8px;
 
-    background: rgba(255, 255, 255, 0.10);
+   background: rgba(255, 255, 255, 0.10);
 
-    border-right: 4px solid var(--gold);
+   border-right: 4px solid var(--gold);
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    padding: 5px 0;
+   padding: 5px 0;
 
-    direction: rtl;
+   direction: rtl;
 }
 
 .manager-ticker-track {
-    display: flex;
-    width: max-content;
+   display: flex;
+   width: max-content;
 
-    animation: managerTicker 12s linear infinite;
+   animation: managerTicker 12s linear infinite;
 }
 
 .manager-ticker-track span {
-    color: #ffffff;
+   color: #ffffff;
 
-    font-size: 14px;
+   font-size: 14px;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    white-space: nowrap;
+   white-space: nowrap;
 
-    padding: 0 30px;
+   padding: 0 30px;
 }
 
 /* =========================================================
-   شريط مدير المدرسة - مثل شريط الأخبار
+  شريط مدير المدرسة - مثل شريط الأخبار
 ========================================================= */
 
 .manager-ticker {
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
+   width: 100%;
+   max-width: 100%;
+   overflow: hidden;
 
-    margin-top: 8px;
+   margin-top: 8px;
 
-    background: rgba(255, 255, 255, 0.10);
+   background: rgba(255, 255, 255, 0.10);
 
-    border-right: 4px solid var(--gold);
+   border-right: 4px solid var(--gold);
 
-    border-radius: 6px;
+   border-radius: 6px;
 
-    padding: 5px 0;
+   padding: 5px 0;
 
-    direction: rtl;
+   direction: rtl;
 }
 
 .manager-ticker-track {
-    display: flex;
-    width: max-content;
+   display: flex;
+   width: max-content;
 
-    animation: managerTicker 12s linear infinite;
+   animation: managerTicker 12s linear infinite;
 }
 
 .manager-ticker-track span {
-    color: #ffffff;
+   color: #ffffff;
 
-    font-size: 14px;
+   font-size: 14px;
 
-    font-weight: bold;
+   font-weight: bold;
 
-    white-space: nowrap;
+   white-space: nowrap;
 
-    padding: 0 30px;
+   padding: 0 30px;
 }
 
 
 /* حركة شريط الأخبار */
 @keyframes managerTicker {
 
-    0% {
-        transform: translateX(100%);
-    }
+   0% {
+       transform: translateX(100%);
+   }
 
-    100% {
-        transform: translateX(-100%);
-    }
+   100% {
+       transform: translateX(-100%);
+   }
 
 }
 
 
 /* =========================================================
-   توقيع مدير المدرسة في التقارير المطبوعة فقط
+  توقيع مدير المدرسة في التقارير المطبوعة فقط
 ========================================================= */
 
 .report-signature {
-    display: none;
+   display: none;
 }
 
 @media print {
 
-    .report-signature {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
+   .report-signature {
+       display: flex;
+       justify-content: space-between;
+       align-items: flex-end;
 
-        margin-top: 50px;
-        padding-top: 20px;
+       margin-top: 50px;
+       padding-top: 20px;
 
-        font-size: 16px;
-        font-weight: bold;
+       font-size: 16px;
+       font-weight: bold;
 
-        border-top: 1px solid #ddd;
-    }
+       border-top: 1px solid #ddd;
+   }
 
-    .signature-line {
-        min-width: 220px;
-        text-align: center;
-    }
+   .signature-line {
+       min-width: 220px;
+       text-align: center;
+   }
 
 }
 
 /* ==================================================
-   صورة واحدة لخلفية واجهة تسجيل الدخول
+  صورة واحدة لخلفية واجهة تسجيل الدخول
 ================================================== */
 
 .login-background {
-    position: absolute;
-    inset: 0;
+   position: absolute;
+   inset: 0;
 
-    width: 100%;
-    height: 100%;
+   width: 100%;
+   height: 100%;
 
-    object-fit: contain;
-    object-position: center;
+   object-fit: contain;
+   object-position: center;
 
-    z-index: 1;
+   z-index: 1;
 }
 
 .login-box {
-    position: absolute;
-    top: 40px;
-    right: 50px;
+   position: absolute;
+   top: 40px;
+   right: 50px;
 
-    z-index: 10;
+   z-index: 10;
 
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(8px);
-    border-radius: 18px;
+   background: rgba(255, 255, 255, 0.96);
+   backdrop-filter: blur(8px);
+   border-radius: 18px;
 
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
 
 /* ==================================================
-   مربع تسجيل الدخول - أعلى اليمين
+  مربع تسجيل الدخول - أعلى اليمين
 ================================================== */
 
 .login-box {
-    position: absolute;
+   position: absolute;
 
-    top: 40px;
-    right: 50px;
+   top: 40px;
+   right: 50px;
 
-    z-index: 5;
+   z-index: 5;
 
-    background: rgba(255, 255, 255, 0.96);
+   background: rgba(255, 255, 255, 0.96);
 
-    backdrop-filter: blur(8px);
+   backdrop-filter: blur(8px);
 
-    border-radius: 18px;
+   border-radius: 18px;
 
-    box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.25);
+   box-shadow:
+       0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
 
@@ -1959,156 +2030,221 @@ select:focus {
 
 
 /* ==================================================
-   صورة مدير المدرسة - أعلى يسار الشاشة
+  صورة مدير المدرسة - أعلى يسار الشاشة
 ================================================== */
 
 .principal-photo {
-    position: absolute;
+   position: absolute;
 
-    top: 40px;
-    left: 50px;
+   top: 40px;
+   left: 50px;
 
-    width: 300px;
-    height: 300px;
+   width: 300px;
+   height: 300px;
 
-    object-fit: cover;
+   object-fit: cover;
 
-    border-radius: 18px;
+   border-radius: 18px;
 
-    z-index: 5;
+   z-index: 5;
 
-    box-shadow:
-        0 15px 40px rgba(0, 0, 0, 0.25);
+   box-shadow:
+       0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
 
 /* ==================================================
-   صحيفة كلمة مدير المدرسة
+  صحيفة كلمة مدير المدرسة
 ================================================== */
 
 .principal-message {
-    position: absolute;
+   position: absolute;
 
-    top: 365px;
-    left: 50px;
+   top: 365px;
+   left: 50px;
 
-    width: 300px;
-    min-height: 220px;
+   width: 300px;
+   min-height: 220px;
 
-    padding: 18px;
+   padding: 18px;
 
-    box-sizing: border-box;
+   box-sizing: border-box;
 
-    background:
-        linear-gradient(
-            rgba(255, 250, 235, 0.96),
-            rgba(245, 238, 215, 0.96)
-        );
+   background:
+       linear-gradient(
+           rgba(255, 250, 235, 0.96),
+           rgba(245, 238, 215, 0.96)
+       );
 
-    border: 2px solid #8b7355;
-    border-radius: 6px;
+   border: 2px solid #8b7355;
+   border-radius: 6px;
 
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.22);
+   box-shadow:
+       0 8px 25px rgba(0, 0, 0, 0.22);
 
-    z-index: 5;
+   z-index: 5;
 
-    direction: rtl;
+   direction: rtl;
 
-    font-family: "Amiri", "Times New Roman", serif;
+   font-family: "Amiri", "Times New Roman", serif;
 }
 
 
 /* عنوان الصحيفة */
 
 .newspaper-header {
-    text-align: center;
+   text-align: center;
 
-    font-size: 24px;
-    font-weight: bold;
+   font-size: 24px;
+   font-weight: bold;
 
-    color: #3d3024;
+   color: #3d3024;
 
-    padding-bottom: 10px;
+   padding-bottom: 10px;
 }
 
 
 /* الخط الفاصل */
 
 .newspaper-line {
-    width: 100%;
-    height: 2px;
+   width: 100%;
+   height: 2px;
 
-    background: #8b7355;
+   background: #8b7355;
 
-    margin-bottom: 14px;
+   margin-bottom: 14px;
 }
 
 
 /* نص كلمة المدير */
 
 .principal-message-text {
-    font-size: 17px;
-    line-height: 1.8;
+   font-size: 17px;
+   line-height: 1.8;
 
-    color: #40362b;
+   color: #40362b;
 
-    text-align: right;
+   text-align: right;
 }
 
 /* ==================================================
 شريط متحرك
 ================================================== */
 .welcome-ticker {
-    position: absolute;
+   position: absolute;
 
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+   bottom: 20px;
+   left: 50%;
+   transform: translateX(-50%);
 
-    width: 85%;
-    height: 58px;
+   width: 85%;
+   height: 58px;
 
-    overflow: hidden;
+   overflow: hidden;
 
-    background: rgba(255, 255, 255, 0.92);
+   background: rgba(255, 255, 255, 0.92);
 
-    border: 3px solid #8b7355;
-    border-radius: 30px;
+   border: 3px solid #8b7355;
+   border-radius: 30px;
 
-    box-shadow:
-        0 6px 20px rgba(0, 0, 0, 0.25);
+   box-shadow:
+       0 6px 20px rgba(0, 0, 0, 0.25);
 
-    z-index: 20;
+   z-index: 20;
 
-    display: flex;
-    align-items: center;
+   display: flex;
+   align-items: center;
 }
 
 .welcome-text {
-    position: absolute;
+   position: absolute;
 
-    white-space: nowrap;
+   white-space: nowrap;
 
-    left: 0;
+   left: 0;
 
-    font-size: 26px;
-    font-weight: bold;
+   font-size: 26px;
+   font-weight: bold;
 
-    color: #3d3024;
+   color: #3d3024;
 
-    direction: rtl;
+   direction: rtl;
 
-    animation: welcomeBounce 30s linear infinite alternate;
+   animation: welcomeBounce 30s linear infinite alternate;
 }
 
 @keyframes welcomeBounce {
-    from {
-        left: 0;
-    }
+   from {
+       left: 0;
+   }
 
-    to {
-        left: 100%;
-        transform: translateX(-100%);
-    }
+   to {
+       left: 100%;
+       transform: translateX(-100%);
+   }
 }
+
+
+.btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 10px 18px;
+
+    background: linear-gradient(
+        135deg,
+        #0b1d3a,
+        #162c50
+    );
+
+    color: #ffffff;
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(11,29,58,0.20);
+
+    transition:
+        all 0.25s ease;
+}
+
+.btn-back-home:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 7px 18px rgba(11,29,58,0.30);
+
+    background: linear-gradient(
+        135deg,
+        #162c50,
+        #0b1d3a
+    );
+}
+
+.btn-back-home:active {
+    transform: translateY(0);
+}
+
+.btn-back-home i {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+}
+
+
+
+
+
+
+
