@@ -103,7 +103,6 @@ function getCurrentDateTime() {
                     timeZone:
                         'Asia/Gaza'
                 }
-
             )
 
     };
@@ -646,6 +645,7 @@ async function saveAbsence(event) {
 
             }
 
+
             alert(
                 'تم تعديل سجل الغياب بنجاح'
             );
@@ -974,6 +974,21 @@ async function saveCommittee(event) {
             'committee-title'
         );
 
+    const officialBook =
+        getValue(
+            'committee-official-book'
+        );
+
+    const assignedWork =
+        getValue(
+            'committee-assigned-work'
+        );
+
+    const dueDate =
+        getValue(
+            'committee-due-date'
+        );
+
     const status =
         getValue(
             'committee-status'
@@ -990,10 +1005,43 @@ async function saveCommittee(event) {
         );
 
 
+    if (!title) {
+
+        alert(
+            'يرجى إدخال اسم اللجنة'
+        );
+
+        return;
+
+    }
+
+
     if (!name) {
 
         alert(
             'يرجى إدخال اسم المعلم'
+        );
+
+        return;
+
+    }
+
+
+    if (!assignedWork) {
+
+        alert(
+            'يرجى إدخال العمل المكلف فيه'
+        );
+
+        return;
+
+    }
+
+
+    if (!dueDate) {
+
+        alert(
+            'يرجى اختيار تاريخ التسليم'
         );
 
         return;
@@ -1007,17 +1055,34 @@ async function saveCommittee(event) {
 
     const data = {
 
+        /*
+         * الحقول الجديدة
+         */
+
         name:
             name,
 
         title:
             title,
 
+        officialBook:
+            officialBook,
+
+        assignedWork:
+            assignedWork,
+
+        dueDate:
+            dueDate,
+
         status:
             status,
 
         note:
             note,
+
+        /*
+         * وقت تسجيل السجل
+         */
 
         recordedDate:
             now.date,
@@ -1056,7 +1121,7 @@ async function saveCommittee(event) {
 
 
             alert(
-                'تم تعديل سجل اللجنة بنجاح'
+                'تم تعديل عمل اللجنة بنجاح'
             );
 
         } else {
@@ -1074,7 +1139,7 @@ async function saveCommittee(event) {
 
 
             alert(
-                'تم حفظ سجل اللجنة في MongoDB بنجاح'
+                'تم حفظ عمل اللجنة في MongoDB بنجاح'
             );
 
         }
@@ -1091,7 +1156,7 @@ async function saveCommittee(event) {
     } catch (error) {
 
         alert(
-            'تعذر حفظ سجل اللجنة.\n\n' +
+            'تعذر حفظ عمل اللجنة.\n\n' +
             error.message
         );
 
@@ -1125,20 +1190,46 @@ function editCommittee(id) {
         item.id
     );
 
+
     setValue(
         'committee-name',
         item.name
     );
+
 
     setValue(
         'committee-title',
         item.title
     );
 
+
+    /*
+     * دعم السجلات الجديدة
+     */
+
+    setValue(
+        'committee-official-book',
+        item.officialBook
+    );
+
+
+    setValue(
+        'committee-assigned-work',
+        item.assignedWork
+    );
+
+
+    setValue(
+        'committee-due-date',
+        item.dueDate
+    );
+
+
     setValue(
         'committee-status',
         item.status
     );
+
 
     setValue(
         'committee-note',
@@ -1155,21 +1246,7 @@ function editCommittee(id) {
     if (button) {
 
         button.textContent =
-            'تعديل السجل';
-
-    }
-
-
-    const noteGroup =
-        document.getElementById(
-            'committee-note-group'
-        );
-
-
-    if (noteGroup) {
-
-        noteGroup.style.display =
-            '';
+            'تعديل عمل اللجنة';
 
     }
 
@@ -1867,6 +1944,7 @@ async function deleteRecord(
 
         renderAll();
 
+
         alert(
             'تم حذف السجل بنجاح'
         );
@@ -1908,7 +1986,7 @@ function renderAbsence() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="6">
+                <td colspan="5">
                     لا توجد سجلات
                 </td>
             </tr>
@@ -1922,13 +2000,9 @@ function renderAbsence() {
     tbody.innerHTML =
         teachersData.absence
             .map(
-                (item, index) => `
+                (item) => `
 
                 <tr>
-
-                    <td>
-                        ${index + 1}
-                    </td>
 
                     <td>
                         ${escapeHtml(item.name)}
@@ -1998,7 +2072,7 @@ function renderWritten() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="4">
                     لا توجد سجلات
                 </td>
             </tr>
@@ -2012,13 +2086,9 @@ function renderWritten() {
     tbody.innerHTML =
         teachersData.written
             .map(
-                (item, index) => `
+                (item) => `
 
                 <tr>
-
-                    <td>
-                        ${index + 1}
-                    </td>
 
                     <td>
                         ${escapeHtml(item.name)}
@@ -2084,7 +2154,7 @@ function renderCommittees() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="6">
+                <td colspan="8">
                     لا توجد سجلات
                 </td>
             </tr>
@@ -2098,29 +2168,60 @@ function renderCommittees() {
     tbody.innerHTML =
         teachersData.committees
             .map(
-                (item, index) => `
+                item => `
 
                 <tr>
 
-                    <td>
-                        ${index + 1}
-                    </td>
+                    <!-- اسم اللجنة -->
 
                     <td>
-                        ${escapeHtml(item.name)}
+                        ${escapeHtml(item.title || '')}
                     </td>
 
-                    <td>
-                        ${escapeHtml(item.title)}
-                    </td>
+
+                    <!-- اسم المعلم -->
 
                     <td>
-                        ${escapeHtml(item.status)}
+                        ${escapeHtml(item.name || '')}
                     </td>
 
+
+                    <!-- الكتاب الرسمي -->
+
                     <td>
-                        ${escapeHtml(item.note)}
+                        ${escapeHtml(item.officialBook || '')}
                     </td>
+
+
+                    <!-- العمل المكلف -->
+
+                    <td>
+                        ${escapeHtml(item.assignedWork || '')}
+                    </td>
+
+
+                    <!-- تاريخ التسليم -->
+
+                    <td>
+                        ${escapeHtml(item.dueDate || '')}
+                    </td>
+
+
+                    <!-- الحالة -->
+
+                    <td>
+                        ${escapeHtml(item.status || '')}
+                    </td>
+
+
+                    <!-- الملاحظات -->
+
+                    <td>
+                        ${escapeHtml(item.note || '')}
+                    </td>
+
+
+                    <!-- الإجراءات -->
 
                     <td>
 
@@ -2174,7 +2275,7 @@ function renderTardiness() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="6">
+                <td colspan="5">
                     لا توجد سجلات
                 </td>
             </tr>
@@ -2188,24 +2289,20 @@ function renderTardiness() {
     tbody.innerHTML =
         teachersData.tardiness
             .map(
-                (item, index) => `
+                (item) => `
 
                 <tr>
-
-                    <td>
-                        ${index + 1}
-                    </td>
 
                     <td>
                         ${escapeHtml(item.name)}
                     </td>
 
                     <td>
-                        ${escapeHtml(item.time)}
+                        ${escapeHtml(item.date)}
                     </td>
 
                     <td>
-                        ${escapeHtml(item.date)}
+                        ${escapeHtml(item.time)}
                     </td>
 
                     <td>
@@ -2264,7 +2361,7 @@ function renderDuty() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="6">
+                <td colspan="5">
                     لا توجد سجلات
                 </td>
             </tr>
@@ -2278,24 +2375,20 @@ function renderDuty() {
     tbody.innerHTML =
         teachersData.duty
             .map(
-                (item, index) => `
+                (item) => `
 
                 <tr>
-
-                    <td>
-                        ${index + 1}
-                    </td>
 
                     <td>
                         ${escapeHtml(item.name)}
                     </td>
 
                     <td>
-                        ${escapeHtml(item.status)}
+                        ${escapeHtml(item.date)}
                     </td>
 
                     <td>
-                        ${escapeHtml(item.date)}
+                        ${escapeHtml(item.status)}
                     </td>
 
                     <td>
@@ -2354,7 +2447,7 @@ function renderNotes() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="4">
                     لا توجد سجلات
                 </td>
             </tr>
@@ -2368,13 +2461,9 @@ function renderNotes() {
     tbody.innerHTML =
         teachersData.notes
             .map(
-                (item, index) => `
+                (item) => `
 
                 <tr>
-
-                    <td>
-                        ${index + 1}
-                    </td>
 
                     <td>
                         ${escapeHtml(item.name)}
@@ -2582,6 +2671,13 @@ function resetForm(
             button.textContent =
                 'حفظ الملاحظة';
 
+        } else if (
+            type === 'committee'
+        ) {
+
+            button.textContent =
+                'حفظ عمل اللجنة';
+
         } else {
 
             button.textContent =
@@ -2591,7 +2687,36 @@ function resetForm(
 
     }
 
+
+    /*
+     * إعادة تاريخ اللجنة إلى تاريخ اليوم
+     */
+
+    if (type === 'committee') {
+
+        const field =
+            document.getElementById(
+                'committee-due-date'
+            );
+
+        if (field) {
+
+            field.value =
+                new Date()
+                    .toLocaleDateString(
+                        'en-CA',
+                        {
+                            timeZone:
+                                'Asia/Gaza'
+                        }
+                    );
+
+        }
+
+    }
+
 }
+
 
 /* =========================================================
    TAB SWITCHING
@@ -2599,7 +2724,6 @@ function resetForm(
 
 function switchTab(tabName) {
 
-    /* إخفاء جميع الأقسام */
     document
         .querySelectorAll('.tab-content')
         .forEach(tab => {
@@ -2609,7 +2733,6 @@ function switchTab(tabName) {
         });
 
 
-    /* إزالة التفعيل من جميع أزرار القائمة */
     document
         .querySelectorAll('.nav-btn')
         .forEach(button => {
@@ -2619,7 +2742,6 @@ function switchTab(tabName) {
         });
 
 
-    /* القسم المطلوب */
     const target =
         document.getElementById(
             `tab-${tabName}`
@@ -2633,7 +2755,6 @@ function switchTab(tabName) {
     }
 
 
-    /* تفعيل زر القائمة */
     const buttons =
         document.querySelectorAll(
             '.nav-btn'
@@ -2664,7 +2785,6 @@ function switchTab(tabName) {
     });
 
 
-    /* تحديث لوحة التحكم */
     if (
         tabName === 'dashboard'
     ) {
@@ -2966,6 +3086,26 @@ function exportData() {
 
 
 /* =========================================================
+   IMPORT BUTTON
+========================================================= */
+
+function triggerImport() {
+
+    const input =
+        document.getElementById(
+            'importFile'
+        );
+
+    if (input) {
+
+        input.click();
+
+    }
+
+}
+
+
+/* =========================================================
    IMPORT DATA
 ========================================================= */
 
@@ -3161,6 +3301,12 @@ async function importData(
 
                 delete data.updatedAt;
 
+
+                /*
+                 * دعم السجلات القديمة والجديدة
+                 *
+                 * لا نحذف أي حقل من بيانات اللجنة.
+                 */
 
                 await createTeacherRecord(
                     group.type,
@@ -3363,6 +3509,10 @@ function printTeachersReport() {
         );
 
 
+    /*
+     * تقرير أعمال اللجان الجديد
+     */
+
     const committeeRows =
         teachersData.committees.map(
             (item, index) => `
@@ -3374,19 +3524,31 @@ function printTeachersReport() {
                     </td>
 
                     <td>
-                        ${escapeHtml(item.name)}
+                        ${escapeHtml(item.title || '')}
                     </td>
 
                     <td>
-                        ${escapeHtml(item.title)}
+                        ${escapeHtml(item.name || '')}
                     </td>
 
                     <td>
-                        ${escapeHtml(item.status)}
+                        ${escapeHtml(item.officialBook || '')}
                     </td>
 
                     <td>
-                        ${escapeHtml(item.note)}
+                        ${escapeHtml(item.assignedWork || '')}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.dueDate || '')}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.status || '')}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(item.note || '')}
                     </td>
 
                 </tr>
@@ -3679,8 +3841,11 @@ function printTeachersReport() {
 </h1>
 
 <div class="date">
+
     تاريخ التقرير:
+
     ${escapeHtml(reportDate)}
+
 </div>
 
 
@@ -3732,11 +3897,13 @@ function printTeachersReport() {
         </div>
 
         <div class="number">
+
             ${
                 teachersData.committees.length +
                 teachersData.duty.length +
                 teachersData.notes.length
             }
+
         </div>
 
     </div>
@@ -3778,8 +3945,11 @@ ${section(
 
     [
         '#',
+        'اسم اللجنة',
         'اسم المعلم',
-        'اللجنة',
+        'الكتاب الرسمي',
+        'عمل مكلف فيه',
+        'تاريخ التسليم',
         'الحالة',
         'ملاحظات'
     ],
@@ -3988,6 +4158,8 @@ document.addEventListener(
             'absence-date',
 
             'written-date',
+
+            'committee-due-date',
 
             'tardiness-date',
 
