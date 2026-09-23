@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -21,7 +20,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.gstatic.com"
+        href="https://fonts.googleapis.com"
         crossorigin
     >
 
@@ -43,7 +42,6 @@
     >
 
 </head>
-
 
 <body>
 
@@ -76,22 +74,20 @@
 
         </div>
 
-        
-      
-<button
-    type="button"
-    class="btn-back-home"
-    onclick="backToSectionSelection()">
 
-    <i data-lucide="arrow-right"></i>
+        <button
+            type="button"
+            class="btn-back-home"
+            onclick="backToSectionSelection()"
+        >
 
-    العودة إلى متابعة الطلاب
+            <i data-lucide="arrow-right"></i>
 
-</button>
+            العودة إلى متابعة الطلاب
+
+        </button>
 
 
-        
-        
         <div class="header-actions">
 
             <!-- طباعة التقارير -->
@@ -147,15 +143,24 @@
                 onchange="importData(event)"
             >
 
-            <button type="button" class="btn-teachers-logout" onclick="teachersLogout()"> <i data-lucide="log-out"></i> تسجيل خروج </button>
-            
+
+            <button
+                type="button"
+                class="btn-teachers-logout"
+                onclick="teachersLogout()"
+            >
+
+                <i data-lucide="log-out"></i>
+
+                تسجيل خروج
+
+            </button>
+
         </div>
 
     </div>
 
 </header>
-
-
 
 
 <!-- =====================================================
@@ -164,9 +169,6 @@
 
 <div class="main-layout">
 
-
-
-   
 
     <!-- =================================================
          القائمة الجانبية
@@ -273,7 +275,6 @@
     </aside>
 
 
-
     <!-- =================================================
          المحتوى الرئيسي
     ================================================== -->
@@ -344,7 +345,7 @@
                 <div class="stat-card">
 
                     <div class="stat-title">
-                        ملاحظات اللجان والمناوبة
+                        أعمال اللجان والملاحظات
                     </div>
 
                     <div
@@ -358,7 +359,6 @@
 
 
             </div>
-
 
 
             <div class="dashboard-charts">
@@ -381,7 +381,6 @@
                     ></canvas>
 
                 </div>
-
 
 
                 <div class="card">
@@ -408,7 +407,6 @@
         </section>
 
 
-
         <!-- =================================================
              رصد الغياب
         ================================================== -->
@@ -419,7 +417,6 @@
         >
 
             <div class="card">
-
 
                 <h2 class="section-title">
 
@@ -560,7 +557,6 @@
                 </form>
 
 
-
                 <div class="table-container">
 
                     <table>
@@ -602,11 +598,9 @@
 
                 </div>
 
-
             </div>
 
         </section>
-
 
 
         <!-- =================================================
@@ -619,7 +613,6 @@
         >
 
             <div class="card">
-
 
                 <h2 class="section-title">
 
@@ -744,7 +737,6 @@
                 </form>
 
 
-
                 <div class="table-container">
 
                     <table>
@@ -782,15 +774,13 @@
 
                 </div>
 
-
             </div>
 
         </section>
 
 
-
         <!-- =================================================
-             أعمال اللجان
+             أعمال اللجان - النسخة الجديدة
         ================================================== -->
 
         <section
@@ -799,7 +789,6 @@
         >
 
             <div class="card">
-
 
                 <h2 class="section-title">
 
@@ -824,6 +813,26 @@
                     <div class="form-grid">
 
 
+                        <!-- اسم اللجنة -->
+
+                        <div class="form-group">
+
+                            <label>
+                                اسم اللجنة
+                            </label>
+
+                            <input
+                                type="text"
+                                id="committee-title"
+                                required
+                                placeholder="أدخل اسم اللجنة"
+                            >
+
+                        </div>
+
+
+                        <!-- اسم المعلم -->
+
                         <div class="form-group">
 
                             <label>
@@ -840,40 +849,77 @@
                         </div>
 
 
+                        <!-- الكتاب الرسمي -->
+
                         <div class="form-group">
 
                             <label>
-                                اسم اللجنة
+                                الكتاب الرسمي
                             </label>
 
                             <input
                                 type="text"
-                                id="committee-title"
-                                required
-                                placeholder="مثال: لجنة النظام، المشتريات..."
+                                id="committee-official-book"
+                                placeholder="رقم الكتاب الرسمي / موضوعه"
                             >
 
                         </div>
 
 
+                        <!-- العمل المكلف -->
+
                         <div class="form-group">
 
                             <label>
-                                مدى الالتزام
+                                عمل مكلف فيه
+                            </label>
+
+                            <textarea
+                                id="committee-assigned-work"
+                                rows="3"
+                                required
+                                placeholder="اكتب العمل المطلوب من المعلم..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <!-- تاريخ التسليم -->
+
+                        <div class="form-group">
+
+                            <label>
+                                تاريخ التسليم
+                            </label>
+
+                            <input
+                                type="date"
+                                id="committee-due-date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- الحالة -->
+
+                        <div class="form-group">
+
+                            <label>
+                                الحالة
                             </label>
 
                             <select
                                 id="committee-status"
-                                onchange="toggleCommitteeNote()"
                                 required
                             >
 
-                                <option value="ملتزم">
-                                    ملتزم
+                                <option value="تم">
+                                    تم
                                 </option>
 
-                                <option value="غير ملتزم">
-                                    غير ملتزم
+                                <option value="لم يتم">
+                                    لم يتم
                                 </option>
 
                             </select>
@@ -881,22 +927,18 @@
                         </div>
 
 
-                        <!-- الملاحظة تظهر فقط عند عدم الالتزام -->
+                        <!-- الملاحظات -->
 
-                        <div
-                            class="form-group full-width"
-                            id="committee-note-group"
-                            style="display:none;"
-                        >
+                        <div class="form-group full-width">
 
                             <label>
-                                الملاحظة / سبب عدم الالتزام
+                                ملاحظات
                             </label>
 
                             <textarea
                                 id="committee-note"
                                 rows="3"
-                                placeholder="اكتب سبب عدم الالتزام أو الملاحظة..."
+                                placeholder="اكتب أي ملاحظات..."
                             ></textarea>
 
                         </div>
@@ -915,7 +957,7 @@
 
                             <i data-lucide="plus"></i>
 
-                            حفظ التقييم
+                            حفظ عمل اللجنة
 
                         </button>
 
@@ -935,7 +977,6 @@
                 </form>
 
 
-
                 <div class="table-container">
 
                     <table>
@@ -945,19 +986,31 @@
                             <tr>
 
                                 <th>
+                                    اسم اللجنة
+                                </th>
+
+                                <th>
                                     اسم المعلم
                                 </th>
 
                                 <th>
-                                    اللجنة
+                                    الكتاب الرسمي
                                 </th>
 
                                 <th>
-                                    حالة الالتزام
+                                    عمل مكلف فيه
                                 </th>
 
                                 <th>
-                                    سبب عدم الالتزام / ملاحظات
+                                    تاريخ التسليم
+                                </th>
+
+                                <th>
+                                    الحالة
+                                </th>
+
+                                <th>
+                                    ملاحظات
                                 </th>
 
                                 <th>
@@ -977,11 +1030,9 @@
 
                 </div>
 
-
             </div>
 
         </section>
-
 
 
         <!-- =================================================
@@ -994,7 +1045,6 @@
         >
 
             <div class="card">
-
 
                 <h2 class="section-title">
 
@@ -1113,7 +1163,6 @@
                 </form>
 
 
-
                 <div class="table-container">
 
                     <table>
@@ -1155,11 +1204,9 @@
 
                 </div>
 
-
             </div>
 
         </section>
-
 
 
         <!-- =================================================
@@ -1172,7 +1219,6 @@
         >
 
             <div class="card">
-
 
                 <h2 class="section-title">
 
@@ -1257,8 +1303,6 @@
                         </div>
 
 
-                        <!-- الملاحظة تظهر عند المخالفة أو التأخر -->
-
                         <div
                             class="form-group full-width"
                             id="duty-note-group"
@@ -1311,7 +1355,6 @@
                 </form>
 
 
-
                 <div class="table-container">
 
                     <table>
@@ -1353,11 +1396,9 @@
 
                 </div>
 
-
             </div>
 
         </section>
-
 
 
         <!-- =================================================
@@ -1370,7 +1411,6 @@
         >
 
             <div class="card">
-
 
                 <h2 class="section-title">
 
@@ -1475,7 +1515,6 @@
                 </form>
 
 
-
                 <div class="table-container">
 
                     <table>
@@ -1513,7 +1552,6 @@
 
                 </div>
 
-
             </div>
 
         </section>
@@ -1522,7 +1560,6 @@
     </main>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -1534,5 +1571,3 @@
 </body>
 
 </html>
-
-
