@@ -11,15 +11,13 @@
     <title>
         نظام إدارة الانضباط المدرسي - مدرسة ذكور المستقبل الصالح الأساسية العليا
     </title>
+
     <link rel="icon" href="data:,">
 
-    <!-- CSS الرئيسي -->
     <link rel="stylesheet" href="styles.css">
 
-    <!-- localForage -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
-    <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <script>
@@ -28,356 +26,1747 @@
         });
     </script>
 
-    <style>
 
-        /* ==================================================
-           LOGIN SCREEN
-        ================================================== */
+<style>
 
-        #loginScreen {
+/* ==================================================
+   LOGIN RESET
+================================================== */
 
-            position: fixed;
+#loginScreen,
+#loginScreen *,
+#loginScreen *::before,
+#loginScreen *::after {
+    box-sizing: border-box;
+}
 
-            inset: 0;
 
-            width: 100%;
+/* ==================================================
+   LOGIN SCREEN
+================================================== */
 
-            height: 100%;
+#loginScreen {
 
-            background: #f4f4f9;
+    position: fixed;
 
-            display: flex;
+    inset: 0;
 
-            justify-content: center;
+    width: 100%;
 
-            align-items: center;
+    height: 100%;
 
-            z-index: 9999;
+    min-height: 100vh;
 
-        }
+    overflow: hidden;
 
+    display: flex;
 
-        .login-box {
+    justify-content: center;
 
-            background: white;
+    align-items: center;
 
-            padding: 30px;
+    padding: 25px 25px 70px;
 
-            text-align: center;
+    background: #0b1d3a;
 
-            border-radius: 12px;
+    z-index: 9999;
 
-            box-shadow:
-                0 10px 35px rgba(0,0,0,0.12);
+}
 
-            width: 90%;
 
-            max-width: 400px;
+/* ==================================================
+   BACKGROUND
+================================================== */
 
-        }
+#loginScreen .login-background {
 
+    position: absolute;
 
-        .login-box h2 {
+    inset: 0;
 
-            margin-bottom: 10px;
+    width: 100%;
 
-        }
+    height: 100%;
 
+    object-fit: cover;
 
-        .login-box input,
-        .login-box button {
+    object-position: center;
 
-            padding: 12px;
+    z-index: 0;
 
-            margin: 8px 0;
+    animation:
+        loginBackgroundZoom 18s ease-in-out infinite alternate;
 
-            font-size: 16px;
+}
 
-            width: 100%;
 
-            box-sizing: border-box;
+/* ==================================================
+   DARK OVERLAY
+================================================== */
 
-        }
+#loginScreen::before {
 
+    content: "";
 
-        .login-box input {
+    position: absolute;
 
-            border: 1px solid #ddd;
+    inset: 0;
 
-            border-radius: 6px;
+    z-index: 1;
 
-            text-align: center;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(5,20,45,0.86),
+            rgba(11,29,58,0.67),
+            rgba(0,0,0,0.60)
+        );
 
-        }
+}
 
 
-        .login-box button {
+/* ==================================================
+   LIGHT EFFECT
+================================================== */
 
-            background-color: #007bff;
+#loginScreen::after {
 
-            color: white;
+    content: "";
 
-            border: none;
+    position: absolute;
 
-            border-radius: 6px;
+    width: 600px;
 
-            cursor: pointer;
+    height: 600px;
 
-        }
+    border-radius: 50%;
 
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,255,255,0.10),
+            transparent 68%
+        );
 
-        .login-box button:hover {
+    top: -230px;
 
-            background-color: #0056b3;
+    left: -180px;
 
-        }
+    z-index: 1;
 
+    pointer-events: none;
 
-        .login-box button:disabled {
+}
 
-            opacity: 0.7;
 
-            cursor: wait;
+/* ==================================================
+   DECORATIVE CIRCLES
+================================================== */
 
-        }
+.login-decoration {
 
+    position: absolute;
 
-        /* ==================================================
-           SECTION SELECTION
-        ================================================== */
+    border-radius: 50%;
 
-        #sectionSelection {
+    border:
+        1px solid
+        rgba(255,255,255,0.12);
 
-            position: fixed !important;
+    z-index: 2;
 
-            inset: 0 !important;
+    pointer-events: none;
 
-            width: 100% !important;
+}
 
-            height: 100% !important;
 
-            background: transparent !important;
+.login-decoration.one {
 
-            z-index: 9995 !important;
+    width: 330px;
 
-            display: none;
+    height: 330px;
 
-            justify-content: center;
+    left: -130px;
 
-            align-items: flex-end;
+    bottom: -110px;
 
-            pointer-events: none;
+}
 
-        }
 
+.login-decoration.two {
 
-        #sectionSelection > div {
+    width: 460px;
 
-            background: transparent !important;
+    height: 460px;
 
-            box-shadow: none !important;
+    right: -230px;
 
-            width: auto !important;
+    top: -190px;
 
-            max-width: none !important;
+}
 
-            padding: 20px !important;
 
-            margin-bottom: 45px;
+.login-decoration.three {
 
-            text-align: center;
+    width: 180px;
 
-            pointer-events: auto;
+    height: 180px;
 
-        }
+    right: 18%;
 
+    bottom: -90px;
 
-        #sectionSelection h2 {
+}
 
-            color: #0b1d3a !important;
 
-            background: rgba(255,255,255,0.92);
+/* ==================================================
+   SCHOOL BRAND
+   مستقل في أعلى الصفحة
+================================================== */
 
-            display: inline-block;
+.school-brand {
 
-            padding: 10px 25px;
+    position: absolute;
 
-            border-radius: 10px;
+    top: 22px;
 
-            margin-bottom: 15px;
+    left: 20px;
 
-        }
+    right: 20px;
 
+    z-index: 20;
 
-        #sectionSelection p {
+    text-align: center;
 
-            background: rgba(255,255,255,0.9);
+    color: white;
 
-            display: inline-block;
+    padding: 0 20px;
 
-            padding: 7px 18px;
+    pointer-events: none;
 
-            border-radius: 8px;
+    animation:
+        fadeDown 0.9s ease both;
 
-        }
+}
 
 
-        #sectionSelection button {
+.school-brand-title {
 
-            min-width: 250px !important;
+    font-size:
+        clamp(16px, 2vw, 23px);
 
-            padding: 18px 28px !important;
+    font-weight: 800;
 
-            font-size: 20px !important;
+    line-height: 1.35;
 
-            border-radius: 12px !important;
+    text-shadow:
+        0 3px 15px rgba(0,0,0,0.35);
 
-            font-weight: bold;
+}
 
-            border: none;
 
-            cursor: pointer;
+.school-brand-subtitle {
 
-            box-shadow:
-                0 7px 20px rgba(0,0,0,0.15);
+    margin-top: 3px;
 
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
+    font-size:
+        clamp(11px, 1.1vw, 14px);
 
-        }
+    opacity: 0.88;
 
+}
 
-        #sectionSelection button:hover {
 
-            transform: translateY(-4px);
+.school-brand-line {
 
-            box-shadow:
-                0 12px 25px rgba(0,0,0,0.20);
+    width: 70px;
 
-        }
+    height: 2px;
 
+    margin: 7px auto 0;
 
-        /* زر الطلاب */
+    border-radius: 10px;
 
-        #sectionSelection button:first-of-type {
+    background:
+        linear-gradient(
+            90deg,
+            #d4af37,
+            #ffffff,
+            #d4af37
+        );
 
-            background: #007bff !important;
+}
 
-        }
 
+/* ==================================================
+   MAIN LOGIN LAYOUT
+================================================== */
 
-        /* زر المعلمين */
+.login-main-layout {
 
-        #sectionSelection button:last-of-type {
+    position: relative;
 
-            background: #6c757d !important;
+    z-index: 10;
 
-        }
+    width:
+        min(1120px, 100%);
 
+    height:
+        min(600px, calc(100vh - 145px));
 
-        /* ==================================================
-           CASES GRID
-        ================================================== */
+    min-height: 500px;
 
-        .cases-grid {
+    margin-top: 45px;
 
-            display: grid;
+    display: grid;
 
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+    grid-template-columns:
+        minmax(0, 1.08fr)
+        minmax(330px, 0.92fr);
 
-            gap: 20px;
+    direction: ltr;
 
-            align-items: start;
+    border-radius: 24px;
 
-        }
+    overflow: hidden;
 
+    background:
+        rgba(255,255,255,0.08);
 
-        .cases-grid .card {
+    border:
+        1px solid
+        rgba(255,255,255,0.18);
 
-            width: 100%;
+    box-shadow:
+        0 30px 90px rgba(0,0,0,0.38);
 
-            box-sizing: border-box;
+    backdrop-filter:
+        blur(4px);
 
-        }
+    -webkit-backdrop-filter:
+        blur(4px);
 
+}
 
-        /* ==================================================
-           MOBILE
-        ================================================== */
 
-        @media (max-width: 1200px) {
+/* ==================================================
+   SCHOOL PANEL
+================================================== */
 
-            .cases-grid {
+.school-panel {
 
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
+    position: relative;
 
-            }
+    min-width: 0;
 
-        }
+    min-height: 0;
 
+    overflow: hidden;
 
-        @media (max-width: 900px) {
+    direction: rtl;
 
-            .login-box {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(8,28,57,0.76),
+            rgba(17,46,82,0.62)
+        );
 
-                width: 90%;
+}
 
-                max-width: 400px;
 
-            }
+/* ==================================================
+   SCHOOL PANEL INNER
+================================================== */
 
-        }
+.school-panel-inner {
 
+    position: relative;
 
-        @media (max-width: 700px) {
+    width: 100%;
 
-            .cases-grid {
+    height: 100%;
 
-                grid-template-columns: 1fr;
+    min-height: 0;
 
-            }
+    padding:
+        35px 45px;
 
-        }
+    display: flex;
 
+    flex-direction: column;
 
-        @media (max-width: 600px) {
+    align-items: center;
 
-            .login-box {
+    justify-content: center;
 
-                width: 90%;
+}
 
-                padding: 20px;
 
-            }
 
+/* ==================================================
+   LOGIN PANEL
+================================================== */
 
-            #sectionSelection > div {
+.login-panel {
 
-                width: 100% !important;
+    position: relative;
 
-                box-sizing: border-box;
+    min-width: 0;
 
-                margin-bottom: 20px;
+    min-height: 0;
 
-            }
+    overflow-y: auto;
 
+    overflow-x: hidden;
 
-            #sectionSelection button {
+    direction: rtl;
 
-                width: 100%;
+    display: flex;
 
-                min-width: 0 !important;
+    align-items: center;
 
-                max-width: 350px;
+    justify-content: center;
 
-            }
+    padding:
+        45px 42px;
 
-        }
+    background:
+        rgba(255,255,255,0.96);
 
-    </style>
+}
+
+
+/* ==================================================
+   LOGIN BOX
+================================================== */
+
+.login-box {
+
+    position: relative;
+
+    width:
+        min(390px, 100%);
+
+    max-width: 390px;
+
+    margin: 0;
+
+    padding:
+        30px 30px 26px;
+
+    box-sizing: border-box;
+
+    text-align: center;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,0.98);
+
+    border:
+        1px solid
+        rgba(220,224,232,0.95);
+
+    box-shadow:
+        0 20px 55px rgba(0,0,0,0.16);
+
+    z-index: 10;
+
+    animation:
+        loginBoxIn 0.9s ease 0.15s both;
+
+}
+
+
+/* ==================================================
+   LOGIN ICON
+================================================== */
+
+.login-icon {
+
+    width: 58px;
+
+    height: 58px;
+
+    margin:
+        0 auto 12px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 27px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b1d3a,
+            #284d80
+        );
+
+    color: white;
+
+    box-shadow:
+        0 10px 25px
+        rgba(11,29,58,0.25);
+
+}
+
+
+/* ==================================================
+   LOGIN TITLE
+================================================== */
+
+.login-box h2 {
+
+    margin:
+        0 0 7px;
+
+    color:
+        #0b1d3a;
+
+    font-size: 25px;
+
+}
+
+
+.login-box .login-subtitle {
+
+    margin:
+        0 0 18px;
+
+    color:
+        #666;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+
+}
+
+
+/* ==================================================
+   LOGIN INPUT
+================================================== */
+
+.login-input-wrap {
+
+    position: relative;
+
+    width: 100%;
+
+    margin:
+        8px 0 12px;
+
+}
+
+
+.login-input-wrap .input-icon {
+
+    position: absolute;
+
+    right: 15px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    font-size: 18px;
+
+    opacity: 0.6;
+
+    pointer-events: none;
+
+}
+
+
+.login-box input {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding:
+        13px 45px 13px 14px;
+
+    font-size: 15px;
+
+    border:
+        1px solid #d8dce5;
+
+    border-radius: 11px;
+
+    text-align: right;
+
+    outline: none;
+
+    background: #fafbfc;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+
+}
+
+
+.login-box input:focus {
+
+    border-color:
+        #0b1d3a;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(11,29,58,0.09);
+
+}
+
+
+/* ==================================================
+   LOGIN BUTTON
+================================================== */
+
+.login-box button.login-submit {
+
+    width: 100%;
+
+    padding: 13px;
+
+    margin-top: 5px;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    border: none;
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b1d3a,
+            #244a7c
+        );
+
+    box-shadow:
+        0 8px 20px
+        rgba(11,29,58,0.25);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+
+}
+
+
+.login-box button.login-submit:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 12px 26px
+        rgba(11,29,58,0.32);
+
+}
+
+
+.login-box button.login-submit:active {
+
+    transform:
+        translateY(0);
+
+}
+
+
+.login-box button.login-submit:disabled {
+
+    opacity: 0.65;
+
+    cursor: wait;
+
+    transform: none;
+
+}
+
+
+/* ==================================================
+   FORGOT PASSWORD
+================================================== */
+
+.forgot-link {
+
+    display: inline-block;
+
+    margin-top: 13px;
+
+    color:
+        #285d9e;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+}
+
+
+.forgot-link:hover {
+
+    color:
+        #0b1d3a;
+
+    text-decoration: underline;
+
+}
+
+
+#errorMsg {
+
+    background:
+        rgba(220,53,69,0.08);
+
+    border:
+        1px solid
+        rgba(220,53,69,0.18);
+
+    border-radius: 8px;
+
+    padding: 7px;
+
+}
+
+
+/* ==================================================
+   WELCOME TICKER
+================================================== */
+
+.welcome-ticker {
+
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 12px;
+
+    transform:
+        translateX(-50%);
+
+    width:
+        min(600px, calc(100% - 40px));
+
+    height: 42px;
+
+    z-index: 30;
+
+    overflow: hidden;
+
+    border-radius: 22px;
+
+    background:
+        rgba(5,15,32,0.88);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.18);
+
+    display: flex;
+
+    align-items: center;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,0.22);
+
+}
+
+
+.welcome-text {
+
+    position: absolute;
+
+    white-space: nowrap;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    padding:
+        6px 20px;
+
+    border:
+        1px solid
+        rgba(212,175,55,0.6);
+
+    border-radius: 20px;
+
+    background:
+        rgba(11,29,58,0.80);
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,0.2);
+
+    animation:
+        welcomeBounce 26s linear infinite alternate;
+
+}
+
+
+/* ==================================================
+   ANIMATIONS
+================================================== */
+
+@keyframes loginBackgroundZoom {
+
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.06);
+    }
+
+}
+
+
+@keyframes principalFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-6px);
+    }
+
+}
+
+
+@keyframes loginBoxIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(-15px)
+            scale(0.97);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
+@keyframes newspaperIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            rotate(-3deg);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            rotate(-1deg);
+
+    }
+
+}
+
+
+@keyframes fadeDown {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(-18px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+
+}
+
+
+/* ==================================================
+   TICKER BOUNCE
+================================================== */
+
+@keyframes welcomeBounce {
+
+    0% {
+
+        left: 0;
+
+        transform:
+            translateX(0);
+
+    }
+
+    50% {
+
+        left: 50%;
+
+        transform:
+            translateX(-50%);
+
+    }
+
+    100% {
+
+        left: 100%;
+
+        transform:
+            translateX(-100%);
+
+    }
+
+}
+
+
+/* ==================================================
+   SHORT DESKTOP SCREENS
+================================================== */
+
+@media
+    (min-width: 901px)
+    and (max-height: 760px) {
+
+    #loginScreen {
+
+        padding:
+            15px 20px 58px;
+
+    }
+
+
+    .school-brand {
+
+        top: 10px;
+
+    }
+
+
+    .school-brand-title {
+
+        font-size: 18px;
+
+    }
+
+
+    .school-brand-subtitle {
+
+        font-size: 11px;
+
+    }
+
+
+    .login-main-layout {
+
+        height:
+            calc(100vh - 105px);
+
+        min-height: 450px;
+
+        margin-top: 30px;
+
+    }
+
+
+    .school-panel-inner {
+
+        padding:
+            25px 35px;
+
+    }
+
+
+    .principal-area {
+
+        margin-top: 20px;
+
+    }
+
+
+    .principal-photo {
+
+        width: 105px;
+
+        height: 105px;
+
+        margin-bottom: 9px;
+
+    }
+
+
+    .principal-message {
+
+        padding:
+            14px 18px;
+
+    }
+
+
+    .newspaper-header {
+
+        font-size: 18px;
+
+    }
+
+
+    .principal-message-text {
+
+        font-size: 12px;
+
+        line-height: 1.65;
+
+    }
+
+
+    .login-panel {
+
+        padding:
+            25px 32px;
+
+    }
+
+
+    .login-box {
+
+        padding:
+            22px 24px;
+
+    }
+
+
+    .login-icon {
+
+        width: 50px;
+
+        height: 50px;
+
+        font-size: 23px;
+
+        margin-bottom: 8px;
+
+    }
+
+
+    .login-box h2 {
+
+        font-size: 22px;
+
+    }
+
+
+    .login-box .login-subtitle {
+
+        margin-bottom: 12px;
+
+    }
+
+
+    .login-box input {
+
+        padding:
+            10px 42px 10px 12px;
+
+    }
+
+
+    .login-box button.login-submit {
+
+        padding: 11px;
+
+    }
+
+}
+
+
+/* ==================================================
+   TABLET / MOBILE
+================================================== */
+
+@media (max-width: 900px) {
+
+    #loginScreen {
+
+        position: fixed;
+
+        display: block;
+
+        overflow-y: auto;
+
+        overflow-x: hidden;
+
+        padding:
+            75px 15px 70px;
+
+    }
+
+
+    .school-brand {
+
+        position: relative;
+
+        top: auto;
+
+        left: auto;
+
+        right: auto;
+
+        width: 100%;
+
+        margin:
+            0 auto 20px;
+
+    }
+
+
+    .school-brand-title {
+
+        font-size: 18px;
+
+    }
+
+
+    .school-brand-subtitle {
+
+        font-size: 12px;
+
+    }
+
+
+    .login-main-layout {
+
+        width: 100%;
+
+        height: auto;
+
+        min-height: 0;
+
+        margin:
+            0 auto;
+
+        display: flex;
+
+        flex-direction: column;
+
+        overflow: visible;
+
+        border-radius: 20px;
+
+    }
+
+
+    .school-panel {
+
+        width: 100%;
+
+        min-height: 430px;
+
+        overflow: visible;
+
+        border-radius:
+            20px 20px 0 0;
+
+    }
+
+
+    .school-panel-inner {
+
+        height: auto;
+
+        min-height: 430px;
+
+        padding:
+            35px 20px;
+
+    }
+
+
+    .principal-area {
+
+        width:
+            min(470px, 95%);
+
+        margin:
+            15px auto 0;
+
+    }
+
+
+    .principal-photo {
+
+        width: 105px;
+
+        height: 105px;
+
+        margin-bottom: 12px;
+
+    }
+
+
+    .principal-message {
+
+        width: 100%;
+
+        padding:
+            17px 20px;
+
+    }
+
+
+    .newspaper-header {
+
+        font-size: 19px;
+
+    }
+
+
+    .principal-message-text {
+
+        font-size: 13px;
+
+        line-height: 1.8;
+
+    }
+
+
+    .login-panel {
+
+        width: 100%;
+
+        min-height: 390px;
+
+        overflow: visible;
+
+        padding:
+            35px 20px;
+
+        border-radius:
+            0 0 20px 20px;
+
+    }
+
+
+    .login-box {
+
+        position: relative;
+
+        top: auto;
+
+        right: auto;
+
+        width:
+            min(400px, 100%);
+
+        max-width: 400px;
+
+        margin:
+            0 auto;
+
+    }
+
+
+    .welcome-ticker {
+
+        position: fixed;
+
+        bottom: 10px;
+
+        width:
+            calc(100% - 30px);
+
+        max-width: 600px;
+
+    }
+
+}
+
+
+/* ==================================================
+   SMALL MOBILE
+================================================== */
+
+@media (max-width: 600px) {
+
+    #loginScreen {
+
+        padding:
+            65px 10px 65px;
+
+    }
+
+
+    .school-brand {
+
+        margin-bottom: 14px;
+
+    }
+
+
+    .school-brand-title {
+
+        font-size: 16px;
+
+    }
+
+
+    .school-brand-subtitle {
+
+        font-size: 11px;
+
+    }
+
+
+    .login-main-layout {
+
+        border-radius: 16px;
+
+    }
+
+
+    .school-panel {
+
+        min-height: 400px;
+
+    }
+
+
+    .school-panel-inner {
+
+        min-height: 400px;
+
+        padding:
+            25px 14px;
+
+    }
+
+
+    .principal-area {
+
+        width: 96%;
+
+    }
+
+
+    .principal-photo {
+
+        width: 92px;
+
+        height: 92px;
+
+    }
+
+
+    .principal-message {
+
+        padding:
+            15px 17px;
+
+    }
+
+
+    .newspaper-header {
+
+        font-size: 18px;
+
+    }
+
+
+    .principal-message-text {
+
+        font-size: 12px;
+
+        line-height: 1.7;
+
+    }
+
+
+    .login-panel {
+
+        min-height: 360px;
+
+        padding:
+            25px 14px;
+
+    }
+
+
+    .login-box {
+
+        padding:
+            22px 18px;
+
+        border-radius: 16px;
+
+    }
+
+
+    .login-icon {
+
+        width: 52px;
+
+        height: 52px;
+
+        font-size: 24px;
+
+    }
+
+
+    .login-box h2 {
+
+        font-size: 22px;
+
+    }
+
+
+    .login-box .login-subtitle {
+
+        font-size: 12px;
+
+    }
+
+
+    .welcome-ticker {
+
+        height: 38px;
+
+        bottom: 8px;
+
+    }
+
+
+    .welcome-text {
+
+        font-size: 13px;
+
+        padding:
+            5px 17px;
+
+    }
+
+}
+
+
+/* ==================================================
+   VERY SMALL SCREENS
+================================================== */
+
+@media (max-width: 420px) {
+
+    .school-brand-title {
+
+        font-size: 15px;
+
+    }
+
+
+    .school-panel-inner {
+
+        padding:
+            20px 10px;
+
+    }
+
+
+    .principal-message-text {
+
+        font-size: 11.5px;
+
+    }
+
+
+    .login-box {
+
+        padding:
+            20px 15px;
+
+    }
+
+
+    .login-box h2 {
+
+        font-size: 20px;
+
+    }
+
+}
+
+
+/* ==================================================
+   SECTION SELECTION
+================================================== */
+
+#sectionSelection {
+
+    position: fixed !important;
+
+    inset: 0 !important;
+
+    width: 100% !important;
+
+    height: 100% !important;
+
+    background: transparent !important;
+
+    z-index: 9995 !important;
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: flex-end;
+
+    pointer-events: none;
+
+}
+
+
+#sectionSelection > div {
+
+    background: transparent !important;
+
+    box-shadow: none !important;
+
+    width: auto !important;
+
+    max-width: none !important;
+
+    padding: 20px !important;
+
+    margin-bottom: 45px;
+
+    text-align: center;
+
+    pointer-events: auto;
+
+}
+
+
+#sectionSelection h2 {
+
+    color:
+        #0b1d3a !important;
+
+    background:
+        rgba(255,255,255,0.92);
+
+    display: inline-block;
+
+    padding:
+        10px 25px;
+
+    border-radius: 10px;
+
+    margin-bottom: 15px;
+
+}
+
+
+#sectionSelection p {
+
+    background:
+        rgba(255,255,255,0.9);
+
+    display: inline-block;
+
+    padding:
+        7px 18px;
+
+    border-radius: 8px;
+
+}
+
+
+#sectionSelection button {
+
+    min-width: 250px !important;
+
+    padding:
+        18px 28px !important;
+
+    font-size: 20px !important;
+
+    border-radius: 12px !important;
+
+    font-weight: bold;
+
+    border: none;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 20px
+        rgba(0,0,0,0.15);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+#sectionSelection button:hover {
+
+    transform:
+        translateY(-4px);
+
+    box-shadow:
+        0 12px 25px
+        rgba(0,0,0,0.20);
+
+}
+
+
+#sectionSelection button:first-of-type {
+
+    background:
+        #007bff !important;
+
+}
+
+
+#sectionSelection button:last-of-type {
+
+    background:
+        #6c757d !important;
+
+}
+
+
+/* ==================================================
+   CASES GRID
+================================================== */
+
+.cases-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 20px;
+
+    align-items: start;
+
+}
+
+
+.cases-grid .card {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+}
+
+
+/* ==================================================
+   CASES MOBILE
+================================================== */
+
+@media (max-width: 600px) {
+
+    #sectionSelection > div {
+
+        width: 100% !important;
+
+        box-sizing: border-box;
+
+        margin-bottom: 20px;
+
+    }
+
+
+    #sectionSelection button {
+
+        width: 100%;
+
+        min-width: 0 !important;
+
+        max-width: 350px;
+
+    }
+
+
+    .cases-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+/* ==================================================
+   REDUCED MOTION
+================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    #loginScreen .login-background,
+    .principal-photo,
+    .principal-message,
+    .login-box,
+    .school-brand,
+    .welcome-text {
+
+        animation:
+            none !important;
+
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -391,93 +1780,227 @@
 
 <div id="loginScreen">
 
+
     <img
         src="https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/343115378_3491540304501523_4825229709260791039_n.jpg"
         class="login-background"
         alt=""
     >
-    <img
-    src="https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/790457674_1615451487026633_2161530104680301449_n.jfif"
-    class="principal-photo"
-    alt="مدير المدرسة"
->
 
-    <div class="principal-message">
-    <div class="newspaper-header">
-        كلمة مدير المدرسة
+
+    <div class="login-decoration one"></div>
+
+    <div class="login-decoration two"></div>
+
+    <div class="login-decoration three"></div>
+
+
+    <!-- ==================================================
+         SCHOOL BRAND
+    ================================================== -->
+
+    <div class="school-brand">
+
+        <div class="school-brand-title">
+
+            مدرسة ذكور المستقبل الصالح الأساسية العليا
+
+        </div>
+
+
+        <div class="school-brand-subtitle">
+
+            نظام إدارة الانضباط المدرسي
+
+        </div>
+
+
+        <div class="school-brand-line"></div>
+
     </div>
 
-    <div class="newspaper-line"></div>
 
-    <div class="principal-message-text">
-اهلا وسهلا بكم في موقع مدرستنا ونسعد بانضمامكم الينا لمتابعة طلابنا اولا باول 
-        اخوكم الاستاذ : سمير مصلح
+    <!-- ==================================================
+         MAIN LOGIN LAYOUT
+    ================================================== -->
+
+    <div class="login-main-layout">
+
+
+        <!-- ==================================================
+             SCHOOL / PRINCIPAL
+        ================================================== -->
+
+        <section class="school-panel">
+
+
+            <div class="school-panel-inner">
+
+
+                <div class="principal-area">
+
+
+                    <img
+                        src="https://raw.githubusercontent.com/said1991jaradat-ux/Almustqbal/main/790457674_1615451487026633_2161530104680301449_n.jfif"
+                        class="principal-photo"
+                        alt="مدير المدرسة"
+                    >
+
+
+                    <div class="principal-message">
+
+
+                        <div class="newspaper-header">
+
+                            كلمة مدير المدرسة
+
+                        </div>
+
+
+                        <div class="newspaper-line"></div>
+
+
+                        <div class="principal-message-text">
+
+                            أهلاً وسهلاً بكم في موقع مدرستنا،
+                            ونسعد بانضمامكم إلينا لمتابعة طلابنا
+                            أولاً بأول.
+
+                            <br>
+
+                            <strong>
+                                أخوكم الأستاذ: سمير مصلح
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
             </div>
-</div>
+
+
+        </section>
+
+
+        <!-- ==================================================
+             LOGIN
+        ================================================== -->
+
+        <section class="login-panel">
+
+
+            <div class="login-box">
+
+
+                <div class="login-icon">
+
+                    🔐
+
+                </div>
+
+
+                <h2>
+
+                    تسجيل الدخول
+
+                </h2>
+
+
+                <p class="login-subtitle">
+
+                    أهلاً بكم في نظام إدارة الانضباط المدرسي
+
+                    <br>
+
+                    الرجاء إدخال كلمة المرور للمتابعة
+
+                </p>
+
+
+                <div class="login-input-wrap">
+
+
+                    <span class="input-icon">
+
+                        🔑
+
+                    </span>
+
+
+                    <input
+                        type="password"
+                        id="passInput"
+                        placeholder="أدخل كلمة المرور"
+                        autocomplete="current-password"
+                    >
+
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="login-submit"
+                    onclick="checkPassword()">
+
+                    دخول إلى النظام
+
+                </button>
+
+
+                <p
+                    id="errorMsg"
+                    style="
+                        color:red;
+                        display:none;
+                        margin-top:12px;
+                    ">
+
+                    كلمة المرور غير صحيحة!
+
+                </p>
+
+
+                <a
+                    href="#"
+                    class="forgot-link"
+                    onclick="forgotPassword(); return false;">
+
+                    نسيت كلمة المرور؟
+
+                </a>
+
+
+            </div>
+
+
+        </section>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         WELCOME TICKER
+    ================================================== -->
 
     <div class="welcome-ticker">
-    <div class="welcome-text">
-        نرحب بكم زوارنا الأعزاء 🌷
-    </div>
-</div>
-    
-    <div class="login-box">
 
-        <h2>
-            تسجيل الدخول
-        </h2>
 
-        <p>
-            الرجاء إدخال كلمة المرور للدخول إلى نظام المدرسة
-        </p>
+        <div class="welcome-text">
 
-        <input
-            type="password"
-            id="passInput"
-            placeholder="كلمة المرور"
-            autocomplete="current-password">
+            نرحب بكم زوارنا الأعزاء 🌷
 
-        <button
-            type="button"
-            onclick="checkPassword()">
+        </div>
 
-            دخول
-
-        </button>
-
-        <p
-            id="errorMsg"
-            style="
-                color:red;
-                display:none;
-                margin-top:5px;
-            ">
-
-            كلمة المرور غير صحيحة!
-
-        </p>
-
-        <p
-            style="
-                margin-top:15px;
-                font-size:0.85rem;
-            ">
-
-            <a
-                href="#"
-                onclick="forgotPassword(); return false;"
-                style="
-                    color:#007bff;
-                    text-decoration:underline;
-                ">
-
-                نسيت كلمة المرور؟
-
-            </a>
-
-        </p>
 
     </div>
+
 
 </div>
 
@@ -500,6 +2023,7 @@
         align-items:center;
     ">
 
+
     <div
         style="
             background:#ffffff;
@@ -511,6 +2035,7 @@
             text-align:center;
         ">
 
+
         <h2
             style="
                 margin-bottom:10px;
@@ -520,6 +2045,7 @@
             اختر القسم المطلوب
 
         </h2>
+
 
         <p
             style="
@@ -531,6 +2057,7 @@
 
         </p>
 
+
         <div
             style="
                 display:flex;
@@ -538,6 +2065,7 @@
                 gap:20px;
                 flex-wrap:wrap;
             ">
+
 
             <button
                 type="button"
@@ -584,9 +2112,12 @@
 
             </button>
 
+
         </div>
 
+
     </div>
+
 
 </div>
 
@@ -600,21 +2131,24 @@
     style="display:none;">
 
 
-    <!-- ==================================================
-         HEADER
-    ================================================== -->
-
     <header class="header">
+
 
         <div class="school-info">
 
+
             <h1>
+
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
+
             </h1>
+
 
             <div class="manager-ticker">
 
+
                 <div class="manager-ticker-track">
+
 
                     <span>
 
@@ -630,9 +2164,12 @@
 
                     </span>
 
+
                 </div>
 
+
             </div>
+
 
             <div
                 class="live-date"
@@ -642,17 +2179,21 @@
 
             </div>
 
+
         </div>
 
 
         <div class="header-actions">
 
+
             <div class="search-box">
+
 
                 <input
                     type="text"
                     id="searchStudent"
                     placeholder="ابحث باسم الطالب للتقرير...">
+
 
                 <button
                     type="button"
@@ -663,10 +2204,12 @@
 
                 </button>
 
+
             </div>
 
 
             <div class="backup-btns">
+
 
                 <button
                     type="button"
@@ -676,19 +2219,18 @@
                     📊 الإدارة والتقارير
 
                 </button>
-          
-<button
-    type="button"
-    class="btn-back-home"
-    onclick="backToSectionSelection()">
-
-    <i data-lucide="arrow-right"></i>
-
-    العودة إلى متابعة المعلمين
-
-</button>
 
 
+                <button
+                    type="button"
+                    class="btn-back-home"
+                    onclick="backToSectionSelection()">
+
+                    <i data-lucide="arrow-right"></i>
+
+                    العودة إلى متابعة المعلمين
+
+                </button>
 
 
                 <button
@@ -706,7 +2248,8 @@
                     id="importFile"
                     accept=".json,application/json"
                     onchange="importData(event)"
-                    style="display:none">
+                    style="display:none"
+                >
 
 
                 <button
@@ -736,9 +2279,12 @@
 
                 </button>
 
+
             </div>
 
+
         </div>
+
 
     </header>
 
@@ -749,28 +2295,32 @@
 
     <main class="container">
 
+
         <div class="cases-grid">
 
 
-            <!-- =========================================
-                 1. ABSENCE
-            ========================================== -->
+            <!-- ABSENCE -->
 
             <section class="card">
+
 
                 <h3>
                     1. تسجيل الغياب
                 </h3>
 
+
                 <form
                     id="absenceForm"
                     onsubmit="addAbsence(event)">
 
+
                     <div class="form-group">
+
 
                         <label>
                             اسم الطالب:
                         </label>
+
 
                         <input
                             type="text"
@@ -778,16 +2328,20 @@
                             required
                             placeholder="الاسم الرباعي">
 
+
                     </div>
 
 
                     <div class="form-row">
 
+
                         <div class="form-group">
+
 
                             <label>
                                 الصف:
                             </label>
+
 
                             <select id="absenceGrade">
 
@@ -799,14 +2353,17 @@
 
                             </select>
 
+
                         </div>
 
 
                         <div class="form-group">
 
+
                             <label>
                                 الشعبة:
                             </label>
+
 
                             <select id="absenceSection">
 
@@ -817,7 +2374,9 @@
 
                             </select>
 
+
                         </div>
+
 
                     </div>
 
@@ -830,19 +2389,23 @@
 
                     </button>
 
+
                 </form>
 
 
                 <div class="logs-section">
 
+
                     <h4>
                         السجلات الأخيرة للغياب:
                     </h4>
+
 
                     <div
                         id="absenceLogs"
                         class="logs-list">
                     </div>
+
 
                 </div>
 
@@ -860,28 +2423,32 @@
 
                 </button>
 
+
             </section>
 
 
-            <!-- =========================================
-                 2. UNIFORM
-            ========================================== -->
+            <!-- UNIFORM -->
 
             <section class="card">
+
 
                 <h3>
                     2. الالتزام بالزي المدرسي
                 </h3>
 
+
                 <form
                     id="uniformForm"
                     onsubmit="addUniform(event)">
 
+
                     <div class="form-group">
+
 
                         <label>
                             اسم الطالب:
                         </label>
+
 
                         <input
                             type="text"
@@ -889,16 +2456,20 @@
                             required
                             placeholder="الاسم الرباعي">
 
+
                     </div>
 
 
                     <div class="form-row">
 
+
                         <div class="form-group">
+
 
                             <label>
                                 الصف:
                             </label>
+
 
                             <select id="uniformGrade">
 
@@ -910,14 +2481,17 @@
 
                             </select>
 
+
                         </div>
 
 
                         <div class="form-group">
 
+
                             <label>
                                 الشعبة:
                             </label>
+
 
                             <select id="uniformSection">
 
@@ -928,16 +2502,20 @@
 
                             </select>
 
+
                         </div>
+
 
                     </div>
 
 
                     <div class="form-group">
 
+
                         <label>
                             مدى الالتزام:
                         </label>
+
 
                         <select id="uniformStatus">
 
@@ -951,6 +2529,7 @@
 
                         </select>
 
+
                     </div>
 
 
@@ -962,19 +2541,23 @@
 
                     </button>
 
+
                 </form>
 
 
                 <div class="logs-section">
 
+
                     <h4>
                         السجلات الأخيرة للزي:
                     </h4>
+
 
                     <div
                         id="uniformLogs"
                         class="logs-list">
                     </div>
+
 
                 </div>
 
@@ -992,28 +2575,32 @@
 
                 </button>
 
+
             </section>
 
 
-            <!-- =========================================
-                 3. LATENESS
-            ========================================== -->
+            <!-- LATENESS -->
 
             <section class="card">
+
 
                 <h3>
                     3. تسجيل التأخير الصباحي
                 </h3>
 
+
                 <form
                     id="latenessForm"
                     onsubmit="addLateness(event)">
 
+
                     <div class="form-group">
+
 
                         <label>
                             اسم الطالب:
                         </label>
+
 
                         <input
                             type="text"
@@ -1021,16 +2608,20 @@
                             required
                             placeholder="الاسم الرباعي">
 
+
                     </div>
 
 
                     <div class="form-row">
 
+
                         <div class="form-group">
+
 
                             <label>
                                 الصف:
                             </label>
+
 
                             <select id="latenessGrade">
 
@@ -1042,14 +2633,17 @@
 
                             </select>
 
+
                         </div>
 
 
                         <div class="form-group">
 
+
                             <label>
                                 الشعبة:
                             </label>
+
 
                             <select id="latenessSection">
 
@@ -1060,42 +2654,53 @@
 
                             </select>
 
+
                         </div>
+
 
                     </div>
 
 
                     <div class="form-group">
 
+
                         <label>
                             سبب التأخير:
                         </label>
+
 
                         <select
                             id="latenessReason"
                             onchange="toggleOtherReason()">
 
+
                             <option value="أزمة طريق">
                                 أزمة طريق
                             </option>
+
 
                             <option value="عائلي">
                                 عائلي
                             </option>
 
+
                             <option value="النوم">
                                 النوم
                             </option>
+
 
                             <option value="بعد المسافة">
                                 بعد المسافة
                             </option>
 
+
                             <option value="other">
                                 أخرى
                             </option>
 
+
                         </select>
+
 
                     </div>
 
@@ -1105,14 +2710,17 @@
                         id="otherReasonGroup"
                         style="display:none;">
 
+
                         <label>
                             اذكر السبب:
                         </label>
+
 
                         <input
                             type="text"
                             id="otherReasonText"
                             placeholder="اكتب السبب هنا">
+
 
                     </div>
 
@@ -1125,19 +2733,23 @@
 
                     </button>
 
+
                 </form>
 
 
                 <div class="logs-section">
 
+
                     <h4>
                         السجلات الأخيرة للتأخير:
                     </h4>
+
 
                     <div
                         id="latenessLogs"
                         class="logs-list">
                     </div>
+
 
                 </div>
 
@@ -1155,28 +2767,32 @@
 
                 </button>
 
+
             </section>
 
 
-            <!-- =========================================
-                 4. ESCAPE
-            ========================================== -->
+            <!-- ESCAPE -->
 
             <section class="card">
+
 
                 <h3>
                     4. تسجيل حالة الهروب
                 </h3>
 
+
                 <form
                     id="escapeForm"
                     onsubmit="addEscape(event)">
 
+
                     <div class="form-group">
+
 
                         <label>
                             اسم الطالب:
                         </label>
+
 
                         <input
                             type="text"
@@ -1184,16 +2800,20 @@
                             required
                             placeholder="الاسم الرباعي">
 
+
                     </div>
 
 
                     <div class="form-row">
 
+
                         <div class="form-group">
+
 
                             <label>
                                 الصف:
                             </label>
+
 
                             <select id="escapeGrade">
 
@@ -1205,14 +2825,17 @@
 
                             </select>
 
+
                         </div>
 
 
                         <div class="form-group">
 
+
                             <label>
                                 الشعبة:
                             </label>
+
 
                             <select id="escapeSection">
 
@@ -1223,7 +2846,9 @@
 
                             </select>
 
+
                         </div>
+
 
                     </div>
 
@@ -1236,19 +2861,23 @@
 
                     </button>
 
+
                 </form>
 
 
                 <div class="logs-section">
 
+
                     <h4>
                         السجلات الأخيرة للهروب:
                     </h4>
+
 
                     <div
                         id="escapeLogs"
                         class="logs-list">
                     </div>
+
 
                 </div>
 
@@ -1266,14 +2895,14 @@
 
                 </button>
 
+
             </section>
 
 
-            <!-- =========================================
-                 5. OTHER PROBLEMS
-            ========================================== -->
+            <!-- OTHER PROBLEMS -->
 
             <section class="card">
+
 
                 <h3>
                     5. مشاكل أخرى
@@ -1287,15 +2916,18 @@
 
                     <div class="form-group">
 
+
                         <label>
                             اسم الطالب:
                         </label>
+
 
                         <input
                             type="text"
                             id="otherProblemStudent"
                             required
                             placeholder="الاسم الرباعي">
+
 
                     </div>
 
@@ -1305,13 +2937,16 @@
 
                         <div class="form-group">
 
+
                             <label>
                                 الصف:
                             </label>
 
+
                             <select
                                 id="otherProblemGrade"
                                 required>
+
 
                                 <option value="">
                                     اختر الصف
@@ -1337,20 +2972,25 @@
                                     التاسع
                                 </option>
 
+
                             </select>
+
 
                         </div>
 
 
                         <div class="form-group">
 
+
                             <label>
                                 الشعبة:
                             </label>
 
+
                             <select
                                 id="otherProblemSection"
                                 required>
+
 
                                 <option value="">
                                     اختر الشعبة
@@ -1372,22 +3012,28 @@
                                     د
                                 </option>
 
+
                             </select>
 
+
                         </div>
+
 
                     </div>
 
 
                     <div class="form-group">
 
+
                         <label>
                             نوع المخالفة:
                         </label>
 
+
                         <select
                             id="otherProblemType"
                             required>
+
 
                             <option value="">
                                 اختر نوع المخالفة
@@ -1425,21 +3071,26 @@
                                 مشاكل أخرى
                             </option>
 
+
                         </select>
+
 
                     </div>
 
 
                     <div class="form-group">
 
+
                         <label>
                             ملاحظات:
                         </label>
+
 
                         <textarea
                             id="otherProblemNotes"
                             rows="4"
                             placeholder="اكتب أي ملاحظات إضافية هنا..."></textarea>
+
 
                     </div>
 
@@ -1452,19 +3103,23 @@
 
                     </button>
 
+
                 </form>
 
 
                 <div class="logs-section">
 
+
                     <h4>
                         آخر المخالفات:
                     </h4>
+
 
                     <div
                         id="otherProblemsLogs"
                         class="logs-list">
                     </div>
+
 
                 </div>
 
@@ -1482,9 +3137,12 @@
 
                 </button>
 
+
             </section>
 
+
         </div>
+
 
     </main>
 
@@ -1497,28 +3155,41 @@
         id="printReport"
         class="print-only">
 
+
         <div class="report-header">
 
+
             <h1>
+
                 مدرسة ذكور المستقبل الصالح الأساسية العليا
+
             </h1>
 
+
             <h2>
+
                 تقرير السلوك والانضباط المدرسي
+
             </h2>
+
 
             <p id="reportPrintDate"></p>
 
+
             <hr>
 
+
             <div class="student-title-wrap">
+
 
                 <p
                     id="reportStudentInfo"
                     class="student-title">
                 </p>
 
+
             </div>
+
 
         </div>
 
@@ -1528,15 +3199,23 @@
 
         <div class="report-signature">
 
+
             <div>
+
                 مدير المدرسة: أ. سمير مصلح
+
             </div>
+
 
             <div class="signature-line">
+
                 التوقيع: __________________
+
             </div>
 
+
         </div>
+
 
     </div>
 
@@ -1550,19 +3229,29 @@
         class="admin-modal"
         style="display:none;">
 
+
         <div class="admin-page">
+
 
             <div class="admin-header">
 
+
                 <div>
 
+
                     <h2>
+
                         📊 لوحة الإدارة والتقارير
+
                     </h2>
 
+
                     <p>
+
                         مدرسة ذكور المستقبل الصالح الأساسية العليا
+
                     </p>
+
 
                 </div>
 
@@ -1576,12 +3265,12 @@
 
                 </button>
 
+
             </div>
 
 
-            <!-- TABS -->
-
             <div class="admin-tabs">
+
 
                 <button
                     type="button"
@@ -1615,36 +3304,48 @@
 
                 </button>
 
+
             </div>
 
 
-            <!-- CONTROLS -->
-
             <div class="admin-controls">
+
 
                 <div>
 
+
                     <label>
+
                         اختر التاريخ المرجعي:
+
                     </label>
+
 
                     <input
                         type="date"
                         id="adminReferenceDate"
-                            onchange="changeAdminReportDate()">
+                        onchange="changeAdminReportDate">
+
 
                 </div>
 
 
                 <div class="admin-period">
 
+
                     <strong id="adminReportTitle">
+
                         التقرير اليومي
+
                     </strong>
 
+
                     <span id="adminPeriodLabel">
+
                         -
+
                     </span>
+
 
                 </div>
 
@@ -1668,149 +3369,188 @@
 
                 </button>
 
+
             </div>
 
-
-            <!-- SUMMARY -->
 
             <div class="admin-summary">
 
 
                 <div class="summary-card total">
 
+
                     <div class="summary-icon">
+
                         📊
+
                     </div>
 
+
                     <div>
+
 
                         <span>
                             إجمالي الحالات
                         </span>
 
+
                         <strong id="adminTotalCount">
                             0
                         </strong>
 
+
                     </div>
+
 
                 </div>
 
 
                 <div class="summary-card lateness">
 
+
                     <div class="summary-icon">
                         ⏰
                     </div>
 
+
                     <div>
+
 
                         <span>
                             التأخير الصباحي
                         </span>
 
+
                         <strong id="adminLatenessCount">
                             0
                         </strong>
 
+
                     </div>
+
 
                 </div>
 
 
                 <div class="summary-card uniform">
 
+
                     <div class="summary-icon">
                         👕
                     </div>
 
+
                     <div>
+
 
                         <span>
                             الزي المدرسي
                         </span>
 
+
                         <strong id="adminUniformCount">
                             0
                         </strong>
 
+
                     </div>
+
 
                 </div>
 
 
                 <div class="summary-card escape">
 
+
                     <div class="summary-icon">
                         🚪
                     </div>
 
+
                     <div>
+
 
                         <span>
                             الهروب
                         </span>
 
+
                         <strong id="adminEscapeCount">
                             0
                         </strong>
 
+
                     </div>
+
 
                 </div>
 
 
                 <div class="summary-card absence">
 
+
                     <div class="summary-icon">
                         📅
                     </div>
 
+
                     <div>
+
 
                         <span>
                             الغياب
                         </span>
 
+
                         <strong id="adminAbsenceCount">
                             0
                         </strong>
 
+
                     </div>
+
 
                 </div>
 
 
                 <div class="summary-card">
 
+
                     <div class="summary-icon">
                         ⚠️
                     </div>
 
+
                     <div>
+
 
                         <span>
                             مشاكل أخرى
                         </span>
 
+
                         <strong id="adminOtherProblemsCount">
                             0
                         </strong>
 
+
                     </div>
 
+
                 </div>
+
 
             </div>
 
 
-            <!-- TABLE -->
-
             <div class="admin-table-container">
+
 
                 <table class="admin-table">
 
+
                     <thead>
+
 
                         <tr>
 
@@ -1840,12 +3580,15 @@
 
                         </tr>
 
+
                     </thead>
 
 
                     <tbody id="adminTableBody">
 
+
                         <tr>
+
 
                             <td
                                 colspan="6"
@@ -1855,25 +3598,26 @@
 
                             </td>
 
+
                         </tr>
+
 
                     </tbody>
 
+
                 </table>
+
 
             </div>
 
+
         </div>
+
 
     </div>
 
 
 </div>
-
-
-  
-     
-
 
 
 <!-- ==================================================
@@ -1882,31 +3626,42 @@
 
 <script>
 
-    const AUTH_BASE_URL =
-        'https://almustqbal.onrender.com';
+const AUTH_BASE_URL =
+    'https://almustqbal.onrender.com';
 
 
-    /* ==================================================
-       LOGIN
-    ================================================== */
+/* ==================================================
+   LOGIN
+================================================== */
+
 async function checkPassword() {
 
     const inputElement =
         document.getElementById('passInput');
 
     const loginBtn =
-        document.querySelector('.login-box button');
+        document.querySelector(
+            '.login-box button.login-submit'
+        );
 
     const errorMsg =
         document.getElementById('errorMsg');
 
+
     if (!inputElement || !loginBtn) {
-        console.error('عناصر تسجيل الدخول غير موجودة');
+
+        console.error(
+            'عناصر تسجيل الدخول غير موجودة'
+        );
+
         return;
+
     }
+
 
     const userInput =
         inputElement.value.trim();
+
 
     if (!userInput) {
 
@@ -1917,18 +3672,26 @@ async function checkPassword() {
 
             errorMsg.style.display =
                 'block';
+
         }
 
         inputElement.focus();
 
         return;
+
     }
+
 
     const originalBtnText =
         loginBtn.innerText;
 
-    loginBtn.disabled = true;
-    loginBtn.innerText = 'جاري التحقق...';
+
+    loginBtn.disabled =
+        true;
+
+    loginBtn.innerText =
+        'جاري التحقق...';
+
 
     if (errorMsg) {
 
@@ -1937,7 +3700,9 @@ async function checkPassword() {
 
         errorMsg.textContent =
             '';
+
     }
+
 
     try {
 
@@ -1958,8 +3723,10 @@ async function checkPassword() {
                 }
             );
 
+
         const result =
             await response.json();
+
 
         if (
             response.ok &&
@@ -1971,55 +3738,67 @@ async function checkPassword() {
                 'true'
             );
 
+
             localStorage.removeItem(
                 'schoolSection'
             );
+
 
             const loginScreen =
                 document.getElementById(
                     'loginScreen'
                 );
 
+
             const loginBox =
                 document.querySelector(
                     '.login-box'
                 );
+
 
             const sectionSelection =
                 document.getElementById(
                     'sectionSelection'
                 );
 
+
             const mainContent =
                 document.getElementById(
                     'mainContent'
                 );
 
+
             if (loginBox) {
 
                 loginBox.style.display =
                     'none';
+
             }
 
-            /* إخفاء شاشة تسجيل الدخول بالكامل */
+
             if (loginScreen) {
 
                 loginScreen.style.display =
                     'none';
+
             }
 
-            /* إظهار شاشة اختيار القسم */
+
             if (sectionSelection) {
 
                 sectionSelection.style.display =
                     'flex';
+
             }
+
 
             if (mainContent) {
 
                 mainContent.style.display =
                     'none';
+
             }
+
 
             if (
                 typeof startPresenceMonitoring ===
@@ -2027,7 +3806,9 @@ async function checkPassword() {
             ) {
 
                 startPresenceMonitoring();
+
             }
+
 
         } else {
 
@@ -2039,8 +3820,11 @@ async function checkPassword() {
 
                 errorMsg.style.display =
                     'block';
+
             }
+
         }
+
 
     } catch (err) {
 
@@ -2049,6 +3833,7 @@ async function checkPassword() {
             err
         );
 
+
         if (errorMsg) {
 
             errorMsg.textContent =
@@ -2056,6 +3841,7 @@ async function checkPassword() {
 
             errorMsg.style.display =
                 'block';
+
         }
 
     } finally {
@@ -2065,403 +3851,497 @@ async function checkPassword() {
 
         loginBtn.innerText =
             originalBtnText;
+
     }
+
 }
-    function continueStudents() {
+
+
+/* ==================================================
+   CONTINUE STUDENTS
+================================================== */
+
+function continueStudents() {
 
     localStorage.setItem(
         'schoolSection',
         'students'
     );
 
+
     const sectionSelection =
         document.getElementById(
             'sectionSelection'
         );
+
 
     const mainContent =
         document.getElementById(
             'mainContent'
         );
 
+
     const loginScreen =
         document.getElementById(
             'loginScreen'
         );
 
+
     if (sectionSelection) {
+
         sectionSelection.style.display =
             'none';
+
     }
+
 
     if (loginScreen) {
+
         loginScreen.style.display =
             'none';
+
     }
 
+
     if (mainContent) {
+
         mainContent.style.display =
             'block';
+
     }
+
 }
+
+
+/* ==================================================
+   CONTINUE TEACHERS
+================================================== */
 
 function continueTeachers() {
 
-const password = prompt(
-    '🔐 قسم متابعة المعلمين\n\nأدخل كلمة المرور:'
-);
-
-if (password === null) {
-    return;
-}
-
-if (password !== '240625') {
-
-    alert('❌ كلمة المرور غير صحيحة.');
-    return;
-}
-
-// حفظ الدخول للمعلمين
-localStorage.setItem(
-    'schoolSection',
-    'teachers'
-);
-
-// فتح صفحة المعلمين
-window.location.href = 'teachers.html';
-}
-    /* ==================================================
-       LOGOUT
-    ================================================== */
-
-    async function logout() {
-
-        localStorage.removeItem(
-            'schoolLoggedIn'
+    const password =
+        prompt(
+            '🔐 قسم متابعة المعلمين\n\nأدخل كلمة المرور:'
         );
 
-        localStorage.removeItem(
-            'schoolSection'
+
+    if (password === null) {
+
+        return;
+
+    }
+
+
+    if (password !== '240625') {
+
+        alert(
+            '❌ كلمة المرور غير صحيحة.'
         );
 
-        if (
-            typeof notifyPresenceLogout ===
-            'function'
-        ) {
+        return;
 
-            notifyPresenceLogout();
-        }
+    }
 
-        if (
-            typeof stopPresenceMonitoring ===
-            'function'
-        ) {
 
-            stopPresenceMonitoring();
-        }
+    localStorage.setItem(
+        'schoolSection',
+        'teachers'
+    );
 
-        const mainContent =
-            document.getElementById(
-                'mainContent'
+
+    window.location.href =
+        'teachers.html';
+
+}
+
+
+/* ==================================================
+   LOGOUT
+================================================== */
+
+async function logout() {
+
+    localStorage.removeItem(
+        'schoolLoggedIn'
+    );
+
+
+    localStorage.removeItem(
+        'schoolSection'
+    );
+
+
+    if (
+        typeof notifyPresenceLogout ===
+        'function'
+    ) {
+
+        notifyPresenceLogout();
+
+    }
+
+
+    if (
+        typeof stopPresenceMonitoring ===
+        'function'
+    ) {
+
+        stopPresenceMonitoring();
+
+    }
+
+
+    const mainContent =
+        document.getElementById(
+            'mainContent'
+        );
+
+
+    const adminModal =
+        document.getElementById(
+            'adminModal'
+        );
+
+
+    const sectionSelection =
+        document.getElementById(
+            'sectionSelection'
+        );
+
+
+    const loginScreen =
+        document.getElementById(
+            'loginScreen'
+        );
+
+
+    const loginBox =
+        document.querySelector(
+            '.login-box'
+        );
+
+
+    const passInput =
+        document.getElementById(
+            'passInput'
+        );
+
+
+    const errorMsg =
+        document.getElementById(
+            'errorMsg'
+        );
+
+
+    if (mainContent) {
+
+        mainContent.style.display =
+            'none';
+
+    }
+
+
+    if (adminModal) {
+
+        adminModal.style.display =
+            'none';
+
+    }
+
+
+    if (sectionSelection) {
+
+        sectionSelection.style.display =
+            'none';
+
+    }
+
+
+    if (loginScreen) {
+
+        loginScreen.style.display =
+            'flex';
+
+    }
+
+
+    if (loginBox) {
+
+        loginBox.style.display =
+            'block';
+
+    }
+
+
+    if (passInput) {
+
+        passInput.value =
+            '';
+
+        passInput.focus();
+
+    }
+
+
+    if (errorMsg) {
+
+        errorMsg.textContent =
+            '';
+
+        errorMsg.style.display =
+            'none';
+
+    }
+
+}
+
+
+/* ==================================================
+   RESTORE LOGIN STATE
+================================================== */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const loggedIn =
+            localStorage.getItem(
+                'schoolLoggedIn'
             );
 
-        const adminModal =
-            document.getElementById(
-                'adminModal'
+
+        const savedSection =
+            localStorage.getItem(
+                'schoolSection'
             );
 
-        const sectionSelection =
-            document.getElementById(
-                'sectionSelection'
-            );
 
         const loginScreen =
             document.getElementById(
                 'loginScreen'
             );
 
+
         const loginBox =
             document.querySelector(
                 '.login-box'
             );
 
-        const passInput =
+
+        const sectionSelection =
             document.getElementById(
-                'passInput'
+                'sectionSelection'
             );
 
-        const errorMsg =
+
+        const mainContent =
             document.getElementById(
-                'errorMsg'
+                'mainContent'
             );
 
-        if (mainContent) {
 
-            mainContent.style.display =
-                'none';
-        }
-
-        if (adminModal) {
-
-            adminModal.style.display =
-                'none';
-        }
-
-        if (sectionSelection) {
-
-            sectionSelection.style.display =
-                'none';
-        }
-
-        if (loginScreen) {
-
-            loginScreen.style.display =
-                'flex';
-        }
-
-        if (loginBox) {
-
-            loginBox.style.display =
-                'block';
-        }
-
-        if (passInput) {
-
-            passInput.value =
-                '';
-
-            passInput.focus();
-        }
-
-        if (errorMsg) {
-
-            errorMsg.textContent =
-                '';
-
-            errorMsg.style.display =
-                'none';
-        }
-    }
-
-
-    /* ==================================================
-       RESTORE LOGIN STATE
-    ================================================== */
-
-    document.addEventListener(
-        'DOMContentLoaded',
-        function () {
-
-            const loggedIn =
-                localStorage.getItem(
-                    'schoolLoggedIn'
-                );
-
-            const savedSection =
-                localStorage.getItem(
-                    'schoolSection'
-                );
-
-            const loginScreen =
-                document.getElementById(
-                    'loginScreen'
-                );
-
-            const loginBox =
-                document.querySelector(
-                    '.login-box'
-                );
-
-            const sectionSelection =
-                document.getElementById(
-                    'sectionSelection'
-                );
-
-            const mainContent =
-                document.getElementById(
-                    'mainContent'
-                );
-
-
-            /* غير مسجل دخول */
-
-            if (loggedIn !== 'true') {
-
-                localStorage.removeItem(
-                    'schoolLoggedIn'
-                );
-
-                localStorage.removeItem(
-                    'schoolSection'
-                );
-
-                if (loginScreen) {
-
-                    loginScreen.style.display =
-                        'flex';
-                }
-
-                if (loginBox) {
-
-                    loginBox.style.display =
-                        'block';
-                }
-
-                if (sectionSelection) {
-
-                    sectionSelection.style.display =
-                        'none';
-                }
-
-                if (mainContent) {
-
-                    mainContent.style.display =
-                        'none';
-                }
-
-                return;
-            }
-
-
-    
-        
-/* مسجل دخول - الطلاب */
-
-if (savedSection === 'students') {
-
-    if (loginScreen) {
-        loginScreen.style.display = 'none';
-    }
-
-    if (loginBox) {
-        loginBox.style.display = 'none';
-    }
-
-    if (sectionSelection) {
-        sectionSelection.style.display = 'none';
-    }
-
-    if (mainContent) {
-        mainContent.style.display = 'block';
-    }
-
-    return;
-}
-
-
-/* مسجل دخول - بدون اختيار قسم */
-
-if (!savedSection) {
-
-    if (loginScreen) {
-        loginScreen.style.display = 'none';
-    }
-
-    if (loginBox) {
-        loginBox.style.display = 'none';
-    }
-
-    if (sectionSelection) {
-        sectionSelection.style.display = 'flex';
-    }
-
-    if (mainContent) {
-        mainContent.style.display = 'none';
-    }
-
-    return;
-}
-
-
-/* ==================================================
-   حالة دخول غير مكتملة
-================================================== */
-
-localStorage.removeItem(
-    'schoolLoggedIn'
-);
-
-localStorage.removeItem(
-    'schoolSection'
-);
-
-if (loginScreen) {
-    loginScreen.style.display = 'flex';
-}
-
-if (loginBox) {
-    loginBox.style.display = 'block';
-}
-
-if (sectionSelection) {
-    sectionSelection.style.display = 'none';
-}
-
-if (mainContent) {
-    mainContent.style.display = 'none';
-}
-
-
+        if (loggedIn !== 'true') {
 
             localStorage.removeItem(
                 'schoolLoggedIn'
             );
 
+
             localStorage.removeItem(
                 'schoolSection'
             );
+
 
             if (loginScreen) {
 
                 loginScreen.style.display =
                     'flex';
+
             }
+
 
             if (loginBox) {
 
                 loginBox.style.display =
                     'block';
+
             }
+
 
             if (sectionSelection) {
 
                 sectionSelection.style.display =
                     'none';
+
             }
+
 
             if (mainContent) {
 
                 mainContent.style.display =
                     'none';
+
             }
 
+
+            return;
+
         }
-    );
 
 
-    /* ==================================================
-       ENTER KEY
-    ================================================== */
+        if (
+            savedSection ===
+            'students'
+        ) {
 
-    document.addEventListener(
-        'keydown',
-        function (event) {
+            if (loginScreen) {
 
-            if (
-                event.key === 'Enter' &&
-                document.activeElement &&
-                document.activeElement.id ===
-                'passInput'
-            ) {
+                loginScreen.style.display =
+                    'none';
 
-                event.preventDefault();
-
-                checkPassword();
             }
+
+
+            if (loginBox) {
+
+                loginBox.style.display =
+                    'none';
+
+            }
+
+
+            if (sectionSelection) {
+
+                sectionSelection.style.display =
+                    'none';
+
+            }
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    'block';
+
+            }
+
+
+            return;
+
         }
-    );
+
+
+        if (!savedSection) {
+
+            if (loginScreen) {
+
+                loginScreen.style.display =
+                    'none';
+
+            }
+
+
+            if (loginBox) {
+
+                loginBox.style.display =
+                    'none';
+
+            }
+
+
+            if (sectionSelection) {
+
+                sectionSelection.style.display =
+                    'flex';
+
+            }
+
+
+            if (mainContent) {
+
+                mainContent.style.display =
+                    'none';
+
+            }
+
+
+            return;
+
+        }
+
+
+        localStorage.removeItem(
+            'schoolLoggedIn'
+        );
+
+
+        localStorage.removeItem(
+            'schoolSection'
+        );
+
+
+        if (loginScreen) {
+
+            loginScreen.style.display =
+                'flex';
+
+        }
+
+
+        if (loginBox) {
+
+            loginBox.style.display =
+                'block';
+
+        }
+
+
+        if (sectionSelection) {
+
+            sectionSelection.style.display =
+                'none';
+
+        }
+
+
+        if (mainContent) {
+
+            mainContent.style.display =
+                'none';
+
+        }
+
+    }
+);
+
+
+/* ==================================================
+   ENTER KEY
+================================================== */
+
+document.addEventListener(
+    'keydown',
+    function (event) {
+
+        if (
+            event.key === 'Enter' &&
+            document.activeElement &&
+            document.activeElement.id ===
+            'passInput'
+        ) {
+
+            event.preventDefault();
+
+            checkPassword();
+
+        }
+
+    }
+);
 
 </script>
+
+
 <!-- ==================================================
      MAIN JAVASCRIPT
 ================================================== -->
@@ -2485,6 +4365,7 @@ if (mainContent) {
         align-items:center;
     ">
 
+
     <div
         style="
             background:white;
@@ -2496,12 +4377,18 @@ if (mainContent) {
             text-align:center;
         ">
 
+
         <h2>
+
             استعادة كلمة المرور
+
         </h2>
 
+
         <p>
+
             ما هو رقمك المفضل؟
+
         </p>
 
 
@@ -2571,7 +4458,9 @@ if (mainContent) {
             ">
         </p>
 
+
     </div>
+
 
 </div>
 
