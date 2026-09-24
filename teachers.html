@@ -41,6 +41,184 @@
         href="teachers.css"
     >
 
+
+<style>
+/* =========================================================
+   بحث عن معلم
+========================================================= */
+.teacher-search-modal[hidden] {
+    display: none !important;
+}
+
+.teacher-search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+}
+
+.teacher-search-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 18, 40, 0.72);
+    backdrop-filter: blur(4px);
+}
+
+.teacher-search-dialog {
+    position: relative;
+    width: min(1100px, calc(100% - 30px));
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 25px 70px rgba(0,0,0,.30);
+    padding: 24px;
+    color: #17233b;
+}
+
+.teacher-search-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.teacher-search-head h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.teacher-search-close {
+    border: 0;
+    background: #f1f3f7;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 22px;
+}
+
+.teacher-search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.teacher-search-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 15px;
+    border: 1px solid #d8dee8;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+}
+
+.teacher-search-form input:focus {
+    border-color: #c7a33a;
+    box-shadow: 0 0 0 3px rgba(199,163,58,.12);
+}
+
+.teacher-search-summary {
+    margin-bottom: 18px;
+}
+
+.teacher-search-summary-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.teacher-search-counts {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.teacher-search-count {
+    background: #f6f8fb;
+    border: 1px solid #e4e8ef;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+}
+
+.teacher-search-count strong {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.teacher-search-count span {
+    font-size: 12px;
+    color: #667085;
+}
+
+.teacher-search-section {
+    margin-top: 20px;
+    border: 1px solid #e3e7ee;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.teacher-search-section h3 {
+    margin: 0;
+    padding: 13px 16px;
+    background: #f6f8fb;
+    font-size: 17px;
+}
+
+.teacher-search-table-wrap {
+    overflow-x: auto;
+}
+
+.teacher-search-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+.teacher-search-table th,
+.teacher-search-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf0f4;
+    text-align: right;
+    vertical-align: top;
+}
+
+.teacher-search-table th {
+    background: #fbfcfe;
+    font-weight: 800;
+}
+
+.teacher-search-empty {
+    text-align: center;
+    padding: 35px 15px;
+    color: #667085;
+}
+
+@media (max-width: 800px) {
+    .teacher-search-counts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .teacher-search-form {
+        flex-direction: column;
+    }
+
+    .teacher-search-dialog {
+        width: calc(100% - 16px);
+        margin: 8px auto;
+        max-height: calc(100vh - 16px);
+        padding: 16px;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -89,6 +267,17 @@
 
 
         <div class="header-actions">
+
+            <!-- بحث عن معلم -->
+            <button
+                type="button"
+                class="btn btn-gold"
+                onclick="openTeacherSearch()"
+            >
+                <i data-lucide="search"></i>
+                بحث عن معلم
+            </button>
+
 
             <!-- طباعة التقارير -->
 
@@ -1010,6 +1199,10 @@
                                 </th>
 
                                 <th>
+                                    الوقت المتبقي
+                                </th>
+
+                                <th>
                                     ملاحظات
                                 </th>
 
@@ -1562,12 +1755,1335 @@
 </div>
 
 
+
+<!-- =====================================================
+     نافذة البحث عن معلم
+===================================================== -->
+
+<div
+    id="teacher-search-modal"
+    class="teacher-search-modal"
+    hidden
+>
+    <div
+        class="teacher-search-overlay"
+        onclick="closeTeacherSearch()"
+    ></div>
+
+    <div
+        class="teacher-search-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="teacher-search-title"
+    >
+
+        <div class="teacher-search-head">
+
+            <h2 id="teacher-search-title">
+                <i data-lucide="search"></i>
+                البحث عن معلم
+            </h2>
+
+            <button
+                type="button"
+                class="teacher-search-close"
+                onclick="closeTeacherSearch()"
+                aria-label="إغلاق"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            class="teacher-search-form"
+            onsubmit="searchTeacher(event)"
+        >
+
+            <input
+                type="text"
+                id="teacher-search-input"
+                autocomplete="off"
+                placeholder="اكتب اسم المعلم أو جزءًا منه..."
+            >
+
+            <button
+                type="submit"
+                class="btn btn-navy"
+            >
+                <i data-lucide="search"></i>
+                بحث
+            </button>
+
+          <button
+    type="button"
+    class="btn btn-outline"
+    onclick="clearTeacherSearch()"
+>
+    مسح
+</button>
+
+<button
+    type="button"
+    id="print-teacher-search-btn"
+    class="btn btn-navy"
+>
+    <i data-lucide="printer"></i>
+    طباعة النتائج
+</button>
+
+        </form>
+
+
+        <div
+            id="teacher-search-summary"
+            class="teacher-search-summary"
+        ></div>
+
+
+        <div
+            id="teacher-search-results"
+        ></div>
+
+    </div>
+</div>
+
+
+
+
+
 <!-- =====================================================
      JavaScript
 ===================================================== -->
 
 <script src="teachers.js"></script>
 
+<script>
+
+    
+/* =========================================================
+   SEARCH TEACHER
+   يعمل مباشرة على البيانات المحملة في teachers.js
+========================================================= */
+
+function normalizeTeacherSearch(value) {
+
+    return String(value ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ى/g, 'ي')
+        .replace(/ؤ/g, 'و')
+        .replace(/ئ/g, 'ي')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+}
+
+
+function teacherNameMatches(name, query) {
+
+    const normalizedName =
+        normalizeTeacherSearch(name);
+
+    const terms =
+        normalizeTeacherSearch(query)
+            .split(' ')
+            .filter(Boolean);
+
+    if (!normalizedName || !terms.length) {
+
+        return false;
+
+    }
+
+    return terms.every(
+        term =>
+            normalizedName.includes(term)
+    );
+
+}
+
+
+function openTeacherSearch() {
+
+    const modal =
+        document.getElementById(
+            'teacher-search-modal'
+        );
+
+    if (!modal) {
+        return;
+    }
+
+    modal.hidden = false;
+
+    const input =
+        document.getElementById(
+            'teacher-search-input'
+        );
+
+    if (input) {
+
+        input.value = '';
+
+        setTimeout(
+            () => input.focus(),
+            50
+        );
+
+    }
+
+    const summary =
+        document.getElementById(
+            'teacher-search-summary'
+        );
+
+    const results =
+        document.getElementById(
+            'teacher-search-results'
+        );
+
+    if (summary) {
+        summary.innerHTML = '';
+    }
+
+    if (results) {
+        results.innerHTML =
+            '<div class="teacher-search-empty">' +
+            'اكتب اسم المعلم ثم اضغط «بحث» لعرض جميع سجلاته.' +
+            '</div>';
+    }
+
+    if (
+        typeof lucide !== 'undefined'
+    ) {
+
+        lucide.createIcons();
+
+    }
+
+}
+
+
+function closeTeacherSearch() {
+
+    const modal =
+        document.getElementById(
+            'teacher-search-modal'
+        );
+
+    if (modal) {
+
+        modal.hidden = true;
+
+    }
+
+}
+
+
+function clearTeacherSearch() {
+
+    const input =
+        document.getElementById(
+            'teacher-search-input'
+        );
+
+    if (input) {
+
+        input.value = '';
+
+        input.focus();
+
+    }
+
+    const summary =
+        document.getElementById(
+            'teacher-search-summary'
+        );
+
+    const results =
+        document.getElementById(
+            'teacher-search-results'
+        );
+
+    if (summary) {
+
+        summary.innerHTML = '';
+
+    }
+
+    if (results) {
+
+        results.innerHTML =
+            '<div class="teacher-search-empty">' +
+            'اكتب اسم المعلم ثم اضغط «بحث» لعرض جميع سجلاته.' +
+            '</div>';
+
+    }
+
+}
+
+
+function getTeacherSearchData() {
+
+    if (
+        typeof teachersData !== 'object' ||
+        !teachersData
+    ) {
+
+        return {
+            absence: [],
+            written: [],
+            committees: [],
+            tardiness: [],
+            duty: [],
+            notes: []
+        };
+
+    }
+
+    return {
+
+        absence:
+            Array.isArray(
+                teachersData.absence
+            )
+                ? teachersData.absence
+                : [],
+
+        written:
+            Array.isArray(
+                teachersData.written
+            )
+                ? teachersData.written
+                : [],
+
+        committees:
+            Array.isArray(
+                teachersData.committees
+            )
+                ? teachersData.committees
+                : [],
+
+        tardiness:
+            Array.isArray(
+                teachersData.tardiness
+            )
+                ? teachersData.tardiness
+                : [],
+
+        duty:
+            Array.isArray(
+                teachersData.duty
+            )
+                ? teachersData.duty
+                : [],
+
+        notes:
+            Array.isArray(
+                teachersData.notes
+            )
+                ? teachersData.notes
+                : []
+
+    };
+
+}
+
+
+function searchTeacher(event) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+    const input =
+        document.getElementById(
+            'teacher-search-input'
+        );
+
+    const query =
+        input
+            ? input.value.trim()
+            : '';
+
+    const summary =
+        document.getElementById(
+            'teacher-search-summary'
+        );
+
+    const results =
+        document.getElementById(
+            'teacher-search-results'
+        );
+
+    if (!query) {
+
+        if (summary) {
+
+            summary.innerHTML = '';
+
+        }
+
+        if (results) {
+
+            results.innerHTML =
+                '<div class="teacher-search-empty">' +
+                'يرجى كتابة اسم المعلم للبحث.' +
+                '</div>';
+
+        }
+
+        if (input) {
+
+            input.focus();
+
+        }
+
+        return;
+
+    }
+
+
+    const data =
+        getTeacherSearchData();
+
+
+    const found = {
+
+        absence:
+            data.absence.filter(
+                item =>
+                    teacherNameMatches(
+                        item.name,
+                        query
+                    )
+            ),
+
+        written:
+            data.written.filter(
+                item =>
+                    teacherNameMatches(
+                        item.name,
+                        query
+                    )
+            ),
+
+        committees:
+            data.committees.filter(
+                item =>
+                    teacherNameMatches(
+                        item.name,
+                        query
+                    )
+            ),
+
+        tardiness:
+            data.tardiness.filter(
+                item =>
+                    teacherNameMatches(
+                        item.name,
+                        query
+                    )
+            ),
+
+        duty:
+            data.duty.filter(
+                item =>
+                    teacherNameMatches(
+                        item.name,
+                        query
+                    )
+            ),
+
+        notes:
+            data.notes.filter(
+                item =>
+                    teacherNameMatches(
+                        item.name,
+                        query
+                    )
+            )
+
+    };
+
+
+    const total =
+        found.absence.length +
+        found.written.length +
+        found.committees.length +
+        found.tardiness.length +
+        found.duty.length +
+        found.notes.length;
+
+
+    if (summary) {
+
+        summary.innerHTML =
+
+            '<div class="teacher-search-summary-title">' +
+                'نتائج البحث عن: «' +
+                escapeHtml(query) +
+                '»' +
+            '</div>' +
+
+            '<div class="teacher-search-counts">' +
+
+                searchCountCard(
+                    found.absence.length,
+                    'الغياب'
+                ) +
+
+                searchCountCard(
+                    found.written.length,
+                    'الأعمال الكتابية'
+                ) +
+
+                searchCountCard(
+                    found.committees.length,
+                    'أعمال اللجان'
+                ) +
+
+                searchCountCard(
+                    found.tardiness.length,
+                    'التأخير'
+                ) +
+
+                searchCountCard(
+                    found.duty.length,
+                    'المناوبة'
+                ) +
+
+                searchCountCard(
+                    found.notes.length,
+                    'الملاحظات'
+                ) +
+
+            '</div>' +
+
+            '<div style="margin-top:12px;font-weight:700;">' +
+                'إجمالي السجلات: ' +
+                total +
+            '</div>';
+
+    }
+
+
+    if (!total) {
+
+        if (results) {
+
+            results.innerHTML =
+                '<div class="teacher-search-empty">' +
+                'لم يتم العثور على أي سجل لهذا الاسم.' +
+                '</div>';
+
+        }
+
+        return;
+
+    }
+
+
+    let html = '';
+
+
+    if (found.absence.length) {
+
+        html +=
+            buildSearchTable(
+                'رصد الغياب',
+                [
+                    'اسم المعلم',
+                    'التاريخ',
+                    'سبب الغياب',
+                    'النموذج الإلكتروني'
+                ],
+                found.absence.map(
+                    item => [
+                        item.name,
+                        item.date,
+                        item.reason,
+                        item.formStatus
+                    ]
+                )
+            );
+
+    }
+
+
+    if (found.written.length) {
+
+        html +=
+            buildSearchTable(
+                'الأعمال الكتابية',
+                [
+                    'اسم المعلم',
+                    'نوع العمل',
+                    'تاريخ التسليم'
+                ],
+                found.written.map(
+                    item => [
+                        item.name,
+                        item.title,
+                        item.date
+                    ]
+                )
+            );
+
+    }
+
+
+    if (found.committees.length) {
+
+        html +=
+            buildSearchTable(
+                'أعمال اللجان',
+                [
+                    'اسم اللجنة',
+                    'اسم المعلم',
+                    'الكتاب الرسمي',
+                    'العمل المكلف فيه',
+                    'تاريخ التسليم',
+                    'الحالة',
+                    'ملاحظات'
+                ],
+                found.committees.map(
+                    item => [
+                        item.title,
+                        item.name,
+                        item.officialBook,
+                        item.assignedWork,
+                        item.dueDate,
+                        item.status,
+                        item.note
+                    ]
+                )
+            );
+
+    }
+
+
+    if (found.tardiness.length) {
+
+        html +=
+            buildSearchTable(
+                'الحضور والتأخير',
+                [
+                    'اسم المعلم',
+                    'التاريخ',
+                    'وقت الحضور',
+                    'الملاحظة'
+                ],
+                found.tardiness.map(
+                    item => [
+                        item.name,
+                        item.date,
+                        item.time,
+                        item.note
+                    ]
+                )
+            );
+
+    }
+
+
+    if (found.duty.length) {
+
+        html +=
+            buildSearchTable(
+                'المناوبة اليومية',
+                [
+                    'اسم المعلم',
+                    'التاريخ',
+                    'حالة الالتزام',
+                    'الملاحظة'
+                ],
+                found.duty.map(
+                    item => [
+                        item.name,
+                        item.date,
+                        item.status,
+                        item.note
+                    ]
+                )
+            );
+
+    }
+
+
+    if (found.notes.length) {
+
+        html +=
+            buildSearchTable(
+                'الملاحظات الإدارية',
+                [
+                    'اسم المعلم',
+                    'التاريخ',
+                    'الملاحظة الإدارية'
+                ],
+                found.notes.map(
+                    item => [
+                        item.name,
+                        item.date,
+                        item.note ??
+                        item.text ??
+                        item.details ??
+                        ''
+                    ]
+                )
+            );
+
+    }
+
+
+    if (results) {
+
+        results.innerHTML = html;
+
+    }
+
+}
+
+
+function searchCountCard(
+    count,
+    title
+) {
+
+    return (
+
+        '<div class="teacher-search-count">' +
+
+            '<strong>' +
+                count +
+            '</strong>' +
+
+            '<span>' +
+                escapeHtml(title) +
+            '</span>' +
+
+        '</div>'
+
+    );
+
+}
+
+
+function buildSearchTable(
+    title,
+    headers,
+    rows
+) {
+
+    let html =
+
+        '<section class="teacher-search-section">' +
+
+            '<h3>' +
+                escapeHtml(title) +
+                ' (' +
+                rows.length +
+                ')' +
+            '</h3>' +
+
+            '<div class="teacher-search-table-wrap">' +
+
+                '<table class="teacher-search-table">' +
+
+                    '<thead><tr>';
+
+
+    headers.forEach(
+        header => {
+
+            html +=
+                '<th>' +
+                escapeHtml(header) +
+                '</th>';
+
+        }
+    );
+
+
+    html +=
+                    '</tr></thead>' +
+                    '<tbody>';
+
+
+    rows.forEach(
+        row => {
+
+            html += '<tr>';
+
+            row.forEach(
+                cell => {
+
+                    html +=
+                        '<td>' +
+                        escapeHtml(
+                            cell
+                        ) +
+                        '</td>';
+
+                }
+            );
+
+            html += '</tr>';
+
+        }
+    );
+
+
+    html +=
+                    '</tbody>' +
+                '</table>' +
+
+            '</div>' +
+
+        '</section>';
+
+
+    return html;
+
+}
+
+
+document.addEventListener(
+    'keydown',
+    function(event) {
+
+        if (
+            event.key === 'Escape'
+        ) {
+
+            const modal =
+                document.getElementById(
+                    'teacher-search-modal'
+                );
+
+            if (
+                modal &&
+                !modal.hidden
+            ) {
+
+                closeTeacherSearch();
+
+            }
+
+        }
+
+    }
+);
+
+
+
+
+</script>
+
+
+<script>
+
+    /* =========================================================
+       طباعة نتائج البحث عن معلم
+    ========================================================= */
+    
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+    
+            const printButton =
+                document.getElementById(
+                    'print-teacher-search-btn'
+                );
+    
+            if (!printButton) {
+                return;
+            }
+    
+    
+            printButton.addEventListener(
+                'click',
+                function () {
+    
+                    const results =
+                        document.getElementById(
+                            'teacher-search-results'
+                        );
+    
+                    const input =
+                        document.getElementById(
+                            'teacher-search-input'
+                        );
+    
+                    const query =
+                        input
+                            ? input.value.trim()
+                            : '';
+    
+    
+                    if (!query) {
+    
+                        alert(
+                            'يرجى البحث عن معلم أولاً.'
+                        );
+    
+                        return;
+                    }
+    
+    
+                    if (
+                        !results ||
+                        !results.innerHTML.trim() ||
+                        results.innerText.includes(
+                            'لم يتم العثور على أي سجل'
+                        )
+                    ) {
+    
+                        alert(
+                            'لا توجد نتائج لطباعتها.'
+                        );
+    
+                        return;
+                    }
+    
+    
+                    /* =====================================
+                       إنشاء منطقة الطباعة
+                    ===================================== */
+    
+                    const printArea =
+                        document.createElement(
+                            'div'
+                        );
+    
+                    printArea.id =
+                        'teacher-print-area';
+    
+    
+                    printArea.innerHTML = `
+    
+                        <div class="teacher-print-header">
+    
+                            <h1>
+                                مدرسة ذكور المستقبل الصالح الأساسية العليا
+                            </h1>
+    
+                            <h2>
+                                تقرير متابعة معلم
+                            </h2>
+    
+                        </div>
+    
+    
+                        <div class="teacher-print-name">
+    
+                            المعلم:
+                            ${
+                                typeof escapeHtml === 'function'
+                                    ? escapeHtml(query)
+                                    : query
+                            }
+    
+                        </div>
+    
+    
+                        <div class="teacher-print-results">
+    
+                            ${results.innerHTML}
+    
+                        </div>
+    
+    
+                        <!-- =================================
+                             توقيع المدير
+                        ================================== -->
+    
+                        <div class="teacher-print-signature">
+    
+                            <div class="signature-line"></div>
+    
+                            <div class="manager-title">
+                                مدير المدرسة
+                            </div>
+    
+                            <div class="manager-name">
+                                أ. سمير مصلح
+                            </div>
+    
+                            <div class="signature-text">
+                                التوقيع: ______________________
+                            </div>
+    
+                        </div>
+    
+                    `;
+    
+    
+                    document.body.appendChild(
+                        printArea
+                    );
+    
+    
+                    /* =====================================
+                       CSS خاص بالطباعة
+                    ===================================== */
+    
+                    const printStyle =
+                        document.createElement(
+                            'style'
+                        );
+    
+                    printStyle.id =
+                        'teacher-print-style';
+    
+    
+                    printStyle.textContent = `
+    
+                        @media print {
+    
+                            body > * {
+                                display: none !important;
+                            }
+    
+    
+                            #teacher-print-area {
+    
+                                display: block !important;
+    
+                                direction: rtl;
+    
+                                width: 100%;
+    
+                                padding: 10px;
+    
+                                box-sizing: border-box;
+    
+                                font-family:
+                                    Tahoma,
+                                    Arial,
+                                    sans-serif;
+    
+                                color: #17233b;
+    
+                                background: #ffffff;
+    
+                            }
+    
+    
+                            .teacher-print-header {
+    
+                                display: block;
+    
+                                text-align: center;
+    
+                                border-bottom:
+                                    3px solid #17233b;
+    
+                                padding-bottom: 15px;
+    
+                                margin-bottom: 20px;
+    
+                            }
+    
+    
+                            .teacher-print-header h1 {
+    
+                                margin:
+                                    0 0 8px;
+    
+                                font-size:
+                                    23px;
+    
+                            }
+    
+    
+                            .teacher-print-header h2 {
+    
+                                margin: 0;
+    
+                                font-size:
+                                    18px;
+    
+                            }
+    
+    
+                            .teacher-print-name {
+    
+                                text-align: center;
+    
+                                font-size:
+                                    20px;
+    
+                                font-weight:
+                                    bold;
+    
+                                padding:
+                                    12px;
+    
+                                margin-bottom:
+                                    20px;
+    
+                                background:
+                                    #f5f6f8;
+    
+                                border:
+                                    1px solid #999;
+    
+                            }
+    
+    
+                            .teacher-search-section {
+    
+                                display: block;
+    
+                                margin-bottom:
+                                    25px;
+    
+                                page-break-inside:
+                                    avoid;
+    
+                            }
+    
+    
+                            .teacher-search-section h3 {
+    
+                                margin: 0;
+    
+                                padding: 10px;
+    
+                                background:
+                                    #eeeeee;
+    
+                                border:
+                                    1px solid #888;
+    
+                                font-size:
+                                    16px;
+    
+                            }
+    
+    
+                            .teacher-search-table {
+    
+                                width: 100%;
+    
+                                border-collapse:
+                                    collapse;
+    
+                            }
+    
+    
+                            .teacher-search-table th,
+    
+                            .teacher-search-table td {
+    
+                                border:
+                                    1px solid #888;
+    
+                                padding:
+                                    7px;
+    
+                                text-align:
+                                    right;
+    
+                                vertical-align:
+                                    top;
+    
+                                font-size:
+                                    11px;
+    
+                                line-height:
+                                    1.5;
+    
+                            }
+    
+    
+                            .teacher-search-table th {
+    
+                                background:
+                                    #eeeeee;
+    
+                                font-weight:
+                                    bold;
+    
+                            }
+    
+    
+                            .teacher-search-table tr {
+    
+                                page-break-inside:
+                                    avoid;
+    
+                            }
+    
+    
+                            /* =================================
+                               توقيع المدير
+                            ================================== */
+    
+                            .teacher-print-signature {
+    
+                                margin-top: 60px;
+    
+                                margin-right: 60%;
+    
+                                width: 35%;
+    
+                                text-align: center;
+    
+                                page-break-inside:
+                                    avoid;
+    
+                            }
+    
+    
+                            .signature-line {
+    
+                                border-top:
+                                    1px solid #555;
+    
+                                margin-bottom:
+                                    10px;
+    
+                            }
+    
+    
+                            .manager-title {
+    
+                                font-size:
+                                    15px;
+    
+                                font-weight:
+                                    bold;
+    
+                                margin-bottom:
+                                    6px;
+    
+                            }
+    
+    
+                            .manager-name {
+    
+                                font-size:
+                                    16px;
+    
+                                font-weight:
+                                    bold;
+    
+                                margin-bottom:
+                                    15px;
+    
+                            }
+    
+    
+                            .signature-text {
+    
+                                font-size:
+                                    13px;
+    
+                                margin-top:
+                                    8px;
+    
+                            }
+    
+    
+                            @page {
+    
+                                size: A4;
+    
+                                margin: 10mm;
+    
+                            }
+    
+                        }
+    
+    
+                        @media screen {
+    
+                            #teacher-print-area {
+    
+                                display: none;
+    
+                            }
+    
+                        }
+    
+                    `;
+    
+    
+                    document.head.appendChild(
+                        printStyle
+                    );
+    
+    
+                    /* =====================================
+                       تشغيل الطباعة
+                    ===================================== */
+    
+                    setTimeout(
+                        function () {
+    
+                            window.print();
+    
+                        },
+                        300
+                    );
+    
+    
+                    /* =====================================
+                       تنظيف بعد الطباعة
+                    ===================================== */
+    
+                    const cleanup =
+                        function () {
+    
+                            const area =
+                                document.getElementById(
+                                    'teacher-print-area'
+                                );
+    
+                            const style =
+                                document.getElementById(
+                                    'teacher-print-style'
+                                );
+    
+    
+                            if (area) {
+                                area.remove();
+                            }
+    
+    
+                            if (style) {
+                                style.remove();
+                            }
+    
+    
+                            window.removeEventListener(
+                                'afterprint',
+                                cleanup
+                            );
+    
+                        };
+    
+    
+                    window.addEventListener(
+                        'afterprint',
+                        cleanup
+                    );
+    
+                }
+            );
+    
+        }
+    );
+    
+    </script>
 </body>
 
 </html>
