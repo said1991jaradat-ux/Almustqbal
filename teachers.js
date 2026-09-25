@@ -17,6 +17,272 @@ const TEACHERS_API_URL =
 
 
 /* =========================================================
+   PRESENCE (المتصلون الآن)
+========================================================= */
+
+const PRESENCE_BASE_URL =
+    'https://almustqbal.onrender.com';
+
+let presenceInterval = null;
+
+let presenceStarted = false;
+
+
+/* نفس معرف المتصفح المستخدم في صفحة الطلاب */
+
+let presenceClientId =
+    localStorage.getItem(
+        'schoolPresenceClientId'
+    );
+
+
+if (!presenceClientId) {
+
+    if (
+        typeof crypto !== 'undefined' &&
+        typeof crypto.randomUUID === 'function'
+    ) {
+
+        presenceClientId =
+            crypto.randomUUID();
+
+    } else {
+
+        presenceClientId =
+            Date.now().toString(36) +
+            '-' +
+            Math.random()
+                .toString(36)
+                .substring(2);
+
+    }
+
+    localStorage.setItem(
+        'schoolPresenceClientId',
+        presenceClientId
+    );
+
+}
+
+
+function updateOnlineUsersCount(
+    count
+) {
+
+    const element =
+        document.getElementById(
+            'onlineUsersCount'
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            Number(count) || 0;
+
+    }
+
+}
+
+
+async function sendPresenceHeartbeat() {
+
+    if (!presenceStarted) {
+
+        return;
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${PRESENCE_BASE_URL}/api/presence/heartbeat`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        clientId: presenceClientId
+                    })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            data &&
+            data.success
+        ) {
+
+            updateOnlineUsersCount(
+                data.count
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Presence heartbeat error:',
+            error
+        );
+
+    }
+
+}
+
+
+function startPresenceMonitoring() {
+
+    if (presenceStarted) {
+
+        return;
+
+    }
+
+
+    presenceStarted =
+        true;
+
+
+    sendPresenceHeartbeat();
+
+
+    presenceInterval =
+        setInterval(
+            sendPresenceHeartbeat,
+            20000
+        );
+
+}
+
+
+function stopPresenceMonitoring() {
+
+    presenceStarted =
+        false;
+
+
+    if (presenceInterval) {
+
+        clearInterval(
+            presenceInterval
+        );
+
+
+        presenceInterval =
+            null;
+
+    }
+
+
+    updateOnlineUsersCount(
+        0
+    );
+
+}
+
+
+async function notifyPresenceLogout() {
+
+    if (!presenceClientId) {
+        return false;
+    }
+
+    const payload = JSON.stringify({
+        clientId: presenceClientId
+    });
+
+    try {
+
+        const response = await fetch(
+            `${PRESENCE_BASE_URL}/api/presence/logout`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: payload,
+
+                keepalive: true
+            }
+        );
+
+        if (!response.ok) {
+
+            console.error(
+                'Presence logout failed:',
+                response.status
+            );
+
+            return false;
+        }
+
+        const data = await response.json();
+
+        if (
+            data &&
+            data.success
+        ) {
+
+            updateOnlineUsersCount(
+                data.count
+            );
+
+            return true;
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Presence logout error:',
+            error
+        );
+
+    }
+
+    return false;
+}
+
+
+document.addEventListener(
+    'DOMContentLoaded',
+    startPresenceMonitoring
+);
+
+
+window.addEventListener(
+    'pagehide',
+    function () {
+
+        if (presenceStarted) {
+
+            notifyPresenceLogout();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
    DATA
 ========================================================= */
 
@@ -124,10 +390,18 @@ async function apiRequest(
     options = {}
 ) {
 
+    const token =
+        localStorage.getItem('schoolAuthToken');
+
+    const headers = {
+        ...(options.headers || {}),
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+
     const response =
         await fetch(
             url,
-            options
+            { ...options, headers }
         );
 
     let result = null;
@@ -2686,81 +2960,1719 @@ function updateDashboard() {
 
 
 /* =========================================================
-   EXPORT
+   EXPORT DATA
+   Excel + PDF
 ========================================================= */
 
 function exportData() {
 
-    const data = {
-
-        absence:
-            teachersData.absence,
-
-        written:
-            teachersData.written,
-
-        committees:
-            teachersData.committees,
-
-        tardiness:
-            teachersData.tardiness,
-
-        duty:
-            teachersData.duty,
-
-        notes:
-            teachersData.notes
-
-    };
+    const choice = prompt(
+        'اختر نوع التصدير:\n\n' +
+        '1 - Excel\n' +
+        '2 - PDF\n\n' +
+        'أدخل رقم الخيار:'
+    );
 
 
-    const blob =
-        new Blob(
+    if (choice === null) {
+
+        return;
+
+    }
+
+
+    const selected =
+        choice.trim();
+
+
+    if (selected === '1') {
+
+        exportTeachersToExcel();
+
+        return;
+
+    }
+
+
+    if (selected === '2') {
+
+        exportTeachersToPDF();
+
+        return;
+
+    }
+
+
+    alert(
+        'الخيار غير صحيح.\nيرجى اختيار 1 أو 2.'
+    );
+
+}
+
+
+/* =========================================================
+   EXPORT TO EXCEL
+========================================================= */
+
+function exportTeachersToExcel() {
+
+    if (
+        typeof XLSX === 'undefined'
+    ) {
+
+        alert(
+            'تعذر تحميل مكتبة Excel.\n' +
+            'تأكد من وجود اتصال بالإنترنت ثم أعد المحاولة.'
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const workbook =
+            XLSX.utils.book_new();
+
+
+        /* =================================================
+           الغياب
+        ================================================= */
+
+        const absenceData = [
+
             [
-                JSON.stringify(
-                    data,
-                    null,
-                    2
-                )
-            ],
-            {
-                type:
-                    'application/json'
+                'اسم المعلم',
+                'التاريخ',
+                'سبب الغياب',
+                'حالة النموذج'
+            ]
+
+        ];
+
+
+        teachersData.absence.forEach(
+            record => {
+
+                absenceData.push([
+
+                    record.name || '',
+
+                    record.date || '',
+
+                    record.reason || '',
+
+                    record.formStatus || ''
+
+                ]);
+
             }
         );
 
 
-    const url =
-        URL.createObjectURL(
-            blob
+        const absenceSheet =
+            XLSX.utils.aoa_to_sheet(
+                absenceData
+            );
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            absenceSheet,
+            'الغياب'
         );
 
 
-    const a =
-        document.createElement(
-            'a'
+        /* =================================================
+           الأعمال الكتابية
+        ================================================= */
+
+        const writtenData = [
+
+            [
+                'اسم المعلم',
+                'العمل / العنوان',
+                'التاريخ'
+            ]
+
+        ];
+
+
+        teachersData.written.forEach(
+            record => {
+
+                writtenData.push([
+
+                    record.name || '',
+
+                    record.title || '',
+
+                    record.date || ''
+
+                ]);
+
+            }
         );
 
 
-    a.href = url;
-
-    a.download =
-        'teachers-management-backup.json';
-
-
-    document
-        .body
-        .appendChild(a);
+        const writtenSheet =
+            XLSX.utils.aoa_to_sheet(
+                writtenData
+            );
 
 
-    a.click();
+        XLSX.utils.book_append_sheet(
+            workbook,
+            writtenSheet,
+            'الأعمال الكتابية'
+        );
 
-    a.remove();
+
+        /* =================================================
+           أعمال اللجان
+        ================================================= */
+
+        const committeesData = [
+
+            [
+                'اللجنة',
+                'اسم المعلم',
+                'الكتاب الرسمي',
+                'العمل المكلف به',
+                'تاريخ التسليم',
+                'الحالة',
+                'الوقت المتبقي',
+                'الملاحظات'
+            ]
+
+        ];
 
 
-    URL.revokeObjectURL(
-        url
-    );
+        teachersData.committees.forEach(
+            record => {
+
+                const remaining =
+                    getRemainingTime(
+                        record.dueDate,
+                        record.status
+                    );
+
+
+                committeesData.push([
+
+                    record.title || '',
+
+                    record.name || '',
+
+                    record.officialBook || '',
+
+                    record.assignedWork || '',
+
+                    record.dueDate || '',
+
+                    record.status || '',
+
+                    remaining &&
+                    remaining.text
+                        ? remaining.text
+                        : '',
+
+                    record.note || ''
+
+                ]);
+
+            }
+        );
+
+
+        const committeesSheet =
+            XLSX.utils.aoa_to_sheet(
+                committeesData
+            );
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            committeesSheet,
+            'أعمال اللجان'
+        );
+
+
+        /* =================================================
+           التأخير
+        ================================================= */
+
+        const tardinessData = [
+
+            [
+                'اسم المعلم',
+                'التاريخ',
+                'وقت التأخير',
+                'الملاحظات'
+            ]
+
+        ];
+
+
+        teachersData.tardiness.forEach(
+            record => {
+
+                tardinessData.push([
+
+                    record.name || '',
+
+                    record.date || '',
+
+                    record.time || '',
+
+                    record.note || ''
+
+                ]);
+
+            }
+        );
+
+
+        const tardinessSheet =
+            XLSX.utils.aoa_to_sheet(
+                tardinessData
+            );
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            tardinessSheet,
+            'التأخير'
+        );
+
+
+        /* =================================================
+           المناوبة
+        ================================================= */
+
+        const dutyData = [
+
+            [
+                'اسم المعلم',
+                'التاريخ',
+                'الحالة',
+                'الملاحظات'
+            ]
+
+        ];
+
+
+        teachersData.duty.forEach(
+            record => {
+
+                dutyData.push([
+
+                    record.name || '',
+
+                    record.date || '',
+
+                    record.status || '',
+
+                    record.note || ''
+
+                ]);
+
+            }
+        );
+
+
+        const dutySheet =
+            XLSX.utils.aoa_to_sheet(
+                dutyData
+            );
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            dutySheet,
+            'المناوبة'
+        );
+
+
+        /* =================================================
+           الملاحظات
+        ================================================= */
+
+        const notesData = [
+
+            [
+                'اسم المعلم',
+                'التاريخ',
+                'الملاحظات'
+            ]
+
+        ];
+
+
+        teachersData.notes.forEach(
+            record => {
+
+                notesData.push([
+
+                    record.name || '',
+
+                    record.date || '',
+
+                    record.note ||
+                    record.text ||
+                    record.details ||
+                    ''
+
+                ]);
+
+            }
+        );
+
+
+        const notesSheet =
+            XLSX.utils.aoa_to_sheet(
+                notesData
+            );
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            notesSheet,
+            'الملاحظات'
+        );
+
+
+        /* =================================================
+           الملخص
+        ================================================= */
+
+        const totalRecords =
+            teachersData.absence.length +
+            teachersData.written.length +
+            teachersData.committees.length +
+            teachersData.tardiness.length +
+            teachersData.duty.length +
+            teachersData.notes.length;
+
+
+        const summaryData = [
+
+            [
+                'القسم',
+                'عدد السجلات'
+            ],
+
+            [
+                'الغياب',
+                teachersData.absence.length
+            ],
+
+            [
+                'الأعمال الكتابية',
+                teachersData.written.length
+            ],
+
+            [
+                'أعمال اللجان',
+                teachersData.committees.length
+            ],
+
+            [
+                'التأخير',
+                teachersData.tardiness.length
+            ],
+
+            [
+                'المناوبة',
+                teachersData.duty.length
+            ],
+
+            [
+                'الملاحظات',
+                teachersData.notes.length
+            ],
+
+            [
+                'إجمالي السجلات',
+                totalRecords
+            ]
+
+        ];
+
+
+        const summarySheet =
+            XLSX.utils.aoa_to_sheet(
+                summaryData
+            );
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            summarySheet,
+            'الملخص'
+        );
+
+
+        /* =================================================
+           ضبط عرض الأعمدة
+        ================================================= */
+
+        const sheets =
+            workbook.SheetNames;
+
+
+        sheets.forEach(
+            sheetName => {
+
+                const sheet =
+                    workbook.Sheets[
+                        sheetName
+                    ];
+
+
+                const range =
+                    XLSX.utils.decode_range(
+                        sheet['!ref']
+                    );
+
+
+                const widths = [];
+
+
+                for (
+                    let column =
+                        range.s.c;
+
+                    column <= range.e.c;
+
+                    column++
+                ) {
+
+                    let maxLength = 12;
+
+
+                    for (
+                        let row =
+                            range.s.r;
+
+                        row <= range.e.r;
+
+                        row++
+                    ) {
+
+                        const cellAddress =
+                            XLSX.utils.encode_cell({
+
+                                r: row,
+
+                                c: column
+
+                            });
+
+
+                        const cell =
+                            sheet[
+                                cellAddress
+                            ];
+
+
+                        if (
+                            cell &&
+                            cell.v !== undefined &&
+                            cell.v !== null
+                        ) {
+
+                            const length =
+                                String(
+                                    cell.v
+                                ).length;
+
+
+                            if (
+                                length >
+                                maxLength
+                            ) {
+
+                                maxLength =
+                                    length;
+
+                            }
+
+                        }
+
+                    }
+
+
+                    widths.push({
+
+                        wch:
+                            Math.min(
+                                Math.max(
+                                    maxLength + 2,
+                                    12
+                                ),
+                                45
+                            )
+
+                    });
+
+                }
+
+
+                sheet['!cols'] =
+                    widths;
+
+            }
+        );
+
+
+        /* =================================================
+           اسم الملف
+        ================================================= */
+
+        const today =
+            new Date()
+                .toLocaleDateString(
+                    'en-CA',
+                    {
+                        timeZone:
+                            'Asia/Gaza'
+                    }
+                );
+
+
+        const fileName =
+            `تقرير_إدارة_المعلمين_${today}.xlsx`;
+
+
+        XLSX.writeFile(
+            workbook,
+            fileName
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            'Excel export error:',
+            error
+        );
+
+
+        alert(
+            'حدث خطأ أثناء تصدير ملف Excel.'
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EXPORT TO PDF
+   يستخدم نافذة الطباعة في المتصفح
+   ثم يمكن اختيار Save as PDF
+========================================================= */
+
+function exportTeachersToPDF() {
+
+    try {
+
+        const printWindow =
+            window.open(
+                '',
+                '_blank'
+            );
+
+
+        if (!printWindow) {
+
+            alert(
+                'يرجى السماح بالنوافذ المنبثقة حتى يتم إنشاء ملف PDF.'
+            );
+
+            return;
+
+        }
+
+
+        const totalRecords =
+            teachersData.absence.length +
+            teachersData.written.length +
+            teachersData.committees.length +
+            teachersData.tardiness.length +
+            teachersData.duty.length +
+            teachersData.notes.length;
+
+
+        /* =================================================
+           الغياب
+        ================================================= */
+
+        const absenceRows =
+            teachersData.absence
+                .map(
+                    record => `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.name
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.date
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.reason
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.formStatus
+                                )}
+                            </td>
+
+                        </tr>
+
+                    `
+                )
+                .join('');
+
+
+        /* =================================================
+           الأعمال الكتابية
+        ================================================= */
+
+        const writtenRows =
+            teachersData.written
+                .map(
+                    record => `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.name
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.title
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.date
+                                )}
+                            </td>
+
+                        </tr>
+
+                    `
+                )
+                .join('');
+
+
+        /* =================================================
+           أعمال اللجان
+        ================================================= */
+
+        const committeeRows =
+            teachersData.committees
+                .map(
+                    record => {
+
+                        const remaining =
+                            getRemainingTime(
+                                record.dueDate,
+                                record.status
+                            );
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.title
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.name
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.officialBook
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.assignedWork
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.dueDate
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.status
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        remaining &&
+                                        remaining.text
+                                            ? remaining.text
+                                            : ''
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.note
+                                    )}
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+                )
+                .join('');
+
+
+        /* =================================================
+           التأخير
+        ================================================= */
+
+        const tardinessRows =
+            teachersData.tardiness
+                .map(
+                    record => `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.name
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.date
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.time
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.note
+                                )}
+                            </td>
+
+                        </tr>
+
+                    `
+                )
+                .join('');
+
+
+        /* =================================================
+           المناوبة
+        ================================================= */
+
+        const dutyRows =
+            teachersData.duty
+                .map(
+                    record => `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.name
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.date
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.status
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.note
+                                )}
+                            </td>
+
+                        </tr>
+
+                    `
+                )
+                .join('');
+
+
+        /* =================================================
+           الملاحظات
+        ================================================= */
+
+        const notesRows =
+            teachersData.notes
+                .map(
+                    record => `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.name
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.date
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    record.note ||
+                                    record.text ||
+                                    record.details ||
+                                    ''
+                                )}
+                            </td>
+
+                        </tr>
+
+                    `
+                )
+                .join('');
+
+
+        const today =
+            new Date()
+                .toLocaleDateString(
+                    'ar-PS',
+                    {
+                        timeZone:
+                            'Asia/Gaza'
+                    }
+                );
+
+
+        const html = `
+
+<!DOCTYPE html>
+
+<html
+    lang="ar"
+    dir="rtl"
+>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        تقرير إدارة المعلمين
+    </title>
+
+
+    <style>
+
+        @page {
+
+            size: A4 landscape;
+
+            margin: 12mm;
+
+        }
+
+
+        * {
+
+            box-sizing:
+                border-box;
+
+        }
+
+
+        body {
+
+            font-family:
+                Arial,
+                Tahoma,
+                sans-serif;
+
+            direction:
+                rtl;
+
+            margin:
+                0;
+
+            padding:
+                0;
+
+            color:
+                #111;
+
+            background:
+                white;
+
+        }
+
+
+        h1 {
+
+            text-align:
+                center;
+
+            margin:
+                0 0 6px 0;
+
+            font-size:
+                24px;
+
+        }
+
+
+        .date {
+
+            text-align:
+                center;
+
+            margin-bottom:
+                18px;
+
+            font-size:
+                13px;
+
+        }
+
+
+        .summary {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(7, 1fr);
+
+            gap:
+                8px;
+
+            margin-bottom:
+                20px;
+
+        }
+
+
+        .summary-box {
+
+            border:
+                1px solid #999;
+
+            padding:
+                8px;
+
+            text-align:
+                center;
+
+            border-radius:
+                5px;
+
+            font-size:
+                13px;
+
+        }
+
+
+        .summary-number {
+
+            display:
+                block;
+
+            font-size:
+                20px;
+
+            font-weight:
+                bold;
+
+            margin-top:
+                4px;
+
+        }
+
+
+        h2 {
+
+            font-size:
+                18px;
+
+            margin-top:
+                25px;
+
+            margin-bottom:
+                8px;
+
+            border-bottom:
+                2px solid #333;
+
+            padding-bottom:
+                5px;
+
+        }
+
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+            margin-bottom:
+                18px;
+
+            page-break-inside:
+                auto;
+
+        }
+
+
+        thead {
+
+            display:
+                table-header-group;
+
+        }
+
+
+        tr {
+
+            page-break-inside:
+                avoid;
+
+            page-break-after:
+                auto;
+
+        }
+
+
+        th,
+        td {
+
+            border:
+                1px solid #777;
+
+            padding:
+                6px;
+
+            text-align:
+                center;
+
+            font-size:
+                11px;
+
+        }
+
+
+        th {
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .footer {
+
+            margin-top:
+                30px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            font-size:
+                13px;
+
+        }
+
+
+        .empty {
+
+            text-align:
+                center;
+
+            padding:
+                15px;
+
+        }
+
+
+        @media print {
+
+            body {
+
+                -webkit-print-color-adjust:
+                    exact;
+
+                print-color-adjust:
+                    exact;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <h1>
+        تقرير إدارة المعلمين
+    </h1>
+
+
+    <div class="date">
+
+        تاريخ التقرير:
+        ${escapeHtml(today)}
+
+    </div>
+
+
+    <!-- الملخص -->
+
+    <div class="summary">
+
+
+        <div class="summary-box">
+
+            الغياب
+
+            <span class="summary-number">
+                ${teachersData.absence.length}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            الأعمال الكتابية
+
+            <span class="summary-number">
+                ${teachersData.written.length}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            أعمال اللجان
+
+            <span class="summary-number">
+                ${teachersData.committees.length}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            التأخير
+
+            <span class="summary-number">
+                ${teachersData.tardiness.length}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            المناوبة
+
+            <span class="summary-number">
+                ${teachersData.duty.length}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            الملاحظات
+
+            <span class="summary-number">
+                ${teachersData.notes.length}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            الإجمالي
+
+            <span class="summary-number">
+                ${totalRecords}
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- الغياب -->
+
+    <h2>
+        سجل غياب المعلمين
+    </h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    اسم المعلم
+                </th>
+
+                <th>
+                    التاريخ
+                </th>
+
+                <th>
+                    سبب الغياب
+                </th>
+
+                <th>
+                    حالة النموذج
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${
+                absenceRows ||
+                `
+                    <tr>
+                        <td
+                            colspan="4"
+                            class="empty"
+                        >
+                            لا توجد سجلات
+                        </td>
+                    </tr>
+                `
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- الأعمال الكتابية -->
+
+    <h2>
+        الأعمال الكتابية
+    </h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    اسم المعلم
+                </th>
+
+                <th>
+                    العمل / العنوان
+                </th>
+
+                <th>
+                    التاريخ
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${
+                writtenRows ||
+                `
+                    <tr>
+                        <td
+                            colspan="3"
+                            class="empty"
+                        >
+                            لا توجد سجلات
+                        </td>
+                    </tr>
+                `
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- اللجان -->
+
+    <h2>
+        أعمال اللجان
+    </h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    اللجنة
+                </th>
+
+                <th>
+                    المعلم
+                </th>
+
+                <th>
+                    الكتاب الرسمي
+                </th>
+
+                <th>
+                    العمل المكلف به
+                </th>
+
+                <th>
+                    تاريخ التسليم
+                </th>
+
+                <th>
+                    الحالة
+                </th>
+
+                <th>
+                    الوقت المتبقي
+                </th>
+
+                <th>
+                    الملاحظات
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${
+                committeeRows ||
+                `
+                    <tr>
+                        <td
+                            colspan="8"
+                            class="empty"
+                        >
+                            لا توجد سجلات
+                        </td>
+                    </tr>
+                `
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- التأخير -->
+
+    <h2>
+        سجل التأخير
+    </h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    اسم المعلم
+                </th>
+
+                <th>
+                    التاريخ
+                </th>
+
+                <th>
+                    وقت التأخير
+                </th>
+
+                <th>
+                    الملاحظات
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${
+                tardinessRows ||
+                `
+                    <tr>
+                        <td
+                            colspan="4"
+                            class="empty"
+                        >
+                            لا توجد سجلات
+                        </td>
+                    </tr>
+                `
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- المناوبة -->
+
+    <h2>
+        سجل المناوبة
+    </h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    اسم المعلم
+                </th>
+
+                <th>
+                    التاريخ
+                </th>
+
+                <th>
+                    الحالة
+                </th>
+
+                <th>
+                    الملاحظات
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${
+                dutyRows ||
+                `
+                    <tr>
+                        <td
+                            colspan="4"
+                            class="empty"
+                        >
+                            لا توجد سجلات
+                        </td>
+                    </tr>
+                `
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- الملاحظات -->
+
+    <h2>
+        الملاحظات
+    </h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    اسم المعلم
+                </th>
+
+                <th>
+                    التاريخ
+                </th>
+
+                <th>
+                    الملاحظات
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${
+                notesRows ||
+                `
+                    <tr>
+                        <td
+                            colspan="3"
+                            class="empty"
+                        >
+                            لا توجد سجلات
+                        </td>
+                    </tr>
+                `
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <div class="footer">
+
+        <div>
+            مدير المدرسة: أ. سمير مصلح
+        </div>
+
+
+        <div>
+            التوقيع: __________________
+        </div>
+
+    </div>
+
+
+    <script>
+
+        window.onload =
+            function() {
+
+                setTimeout(
+                    function() {
+
+                        window.print();
+
+                    },
+                    500
+                );
+
+            };
+
+
+    <\/script>
+
+
+</body>
+
+</html>
+
+        `;
+
+
+        printWindow.document.open();
+
+        printWindow.document.write(
+            html
+        );
+
+        printWindow.document.close();
+
+
+    } catch (error) {
+
+        console.error(
+            'PDF export error:',
+            error
+        );
+
+
+        alert(
+            'حدث خطأ أثناء إنشاء تقرير PDF.'
+        );
+
+    }
 
 }
 
@@ -3254,8 +5166,22 @@ function backToSectionSelection() {
 
 function teachersLogout() {
 
+    if (presenceStarted) {
+
+        notifyPresenceLogout();
+
+        stopPresenceMonitoring();
+
+    }
+
+
     localStorage.removeItem(
         'schoolLoggedIn'
+    );
+
+
+    localStorage.removeItem(
+        'schoolAuthToken'
     );
 
 
