@@ -1,7 +1,9 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
@@ -12,12 +14,73 @@ const app = express();
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type']
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.options('*', cors());
 
 app.use(express.json());
+
+
+/* =========================================================
+   JWT AUTH
+========================================================= */
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    console.error('خطأ فادح: JWT_SECRET غير موجود في Environment Variables. يجب ضبطه قبل التشغيل.');
+}
+
+function authMiddleware(req, res, next) {
+
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: 'غير مصرح: يرجى تسجيل الدخول'
+        });
+    }
+
+    try {
+        jwt.verify(token, JWT_SECRET);
+        return next();
+    } catch (error) {
+        return res.status(401).json({
+            success: false,
+            message: 'الجلسة منتهية، يرجى تسجيل الدخول من جديد'
+        });
+    }
+}
+
+
+/* =========================================================
+   RATE LIMITERS (تقليل محاولات التخمين على تسجيل الدخول)
+========================================================= */
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 دقيقة
+    max: 10,                  // 10 محاولات كحد أقصى لكل IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: 'محاولات كثيرة جداً، حاول مرة أخرى بعد قليل'
+    }
+});
+
+const forgotPasswordLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: 'محاولات كثيرة جداً، حاول مرة أخرى بعد قليل'
+    }
+});
 
 
 /* =========================================================
@@ -270,6 +333,151 @@ app.get(
 
 
 /* =========================================================
+   VISITORS (عداد الزوار الكلي - عام، بدون تسجيل دخول)
+========================================================= */
+
+const visitorSchema =
+    new mongoose.Schema({
+
+        clientId: {
+            type: String,
+            required: true,
+            unique: true
+        },
+
+        firstSeen: {
+            type: Date,
+            default: Date.now
+        }
+
+    });
+
+
+const Visitor =
+    mongoose.model(
+        'Visitor',
+        visitorSchema
+    );
+
+
+/* تسجيل زائر جديد (لا يزيد العدد لو نفس المتصفح زار من قبل) */
+
+app.post(
+    '/api/visitors/register',
+    async (req, res) => {
+
+        try {
+
+            const clientId =
+                String(
+                    req.body.clientId || ''
+                ).trim();
+
+
+            if (!clientId) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        'clientId مطلوب'
+
+                });
+
+            }
+
+
+            await Visitor.updateOne(
+
+                { clientId: clientId },
+
+                { $setOnInsert: { clientId: clientId, firstSeen: new Date() } },
+
+                { upsert: true }
+
+            );
+
+
+            const total =
+                await Visitor.countDocuments();
+
+
+            return res.json({
+
+                success: true,
+
+                count: total
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Visitor register error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'تعذر تسجيل الزيارة'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* جلب العدد الكلي للزوار */
+
+app.get(
+    '/api/visitors/count',
+    async (req, res) => {
+
+        try {
+
+            const total =
+                await Visitor.countDocuments();
+
+
+            return res.json({
+
+                success: true,
+
+                count: total
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                'Visitor count error:',
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    'تعذر جلب عدد الزوار'
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================================================
    RECORD SCHEMA
 ========================================================= */
 
@@ -332,6 +540,7 @@ const Record =
 
 app.get(
     '/api/records',
+    authMiddleware,
     async (req, res) => {
 
         try {
@@ -376,6 +585,7 @@ app.get(
 
 app.post(
     '/api/records',
+    authMiddleware,
     async (req, res) => {
 
         try {
@@ -451,6 +661,7 @@ app.post(
 
 app.delete(
     '/api/records/:id',
+    authMiddleware,
     async (req, res) => {
 
         try {
@@ -549,6 +760,7 @@ const TeacherRecord =
 
 app.get(
     '/api/teachers',
+    authMiddleware,
     async (req, res) => {
 
         try {
@@ -594,6 +806,7 @@ app.get(
 
 app.post(
     '/api/teachers',
+    authMiddleware,
     async (req, res) => {
 
         try {
@@ -697,6 +910,7 @@ app.post(
 
 app.put(
     '/api/teachers/:id',
+    authMiddleware,
     async (req, res) => {
 
         try {
@@ -799,6 +1013,7 @@ app.put(
 
 app.delete(
     '/api/teachers/:id',
+    authMiddleware,
     async (req, res) => {
 
         try {
@@ -890,8 +1105,12 @@ const Setting =
 const DEFAULT_PASSWORD =
     '1234';
 
+const SALT_ROUNDS = 10;
 
-async function getCurrentPassword() {
+
+/* يرجع الهاش المخزّن لكلمة المرور، وينشئ واحد افتراضي (مشفّر) لو ما موجود */
+
+async function getCurrentPasswordHash() {
 
     let setting =
         await Setting.findOne({
@@ -904,6 +1123,12 @@ async function getCurrentPassword() {
 
     if (!setting) {
 
+        const defaultHash =
+            await bcrypt.hash(
+                DEFAULT_PASSWORD,
+                SALT_ROUNDS
+            );
+
         setting =
             await Setting.create({
 
@@ -911,7 +1136,7 @@ async function getCurrentPassword() {
                     'loginPassword',
 
                 value:
-                    DEFAULT_PASSWORD
+                    defaultHash
 
             });
 
@@ -923,9 +1148,34 @@ async function getCurrentPassword() {
 }
 
 
+/* يتحقق من كلمة مرور مُدخلة مقابل الهاش المخزّن */
+
+async function verifyPassword(
+    plainPassword
+) {
+
+    const currentHash =
+        await getCurrentPasswordHash();
+
+    return bcrypt.compare(
+        plainPassword,
+        currentHash
+    );
+
+}
+
+
+/* يشفّر ويخزّن كلمة مرور جديدة */
+
 async function setCurrentPassword(
     newPassword
 ) {
+
+    const newHash =
+        await bcrypt.hash(
+            newPassword,
+            SALT_ROUNDS
+        );
 
     await Setting.findOneAndUpdate(
 
@@ -939,7 +1189,7 @@ async function setCurrentPassword(
                 'loginPassword',
 
             value:
-                newPassword
+                newHash
         },
 
         {
@@ -961,6 +1211,7 @@ async function setCurrentPassword(
 
 app.post(
     '/api/login',
+    loginLimiter,
     async (req, res) => {
 
         try {
@@ -971,15 +1222,19 @@ app.post(
                 ).trim();
 
 
-            const currentPassword =
-                await getCurrentPassword();
-
-
-            if (
+            const isValid =
                 password &&
-                password ===
-                    currentPassword
-            ) {
+                await verifyPassword(password);
+
+
+            if (isValid) {
+
+                const token =
+                    jwt.sign(
+                        { role: 'school-staff' },
+                        JWT_SECRET,
+                        { expiresIn: '12h' }
+                    );
 
                 return res.json({
 
@@ -987,7 +1242,10 @@ app.post(
                         true,
 
                     message:
-                        'تم تسجيل الدخول بنجاح'
+                        'تم تسجيل الدخول بنجاح',
+
+                    token:
+                        token
 
                 });
 
@@ -1042,6 +1300,7 @@ const FAVORITE_NUMBER =
 
 app.post(
     '/api/forgot-password',
+    forgotPasswordLimiter,
     async (req, res) => {
 
         try {
@@ -1158,5 +1417,3 @@ app.listen(
 
     }
 );
-
-
