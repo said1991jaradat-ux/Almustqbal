@@ -35,6 +35,8 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
     <!-- CSS -->
     <link
         rel="stylesheet"
@@ -246,6 +248,9 @@
 
                 <p>
                     الإدارة المدرسيّة الحكيمة والدقيقة
+                    &nbsp;|&nbsp;
+                    🟢 المتصلون الآن:
+                    <strong id="onlineUsersCount">0</strong>
                 </p>
 
             </div>
@@ -1862,6 +1867,8 @@
 <script>
 
     
+
+
 /* =========================================================
    SEARCH TEACHER
    يعمل مباشرة على البيانات المحملة في teachers.js
