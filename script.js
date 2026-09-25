@@ -7,6 +7,25 @@ const API_URL =
 
 
 /* ==================================================
+   AUTH FETCH (يرفق توكن تسجيل الدخول تلقائياً)
+================================================== */
+
+function authFetch(url, options = {}) {
+
+    const token =
+        localStorage.getItem('schoolAuthToken');
+
+    const headers = {
+        ...(options.headers || {}),
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+
+    return fetch(url, { ...options, headers });
+
+}
+
+
+/* ==================================================
    PRESENCE
 ================================================== */
 
@@ -53,6 +72,93 @@ if (!presenceClientId) {
     );
 
 }
+
+
+/* ==================================================
+   VISITORS COUNTER (عداد الزوار الكلي)
+   يعمل مباشرة عند فتح الصفحة، بدون الحاجة لتسجيل دخول
+================================================== */
+
+function updateVisitorsCount(
+    count
+) {
+
+    const element =
+        document.getElementById(
+            'totalVisitorsCount'
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            Number(count) || 0;
+
+    }
+
+}
+
+
+async function registerVisit() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${PRESENCE_BASE_URL}/api/visitors/register`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        clientId: presenceClientId
+                    })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            data &&
+            data.success
+        ) {
+
+            updateVisitorsCount(
+                data.count
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Visitor register error:',
+            error
+        );
+
+    }
+
+}
+
+
+document.addEventListener(
+    'DOMContentLoaded',
+    registerVisit
+);
 
 
 /* ==================================================
@@ -853,7 +959,7 @@ async function fetchRecordsFromCloud() {
     try {
 
         const response =
-            await fetch(
+            await authFetch(
                 API_URL
             );
 
@@ -1275,7 +1381,7 @@ async function deleteRecord(
     try {
 
         const response =
-            await fetch(
+            await authFetch(
                 API_URL +
                 '/' +
                 id,
@@ -1425,7 +1531,7 @@ async function loadAllRecordsForAdmin() {
     try {
 
         const response =
-            await fetch(
+            await authFetch(
                 API_URL
             );
 
@@ -2266,7 +2372,7 @@ async function adminDeleteRecord(
     try {
 
         const response =
-            await fetch(
+            await authFetch(
                 API_URL +
                 '/' +
                 id,
@@ -3688,7 +3794,7 @@ async function saveRecord(
 ) {
 
     const response =
-        await fetch(
+        await authFetch(
             API_URL,
             {
 
@@ -4582,16 +4688,87 @@ function printCategoryReport(
 
 
 /* ==================================================
-   EXPORT BACKUP
+   EXPORT DATA
+   EXCEL + PDF
 ================================================== */
 
 async function exportData() {
 
+    const choice = prompt(
+        'اختر نوع التصدير:\n\n' +
+        '1 - Excel\n' +
+        '2 - PDF\n\n' +
+        'أدخل رقم الخيار:'
+    );
+
+
+    if (choice === null) {
+
+        return;
+
+    }
+
+
+    const selected =
+        choice.trim();
+
+
+    if (selected === '1') {
+
+        await exportStudentsToExcel();
+
+        return;
+
+    }
+
+
+    if (selected === '2') {
+
+        exportStudentsToPDF();
+
+        return;
+
+    }
+
+
+    alert(
+        'الخيار غير صحيح.\n' +
+        'يرجى اختيار 1 أو 2.'
+    );
+
+}
+
+
+/* ==================================================
+   EXPORT STUDENTS TO EXCEL
+================================================== */
+
+async function exportStudentsToExcel() {
+
     try {
+
+        if (
+            typeof XLSX === 'undefined'
+        ) {
+
+            alert(
+                'مكتبة Excel غير محملة.\n' +
+                'تأكد من إضافة مكتبة XLSX إلى صفحة الطلاب.'
+            );
+
+            return;
+
+        }
+
 
         let records =
             currentAllRecords;
 
+
+        /*
+         * إذا لم تكن البيانات موجودة
+         * نحاول تحميلها من السيرفر
+         */
 
         if (
             !Array.isArray(records) ||
@@ -4599,7 +4776,7 @@ async function exportData() {
         ) {
 
             const response =
-                await fetch(
+                await authFetch(
                     API_URL
                 );
 
@@ -4607,7 +4784,7 @@ async function exportData() {
             if (!response.ok) {
 
                 throw new Error(
-                    'Failed to fetch records'
+                    'تعذر تحميل بيانات الطلاب'
                 );
 
             }
@@ -4624,95 +4801,1134 @@ async function exportData() {
         ) {
 
             throw new Error(
-                'Invalid records data'
+                'بيانات الطلاب غير صحيحة'
             );
 
         }
 
 
-        const backup = {
-
-            exportDate:
-                new Date().toISOString(),
-
-            school:
-                'مدرسة ذكور المستقبل الصالح الأساسية العليا',
-
-            records:
-                records
-
-        };
+        const workbook =
+            XLSX.utils.book_new();
 
 
-        const json =
-            JSON.stringify(
-                backup,
-                null,
-                2
-            );
+        /* ==================================================
+           جميع السجلات
+        ================================================== */
+
+        const allData = [
+
+            [
+                'التاريخ',
+                'نوع الحالة',
+                'اسم الطالب',
+                'الصف',
+                'الشعبة',
+                'وقت التسجيل',
+                'التفاصيل'
+            ]
+
+        ];
 
 
-        const blob =
-            new Blob(
-                [json],
-                {
-                    type:
-                        'application/json;charset=utf-8'
-                }
-            );
+        records.forEach(
+            function (record) {
+
+                const type =
+                    translateType(
+                        record.type || ''
+                    );
 
 
-        const url =
-            URL.createObjectURL(
-                blob
-            );
+                allData.push([
 
+                    record.date || '',
 
-        const link =
-            document.createElement(
-                'a'
-            );
+                    type || '',
 
+                    record.studentName ||
+                    record.student ||
+                    '',
 
-        link.href =
-            url;
+                    record.grade || '',
 
+                    record.section || '',
 
-        link.download =
-            `نسخة-احتياطية-الانضباط-${getLocalDateInputValue()}.json`;
+                    record.time || '',
 
+                    record.details ||
+                    record.reason ||
+                    record.status ||
+                    ''
 
-        document.body.appendChild(
-            link
+                ]);
+
+            }
         );
 
 
-        link.click();
+        addStudentExcelSheet(
+            workbook,
+            allData,
+            'جميع السجلات'
+        );
 
 
-        link.remove();
+        /* ==================================================
+           الغياب
+        ================================================== */
+
+        exportStudentCategorySheet(
+            workbook,
+            records,
+            'absence',
+            'الغياب'
+        );
 
 
-        URL.revokeObjectURL(
-            url
+        /* ==================================================
+           الزي المدرسي
+        ================================================== */
+
+        exportStudentCategorySheet(
+            workbook,
+            records,
+            'uniform',
+            'الزي المدرسي'
+        );
+
+
+        /* ==================================================
+           التأخير
+        ================================================== */
+
+        exportStudentCategorySheet(
+            workbook,
+            records,
+            'lateness',
+            'التأخير'
+        );
+
+
+        /* ==================================================
+           الهروب
+        ================================================== */
+
+        exportStudentCategorySheet(
+            workbook,
+            records,
+            'escape',
+            'الهروب'
+        );
+
+
+        /* ==================================================
+           المشاكل الأخرى
+        ================================================== */
+
+        exportStudentCategorySheet(
+            workbook,
+            records,
+            'otherProblems',
+            'مشاكل أخرى'
+        );
+
+
+        /* ==================================================
+           الملخص
+        ================================================== */
+
+        const categories = [
+
+            {
+                type: 'absence',
+                name: 'الغياب'
+            },
+
+            {
+                type: 'uniform',
+                name: 'الزي المدرسي'
+            },
+
+            {
+                type: 'lateness',
+                name: 'التأخير'
+            },
+
+            {
+                type: 'escape',
+                name: 'الهروب'
+            },
+
+            {
+                type: 'otherProblems',
+                name: 'مشاكل أخرى'
+            }
+
+        ];
+
+
+        const summaryData = [
+
+            [
+                'نوع الحالة',
+                'عدد السجلات'
+            ]
+
+        ];
+
+
+        let total =
+            0;
+
+
+        categories.forEach(
+            function (category) {
+
+                const count =
+                    records.filter(
+                        function (record) {
+
+                            return (
+                                record.type ===
+                                category.type
+                            );
+
+                        }
+                    ).length;
+
+
+                total +=
+                    count;
+
+
+                summaryData.push([
+
+                    category.name,
+
+                    count
+
+                ]);
+
+            }
+        );
+
+
+        summaryData.push([
+
+            'إجمالي السجلات',
+
+            total
+
+        ]);
+
+
+        addStudentExcelSheet(
+            workbook,
+            summaryData,
+            'الملخص'
+        );
+
+
+        /* ==================================================
+           اسم الملف
+        ================================================== */
+
+        const date =
+            getLocalDateInputValue();
+
+
+        const fileName =
+            `تقرير_انضباط_الطلاب_${date}.xlsx`;
+
+
+        XLSX.writeFile(
+            workbook,
+            fileName
         );
 
 
         alert(
-            'تم تصدير النسخة الاحتياطية بنجاح.'
+            'تم تصدير بيانات الطلاب إلى Excel بنجاح.'
         );
 
 
     } catch (error) {
 
         console.error(
-            'Export error:',
+            'Excel export error:',
             error
         );
 
 
         alert(
-            'حدث خطأ أثناء تصدير النسخة الاحتياطية.'
+            'حدث خطأ أثناء تصدير بيانات الطلاب إلى Excel.'
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   ADD EXCEL SHEET
+================================================== */
+
+function addStudentExcelSheet(
+    workbook,
+    data,
+    sheetName
+) {
+
+    const sheet =
+        XLSX.utils.aoa_to_sheet(
+            data
+        );
+
+
+    /*
+     * ضبط عرض الأعمدة
+     */
+
+    if (
+        sheet['!ref']
+    ) {
+
+        const range =
+            XLSX.utils.decode_range(
+                sheet['!ref']
+            );
+
+
+        const widths = [];
+
+
+        for (
+            let column =
+                range.s.c;
+
+            column <= range.e.c;
+
+            column++
+        ) {
+
+            let maxLength =
+                12;
+
+
+            for (
+                let row =
+                    range.s.r;
+
+                row <= range.e.r;
+
+                row++
+            ) {
+
+                const cellAddress =
+                    XLSX.utils.encode_cell({
+
+                        r: row,
+
+                        c: column
+
+                    });
+
+
+                const cell =
+                    sheet[
+                        cellAddress
+                    ];
+
+
+                if (
+                    cell &&
+                    cell.v !== undefined &&
+                    cell.v !== null
+                ) {
+
+                    const length =
+                        String(
+                            cell.v
+                        ).length;
+
+
+                    if (
+                        length >
+                        maxLength
+                    ) {
+
+                        maxLength =
+                            length;
+
+                    }
+
+                }
+
+            }
+
+
+            widths.push({
+
+                wch:
+                    Math.min(
+                        Math.max(
+                            maxLength + 2,
+                            12
+                        ),
+                        45
+                    )
+
+            });
+
+        }
+
+
+        sheet['!cols'] =
+            widths;
+
+    }
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        sheet,
+        sheetName
+    );
+
+}
+
+
+/* ==================================================
+   EXPORT CATEGORY TO EXCEL
+================================================== */
+
+function exportStudentCategorySheet(
+    workbook,
+    records,
+    category,
+    sheetName
+) {
+
+    const categoryRecords =
+        records.filter(
+            function (record) {
+
+                return (
+                    record.type ===
+                    category
+                );
+
+            }
+        );
+
+
+    const data = [
+
+        [
+            'التاريخ',
+            'اسم الطالب',
+            'الصف',
+            'الشعبة',
+            'وقت التسجيل',
+            'التفاصيل'
+        ]
+
+    ];
+
+
+    categoryRecords.forEach(
+        function (record) {
+
+            data.push([
+
+                record.date || '',
+
+                record.studentName ||
+                record.student ||
+                '',
+
+                record.grade || '',
+
+                record.section || '',
+
+                record.time || '',
+
+                record.details ||
+                record.reason ||
+                record.status ||
+                ''
+
+            ]);
+
+        }
+    );
+
+
+    addStudentExcelSheet(
+        workbook,
+        data,
+        sheetName
+    );
+
+}
+
+
+/* ==================================================
+   EXPORT STUDENTS TO PDF
+================================================== */
+
+function exportStudentsToPDF() {
+
+    try {
+
+        let records =
+            currentAllRecords;
+
+
+        if (
+            !Array.isArray(records)
+        ) {
+
+            records = [];
+
+        }
+
+
+        const rows =
+            records
+                .map(
+                    function (record) {
+
+                        const type =
+                            translateType(
+                                record.type || ''
+                            );
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.date ||
+                                        ''
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        type
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.studentName ||
+                                        record.student ||
+                                        ''
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.grade ||
+                                        ''
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.section ||
+                                        ''
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.time ||
+                                        ''
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        record.details ||
+                                        record.reason ||
+                                        record.status ||
+                                        ''
+                                    )}
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+                )
+                .join('');
+
+
+        const win =
+            window.open(
+                '',
+                '_blank',
+                'width=1200,height=800'
+            );
+
+
+        if (!win) {
+
+            alert(
+                'يرجى السماح بالنوافذ المنبثقة لإنشاء تقرير PDF.'
+            );
+
+            return;
+
+        }
+
+
+        const today =
+            new Date()
+                .toLocaleDateString(
+                    'ar-PS',
+                    {
+                        timeZone:
+                            'Asia/Gaza'
+                    }
+                );
+
+
+        win.document.write(`
+
+<!DOCTYPE html>
+
+<html
+    lang="ar"
+    dir="rtl"
+>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        تقرير انضباط الطلاب
+    </title>
+
+
+    <style>
+
+        @page {
+
+            size: A4 landscape;
+
+            margin: 12mm;
+
+        }
+
+
+        * {
+
+            box-sizing:
+                border-box;
+
+        }
+
+
+        body {
+
+            font-family:
+                Arial,
+                Tahoma,
+                sans-serif;
+
+            direction:
+                rtl;
+
+            margin:
+                0;
+
+            padding:
+                0;
+
+            color:
+                #000;
+
+            background:
+                #fff;
+
+        }
+
+
+        h1 {
+
+            text-align:
+                center;
+
+            font-size:
+                24px;
+
+            margin:
+                0 0 6px 0;
+
+        }
+
+
+        h2 {
+
+            text-align:
+                center;
+
+            font-size:
+                20px;
+
+            margin:
+                0 0 8px 0;
+
+        }
+
+
+        .manager {
+
+            text-align:
+                center;
+
+            font-size:
+                15px;
+
+            font-weight:
+                bold;
+
+            margin-bottom:
+                8px;
+
+        }
+
+
+        .date {
+
+            text-align:
+                center;
+
+            font-size:
+                13px;
+
+            margin-bottom:
+                18px;
+
+        }
+
+
+        .summary {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(6, 1fr);
+
+            gap:
+                8px;
+
+            margin-bottom:
+                20px;
+
+        }
+
+
+        .summary-box {
+
+            border:
+                1px solid #777;
+
+            padding:
+                8px;
+
+            text-align:
+                center;
+
+            font-size:
+                12px;
+
+        }
+
+
+        .summary-number {
+
+            display:
+                block;
+
+            font-size:
+                20px;
+
+            font-weight:
+                bold;
+
+            margin-top:
+                4px;
+
+        }
+
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+            page-break-inside:
+                auto;
+
+        }
+
+
+        thead {
+
+            display:
+                table-header-group;
+
+        }
+
+
+        tr {
+
+            page-break-inside:
+                avoid;
+
+        }
+
+
+        th,
+        td {
+
+            border:
+                1px solid #777;
+
+            padding:
+                6px;
+
+            text-align:
+                center;
+
+            font-size:
+                10px;
+
+        }
+
+
+        th {
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .footer {
+
+            margin-top:
+                35px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            font-size:
+                14px;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .empty {
+
+            text-align:
+                center;
+
+            padding:
+                15px;
+
+        }
+
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <h1>
+        مدرسة ذكور المستقبل الصالح الأساسية العليا
+    </h1>
+
+
+    <h2>
+        تقرير انضباط الطلاب
+    </h2>
+
+
+    <div class="manager">
+
+        مدير المدرسة:
+        أ. سمير مصلح
+
+    </div>
+
+
+    <div class="date">
+
+        تاريخ التقرير:
+        ${escapeHtml(today)}
+
+    </div>
+
+
+    <div class="summary">
+
+
+        <div class="summary-box">
+
+            جميع السجلات
+
+            <span class="summary-number">
+                ${records.length}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            الغياب
+
+            <span class="summary-number">
+
+                ${
+                    records.filter(
+                        r =>
+                            r.type ===
+                            'absence'
+                    ).length
+                }
+
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            الزي المدرسي
+
+            <span class="summary-number">
+
+                ${
+                    records.filter(
+                        r =>
+                            r.type ===
+                            'uniform'
+                    ).length
+                }
+
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            التأخير
+
+            <span class="summary-number">
+
+                ${
+                    records.filter(
+                        r =>
+                            r.type ===
+                            'lateness'
+                    ).length
+                }
+
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            الهروب
+
+            <span class="summary-number">
+
+                ${
+                    records.filter(
+                        r =>
+                            r.type ===
+                            'escape'
+                    ).length
+                }
+
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            مشاكل أخرى
+
+            <span class="summary-number">
+
+                ${
+                    records.filter(
+                        r =>
+                            r.type ===
+                            'otherProblems'
+                    ).length
+                }
+
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <table>
+
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    التاريخ
+                </th>
+
+                <th>
+                    نوع الحالة
+                </th>
+
+                <th>
+                    اسم الطالب
+                </th>
+
+                <th>
+                    الصف
+                </th>
+
+                <th>
+                    الشعبة
+                </th>
+
+                <th>
+                    وقت التسجيل
+                </th>
+
+                <th>
+                    التفاصيل
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${
+                rows ||
+                `
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="empty"
+                        >
+                            لا توجد سجلات
+                        </td>
+
+                    </tr>
+                `
+            }
+
+        </tbody>
+
+
+    </table>
+
+
+    <div class="footer">
+
+
+        <div>
+
+            مدير المدرسة:
+            أ. سمير مصلح
+
+        </div>
+
+
+        <div>
+
+            التوقيع:
+            __________________
+
+        </div>
+
+
+    </div>
+
+
+    <script>
+
+        window.onload =
+            function () {
+
+                setTimeout(
+                    function () {
+
+                        window.print();
+
+                    },
+                    500
+                );
+
+            };
+
+    <\/script>
+
+
+</body>
+
+</html>
+
+        `);
+
+
+        win.document.close();
+
+
+    } catch (error) {
+
+        console.error(
+            'PDF export error:',
+            error
+        );
+
+
+        alert(
+            'حدث خطأ أثناء إنشاء تقرير PDF.'
         );
 
     }
@@ -4914,4 +6130,3 @@ function backToSectionSelection() {
     // العودة إلى شاشة اختيار القسم
     window.location.href = 'index.html';
 }
-
