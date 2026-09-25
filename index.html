@@ -26,6 +26,8 @@
         });
     </script>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="اسم_ملف_الطلاب.js"></script>
 
 <style>
 
@@ -1995,6 +1997,9 @@
         <div class="welcome-text">
 
             نرحب بكم زوارنا الأعزاء 🌷
+            &nbsp;&nbsp; | &nbsp;&nbsp;
+            👥 عدد الزوار:
+            <strong id="totalVisitorsCount">0</strong>
 
         </div>
 
@@ -3739,6 +3744,16 @@ async function checkPassword() {
             );
 
 
+            if (result.token) {
+
+                localStorage.setItem(
+                    'schoolAuthToken',
+                    result.token
+                );
+
+            }
+
+
             localStorage.removeItem(
                 'schoolSection'
             );
@@ -3967,6 +3982,11 @@ async function logout() {
 
 
     localStorage.removeItem(
+        'schoolAuthToken'
+    );
+
+
+    localStorage.removeItem(
         'schoolSection'
     );
 
@@ -4110,6 +4130,12 @@ document.addEventListener(
             );
 
 
+        const authToken =
+            localStorage.getItem(
+                'schoolAuthToken'
+            );
+
+
         const savedSection =
             localStorage.getItem(
                 'schoolSection'
@@ -4140,17 +4166,11 @@ document.addEventListener(
             );
 
 
+        /* ==================================================
+           غير مسجل الدخول
+        ================================================== */
+
         if (loggedIn !== 'true') {
-
-            localStorage.removeItem(
-                'schoolLoggedIn'
-            );
-
-
-            localStorage.removeItem(
-                'schoolSection'
-            );
-
 
             if (loginScreen) {
 
@@ -4188,6 +4208,16 @@ document.addEventListener(
 
         }
 
+
+        /* ==================================================
+           الجلسة موجودة
+           لا نطلب كلمة المرور مرة أخرى
+        ================================================== */
+
+
+        /* ==================================================
+           متابعة الطلاب
+        ================================================== */
 
         if (
             savedSection ===
@@ -4231,6 +4261,11 @@ document.addEventListener(
         }
 
 
+        /* ==================================================
+           لا يوجد قسم محدد
+           إظهار اختيار القسم
+        ================================================== */
+
         if (!savedSection) {
 
             if (loginScreen) {
@@ -4270,10 +4305,10 @@ document.addEventListener(
         }
 
 
-        localStorage.removeItem(
-            'schoolLoggedIn'
-        );
-
+        /* ==================================================
+           قسم غير معروف
+           نرجع إلى اختيار القسم
+        ================================================== */
 
         localStorage.removeItem(
             'schoolSection'
@@ -4283,7 +4318,7 @@ document.addEventListener(
         if (loginScreen) {
 
             loginScreen.style.display =
-                'flex';
+                'none';
 
         }
 
@@ -4291,7 +4326,7 @@ document.addEventListener(
         if (loginBox) {
 
             loginBox.style.display =
-                'block';
+                'none';
 
         }
 
@@ -4299,7 +4334,7 @@ document.addEventListener(
         if (sectionSelection) {
 
             sectionSelection.style.display =
-                'none';
+                'flex';
 
         }
 
@@ -4313,7 +4348,6 @@ document.addEventListener(
 
     }
 );
-
 
 /* ==================================================
    ENTER KEY
